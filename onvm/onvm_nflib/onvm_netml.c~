@@ -1,0 +1,30 @@
+#include <rte_common.h>
+#include <rte_mbuf.h>
+#include <rte_ip.h>
+#include <rte_mempool.h>
+#include <rte_cycles.h>
+#include <rte_ring.h>
+#include <rte_ethdev.h>
+#include <rte_ether.h>
+#include <rte_udp.h>
+#include <rte_malloc.h>
+#include "onvm_netml.h"
+
+
+//initialize the files data structure...
+void image_init(void){
+  int i;
+  //allocating memory for structs
+  images = (image_data *) rte_malloc(NULL, sizeof(image_data*IMAGE_BATCH)*MAX_GPU_IMAGE, 0);
+  
+  for(i = 0; i<MAX_GPU_IMAGE; i++){
+    images[i].img_data_ptrs = (void **) rte_malloc(NULL, sizeof(void *)*NUM_OF_PKTS, 0);
+    images[i].image_id = i;
+    images[i].status = empty;
+    images[i].num_data_points_stored = 0;
+    images[i].image_data = (float *) rte_malloc(NULL, sizeof(float)*IMAGE_SIZE, 0);
+  }
+}
+
+
+//record keeping NF
