@@ -391,7 +391,6 @@ int main(int argc, char *argv[]) {
 	register_gpu_msg_handling_function(&function_to_process_gpu_message);
 	//load_gpu_file();
 
-	image_init(nf_info, NULL); //in onvm_netml.c
 
 	// loading the gpu model
 	load_ml_file(input_file_name, 0 /*cpu only*/, &cpu_func_ptr, &gpu_func_ptr);

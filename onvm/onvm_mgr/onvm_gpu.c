@@ -23,6 +23,7 @@ static inline struct onvm_nf_info *shadow_nf(int instance_id){
   return cl->info;
 }
 
+
 void load_all_models(void){
   int i = 0;
   
@@ -116,6 +117,9 @@ void * provide_nf_with_model(struct onvm_nf_msg * msg){
 
   //find which NF this came from.
   uint16_t nf_instance = query->nf->instance_id; //the instance ID of nf, this way we can get the msg key
+
+  //check if the NF is original NF or backup
+  
   
   printf("--- sending ML model to NF instance %d ", nf_instance);
    
@@ -216,11 +220,13 @@ void inform_NF_of_pending_restart(struct onvm_nf_info *nf){
 void get_shadow_NF_ready(struct onvm_nf_info *shadow, int gpu_percentage){
   struct get_alternate_NF_ready* alternate_message = (void *)rte_malloc(NULL, sizeof(int)+sizeof(void*), 0);
   alternate_message->gpu_percentage = gpu_percentage;
+
   struct onvm_nf_info * alternate_nf = shadow_nf(shadow->instance_id);
   if(alternate_nf != NULL){
-    alternate_message->image_info = alternate_nf->image_info;
+    //alternate_message->image_info = alternate_nf->image_info;
     onvm_nf_send_msg((shadow_nf(shadow->instance_id))->instance_id, MSG_GET_GPU_READY, 0, alternate_message);
   }
+  
 }
 /* ------- <MESASAGING API > ******** */
 void init_zmq(void){

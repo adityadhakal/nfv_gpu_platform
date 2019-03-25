@@ -142,6 +142,7 @@ static void check_all_ports_link_status(uint8_t port_num, uint32_t port_mask);
 
 #ifdef ONVM_GPU
 static int init_image_pool(void);
+static int init_images_state(void);
 #endif
 
 #ifdef ENABLE_NFV_RESL
@@ -286,6 +287,8 @@ init(int argc, char *argv[]) {
 	if(retval != 0){
 	  rte_exit(EXIT_FAILURE, "Cannot create image pool: %s \n", rte_strerror(rte_errno));
 	}
+	//also initialize the other variables for images
+	init_images_state();
 #endif
 	
         /* now initialise the ports we will use */
@@ -543,6 +546,36 @@ static int init_image_pool(void)
 					   0, NULL, NULL, NULL, NULL, rte_socket_id(), NO_FLAGS);
 	return(nf_image_pool == NULL); /* 0 on success */
 }
+
+/**
+ * Setup additional buffers for 
+ * NFs to share state between  each other
+ *
+ */
+static int init_images_state(void){
+  /* we need half the number of buffers compared to total NF and this variable should be available in common
+   */
+  printf("Creating state arrays for images for %d NFs \n",MAX_NFS);
+  //since we share image information with alternate NF, all we need it half of MAX_NFs
+  int half_nfs = MAX_NFS/2;
+
+  //this variables should be defined in common
+  all_images_information = (struct image_information*) rte_malloc(NULL, sizeof(struct image_information)*half_nfs,0);
+
+  //Now also intialize all the ready images and image pending info in that array
+  int i;
+  for(i = 0; i<half_nfs; i++)
+    {
+      all_images_information[i].image_pending = (void **) rte_malloc(NULL, sizeof(void *)*MAX_IMAGE, 0);
+      all_images_information[i].ready_images = (void **) rte_malloc(NULL, sizeof(void *)*MAX_IMAGE, 0);
+      all_images_information[i].num_of_ready_images = 0;
+      all_images_information[i].index_of_ready_image = 0;
+    }
+
+  return 0;
+}
+  
+
 #endif
 
 

@@ -1066,6 +1066,7 @@ onvm_nflib_handle_msg(struct onvm_nf_msg *msg, __attribute__((unused)) struct on
 #ifdef INTERRUPT_SEM
                         onvm_nflib_implicit_wakeup(); //TODO: change this ecb call; split ecb call to two funcs. sounds stupid but necessary as cache update of flag_p takes time; otherwise results in sleep-wkup cycles
 #endif
+
                 RTE_LOG(DEBUG, APP, "Resuming NF...\n");
                 break;
         case MSG_NOOP:
@@ -1108,7 +1109,16 @@ onvm_nflib_info_init(const char *tag)
         info->tag = tag;
 
         info->pid = getpid();
-
+	
+#ifdef ONVM_GPU
+	int original_instance_id = initial_instance_id;
+	if(is_secondary_active_nf_id(info->instance_id)){
+	  printf("DEBUG... this is a secondary NF ---+++_---+++___ \n");
+	  original_instance_id = get_associated_active_or_standby_nf_id(info->instance_id);
+	}
+	info->image_info = &all_images_information[original_instance_id];
+	
+#endif
         return info;
 }
 
@@ -1334,7 +1344,11 @@ void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, f
   return;
 }
 
-/* initializes the images... */
+/* initializes the images... 
+ *
+ * THIS FUNCTIONALITY HAS BEEN MOVED TO MANAGER
+ * onvm_init.c
+ *
 void image_init(struct onvm_nf_info *nf, struct onvm_nf_info *original_nf){
 
   //first check if the alternate is active or not
@@ -1356,6 +1370,7 @@ void image_init(struct onvm_nf_info *nf, struct onvm_nf_info *original_nf){
       nf->image_info = original_nf->image_info;
     } 
 }
+*/
 
 /* helper function to get the image index */
 static int get_image_index(image_data *image, image_data **image_list){
@@ -1400,7 +1415,7 @@ static void delete_image(image_data *image, image_data **image_list){
 }
 
 void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
-  image_data **pending_images = (image_data **)nf_info->image_info.image_pending;
+  image_data **pending_images = (image_data **)nf_info->image_info->image_pending;
   data_struct *pkt_data = (data_struct *)packet_data;
   image_data *image = get_image(pkt_data->file_id, pending_images);
   memcpy(&(image->image_data_arr[pkt_data->position]), pkt_data->data_array, sizeof(float)*pkt_data->number_of_elements);
@@ -1411,9 +1426,9 @@ void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
   //check if the image is ready for evaluation
   if(image->num_data_points_stored >= IMAGE_NUM_ELE){
     //add to the ready image list.
-    nf_info->image_info.ready_images[nf_info->image_info.num_of_ready_images+nf_info->image_info.index_of_ready_image] = (void *)image;
+    nf_info->image_info->ready_images[(nf_info->image_info->num_of_ready_images+nf_info->image_info->index_of_ready_image)%MAX_IMAGE] = (void *)image;
     image->status = ready;
-    nf_info->image_info.num_of_ready_images++;
+    nf_info->image_info->num_of_ready_images++;
     printf("DEBUG.... all packets of image is received \n");
   }
   //just to negotiate with the compiler

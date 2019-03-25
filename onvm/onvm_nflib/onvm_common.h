@@ -958,10 +958,9 @@ struct image_information{
   int index_of_ready_image; //the increasing index so we know from where to execute.
 };
 
-
 struct get_alternate_NF_ready{
   int gpu_percentage;
-  struct image_information image_info;
+  //struct image_information image_info;
 };
 /* attribute for models in cntk */
 typedef struct models_attributes{
@@ -992,9 +991,10 @@ typedef struct provide_gpu_model{
   int model_index;
 }provide_gpu_model;
 
+//the variable for all image states
+struct image_information *all_images_information;
 
-//a variable that will have pointers to the all alive mempools...
-//eg. image 1's mempool will be 
+
 #endif
 
 
@@ -1064,7 +1064,7 @@ struct onvm_nf_info {
   float requests_per_second; //the number of requests it is getting per second
   float images_throughput; //the actual number of images being processed per second
 
-  struct image_information image_info; //image information struct
+  struct image_information *image_info; //image information struct
   
 #endif
 

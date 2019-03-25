@@ -32,7 +32,7 @@ typedef struct image_data{
 } image_data;
 
 
-void image_init(struct onvm_nf_info *nf, struct onvm_nf_info *original_nf);
+//void image_init(struct onvm_nf_info *nf, struct onvm_nf_info *original_nf);
 
 /* count the current images pending */
 void **image_buffers;
