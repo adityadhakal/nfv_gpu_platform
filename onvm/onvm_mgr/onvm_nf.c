@@ -848,12 +848,12 @@ onvm_nf_start(struct onvm_nf_info *nf_info) {
         // Let the NF continue its init process
         nf_info->status = NF_STARTING;
 
-	#ifdef ONVM_GPU
+#ifdef ONVM_GPU
 	//aditya's message
 	//let's send the message to orchestrator
-	printf("*****##### Sending a message ****#####\n");
+	printf("*****##### Sending the NF info to Orchestrator ****#####\n");
 	send_message_to_orchestrator(create_zmsg(&(nf_info->pid),1, zstart));
-	#endif
+#endif
 	
         return 0;
 }
@@ -879,7 +879,11 @@ onvm_nf_stop(struct onvm_nf_info *nf_info) {
 #if defined(ENABLE_NFV_RESL)
         //For Primary Instance DOWN; ensure that if corresponding secondary is active move it to RUNNING state;
         if(likely(is_primary_active_nf_id(nf_id))) {
-                uint16_t stdby_nfid = get_associated_standby_nf_id(nf_id);
+#ifdef ONVM_GPU
+	  uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_id); //here we just need instance ID Of other NF
+#else
+	  uint16_t stdby_nfid = get_associated_standby_nf_id(nf_id); //here we just need instance ID Of other NF
+#endif
                 struct onvm_nf *cl = &nfs[stdby_nfid];
                 if(likely((onvm_nf_is_valid(cl) && onvm_nf_is_paused(cl)))) {
                         cl->info->status ^=NF_PAUSED_BIT;

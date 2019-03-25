@@ -1113,8 +1113,8 @@ onvm_nflib_info_init(const char *tag)
 #ifdef ONVM_GPU
 	int original_instance_id = initial_instance_id;
 	if(is_secondary_active_nf_id(info->instance_id)){
-	  printf("DEBUG... this is a secondary NF ---+++_---+++___ \n");
 	  original_instance_id = get_associated_active_or_standby_nf_id(info->instance_id);
+	  printf("DEBUG... this is a secondary NF ---+++_---+++___ We get associated NF id %d \n",original_instance_id);
 	}
 	info->image_info = &all_images_information[original_instance_id];
 	
