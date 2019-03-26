@@ -509,12 +509,15 @@ onvm_pkt_enqueue_nf(struct thread_info *thread, struct rte_mbuf *pkt, struct onv
                 //TODO: Ideal solution: Do the switch of NF instance ID in the control path when NF_START/STOP events occur; keep Data plane to purely forward to mapped instances.
 #ifdef ENABLE_NFV_RESL
                 //check if associated standby/active instance is available
-                dst_instance_id = get_associated_active_or_standby_nf_id(dst_instance_id);
+	   //Aditya's change till the end comments
+	  dst_instance_id = get_associated_active_or_standby_nf_id(dst_instance_id);
                 cl = &nfs[dst_instance_id];
-                if(unlikely(!onvm_nf_is_valid(cl))) {
+		
+		if(unlikely(!onvm_nf_is_valid(cl))) {
                         onvm_pkt_drop(pkt);
                         return;
                 }
+		
 #if 0 //Moved this to onvm_nf_stop();
                 //Primary will always be RUNNING; only Standby NF will go through RUNNING-->PAUSED-->RUNNING Cycles. Note: This needs to be done inc control plane when the Primary NF is moved to stop state.
                 if(likely(is_secondary_active_nf_id(dst_instance_id)) && likely(onvm_nf_is_paused(cl))) {

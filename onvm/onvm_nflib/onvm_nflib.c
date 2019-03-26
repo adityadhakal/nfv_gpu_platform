@@ -79,6 +79,9 @@
 
 #define ONVM_NO_CALLBACK NULL
 
+#define ENABLE_NF_PAUSE_TILL_OUTSTANDING_NDSYNC_COMMIT
+#define __DEBUG__NDSYNC_LOGS__
+
 #ifdef ENABLE_NF_PAUSE_TILL_OUTSTANDING_NDSYNC_COMMIT
 #ifdef  __DEBUG_NDSYNC_LOGS__
 onvm_interval_timer_t nd_ts;
@@ -1421,8 +1424,7 @@ void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
   memcpy(&(image->image_data_arr[pkt_data->position]), pkt_data->data_array, sizeof(float)*pkt_data->number_of_elements);
   image->num_data_points_stored += pkt_data->number_of_elements;
 
-
-  printf("number of data points received %d \n",image->num_data_points_stored);
+  //printf("number of data points received %d \n",image->num_data_points_stored);
   //check if the image is ready for evaluation
   if(image->num_data_points_stored >= IMAGE_NUM_ELE){
     //add to the ready image list.

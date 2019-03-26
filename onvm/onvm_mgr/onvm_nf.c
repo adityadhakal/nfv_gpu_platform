@@ -732,8 +732,31 @@ onvm_nf_send_msg_sync(uint16_t dest, uint8_t msg_type, void *msg_data) {
 int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 
         uint16_t service_count = nf_per_service_count[nf_info->service_id]++;
+
+#ifdef ONVM_GPU
+
+	//if the alternate of this NF is running... we should just let it run...
+	uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_info->instance_id); //here we just need instance ID Of other NF
+
+	//if we have alternate running then do not do anything.. put the original in pause
+	if(likely(onvm_nf_is_valid(&nfs[stdby_nfid]))){
+	  printf("###____-----#### OtherNF instance %d is up so we pause__+++++ Service count: %d\n", stdby_nfid,service_count);
+	  //here we should just pause the new NF if the alternate is running
+	  nf_info->status = NF_PAUSED;
+	  //onvm_nf_send_msg(stdby_nfid, MSG_RESUME, MSG_MODE_ASYNCHRONOUS,NULL);
+	}
+	else{
+	  printf("###____-----#### Primary NF is up service count %d \n",service_count);
+	  nf_info->status = NF_RUNNING;
+	}
+	// Register this NF running within its service
+        services[nf_info->service_id][service_count] = nf_info->instance_id;
+	
+#else //ONVM_GPU
+ 	
 #ifdef ENABLE_NFV_RESL
-        //Temporary solution: make sure to move the PRIMARY(Active NF) to the Top and move remaining to the bottom. Why? To fix how packets get forwarded to the NF Instance: InstList[hash%NInstances] or InstList[0];
+	printf("\nthis part shouldn't execute =_=-=--=__+--=0-++\n");
+	//Temporary solution: make sure to move the PRIMARY(Active NF) to the Top and move remaining to the bottom. Why? To fix how packets get forwarded to the NF Instance: InstList[hash%NInstances] or InstList[0];
         if( (service_count > 0) && (is_primary_active_nf_id(nf_info->instance_id) ) ) {
                 int mapIndex = service_count;
                 for (; (mapIndex > 0 && is_secondary_active_nf_id(services[nf_info->service_id][mapIndex - 1])); mapIndex--) {
@@ -785,7 +808,10 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
         // Register this NF running within its service
         services[nf_info->service_id][service_count] = nf_info->instance_id;
         nf_info->status = NF_RUNNING;
-#endif
+#endif //ONVM_NF_RES
+	
+#endif //ONVM_GPU
+	
 
 /** TODO: Verify if this is the correct place to call the ZooKeerper NF START? **/
 #ifdef ENABLE_ZOOKEEPER
@@ -877,12 +903,14 @@ onvm_nf_stop(struct onvm_nf_info *nf_info) {
         service_id = nf_info->service_id;
 
 #if defined(ENABLE_NFV_RESL)
-        //For Primary Instance DOWN; ensure that if corresponding secondary is active move it to RUNNING state;
-        if(likely(is_primary_active_nf_id(nf_id))) {
 #ifdef ONVM_GPU
+	//For Primary Instance DOWN; ensure that if corresponding secondary is active move it to RUNNING state;
+        if(likely(is_primary_active_nf_id(nf_id)||is_secondary_active_nf_id(nf_id))) {
 	  uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_id); //here we just need instance ID Of other NF
 #else
-	  uint16_t stdby_nfid = get_associated_standby_nf_id(nf_id); //here we just need instance ID Of other NF
+	  //For Primary Instance DOWN; ensure that if corresponding secondary is active move it to RUNNING state;
+	  if(likely(is_primary_active_nf_id(nf_id))) {
+	    uint16_t stdby_nfid = get_associated_standby_nf_id(nf_id); //here we just need instance ID Of other NF
 #endif
                 struct onvm_nf *cl = &nfs[stdby_nfid];
                 if(likely((onvm_nf_is_valid(cl) && onvm_nf_is_paused(cl)))) {
