@@ -679,7 +679,10 @@ static inline int onvm_nflib_process_packets_batch(struct onvm_nf_info *nf_info,
         void *pktsTX[NF_PKT_BATCH_SIZE];
         uint8_t bCurND=0;
         uint64_t bCurNDPktId=0;
-
+#ifdef ONVM_GPU
+	void *packet_data;
+#endif
+	
 #ifdef INTERRUPT_SEM
         // To account NFs computation cost (sampled over SAMPLING_RATE packets)
         uint64_t start_tsc = 0;
@@ -688,6 +691,14 @@ static inline int onvm_nflib_process_packets_batch(struct onvm_nf_info *nf_info,
 
 #ifdef INTERRUPT_SEM
                 start_ppkt_processing_cost(&start_tsc);
+#endif
+
+#ifdef ONVM_GPU
+		//we shall copy the packets here itself.. why should we give it to the handler
+		if(onvm_pkt_ipv4_hdr(pkts[i]) != NULL){
+		  packet_data = rte_pktmbuf_mtod_offset((struct rte_mbuf *)pkts[i], void *, sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr));
+		  copy_data_to_image(packet_data, nf_info);
+		}
 #endif
                 ret = (*handler)((struct rte_mbuf*) pkts[i], onvm_get_pkt_meta((struct rte_mbuf*) pkts[i]), nf_info);
 
@@ -785,6 +796,14 @@ onvm_nflib_run_callback(struct onvm_nf_info* nf_info, pkt_handler_func handler, 
                 if(likely(nb_pkts)) {
                         /* Give each packet to the user processing function */
                         nb_pkts = onvm_nflib_process_packets_batch(nf_info, pkts, nb_pkts, handler);
+#ifdef ONVM_GPU
+			//add the counters to number of packets that are outstanding...
+			/* Since we know how many packets make images for us now.. so we can just determine how many images 
+			 *are left here */
+#ifdef ONVM_GPU_SAME_SIZE_PKTS
+			nf_info->number_of_pkts_outstanding += nb_pkts; //added the number of packets
+#endif
+#endif
                 }
 
 #ifdef ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
@@ -1120,6 +1139,9 @@ onvm_nflib_info_init(const char *tag)
 	  printf("DEBUG... this is a secondary NF ---+++_---+++___ We get associated NF id %d \n",original_instance_id);
 	}
 	info->image_info = &all_images_information[original_instance_id];
+	//initialize the histograms
+	hist_init_v2(&(info->image_request_vs_processing));
+	hist_init_v2(&(info->image_processing_rate));
 	
 #endif
         return info;
@@ -1299,7 +1321,7 @@ onvm_nflib_notify_ready(struct onvm_nf_info *nf_info) {
 #ifdef ONVM_GPU
 /* we require these functions so we can keep track of how many images are present now */
 static image_data* get_image(int pkt_file_index, image_data **pending_img);
-static void delete_image(image_data * image, image_data ** image_list);
+ static void delete_image(image_data * image, image_data ** image_list, struct onvm_nf_info * nf_info);
 
 void onvm_send_gpu_msg_to_mgr(provide_gpu_model *message_to_manager, int message_type){
   printf("ONVM SEND GPU MSG TO MGR\n");
@@ -1408,11 +1430,16 @@ static image_data *get_image(int pkt_file_index, image_data **pending_img){
 }
 
 //put the images back in the mempool
-static void delete_image(image_data *image, image_data **image_list){
+ static void delete_image(image_data *image, image_data **image_list, struct onvm_nf_info *nf_info){
   int retval = get_image_index(image, image_list);//find where the mempool is located
-
+  
   if(retval>=0)
     image_list[retval] = NULL;
+
+  //decrease the number of packets the image had
+  #ifdef ONVM_GPU_SAME_SIZE_PKTS
+  nf_info->number_of_pkts_outstanding -= NUM_IN_PKTS;
+  #endif
   
   rte_mempool_put(nf_image_pool, (void *)image);
 }
@@ -1435,7 +1462,7 @@ void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
   }
   //just to negotiate with the compiler
   if(0)
-    delete_image(image, pending_images);
+    delete_image(image, pending_images, nf_info);
 }
 
 

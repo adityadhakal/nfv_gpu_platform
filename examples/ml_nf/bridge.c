@@ -179,11 +179,13 @@ packet_handler(struct rte_mbuf *pkt, struct onvm_pkt_meta *meta, __attribute__((
                 counter = 0;
         }
 
-	if(onvm_pkt_ipv4_hdr(pkt) != NULL){
-	  //printf("parsing the packet data \n");
-	  void * packet_data = rte_pktmbuf_mtod_offset(pkt, void *, sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr));
-	  copy_data_to_image(packet_data, nf_info);
-	}
+	//copying the packet data to the right buffer ...
+	//THis functionality has been moved to onvm_nflib
+	//	if(onvm_pkt_ipv4_hdr(pkt) != NULL){
+	//  void * packet_data = rte_pktmbuf_mtod_offset(pkt, void *, sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr));
+	//  copy_data_to_image(packet_data, nf_info);
+	//}
+	
         if (pkt->port == 0) {
                 meta->destination = 1;
         }
@@ -235,12 +237,16 @@ void store_the_gpu_pointers(struct onvm_nf_msg *message){
 }
 /* this function loads the GPU pointer */
 void load_gpu_ptrs(void){
-    struct timespec begin,end;
-    clock_gettime(CLOCK_MONOTONIC, &begin);
-    printf("the output of moving pointers  %d \n",link_gpu_pointers(cpu_func_ptr, cuda_handles, count_parameters(cpu_func_ptr)));
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    double load_time = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
-    printf("The time to switch pointers to GPU is %f microseconds \n",load_time);
+
+  //the GPU percentage is set before hand by user or manager whenever there is "SET_GPU_PERCENTAGE" message is sent..
+  //so we can safely load the pointers
+  
+  struct timespec begin,end;
+  clock_gettime(CLOCK_MONOTONIC, &begin);
+  printf("the output of moving pointers = %d (0 means success) \n",link_gpu_pointers(cpu_func_ptr, cuda_handles, count_parameters(cpu_func_ptr)));
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  double load_time = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
+  printf("The time to switch pointers to GPU is %f microseconds \n",load_time);
 
     //randomize the image data
     //srand(2);
@@ -262,23 +268,19 @@ void load_gpu_ptrs(void){
 
 }
 
-
+/* the function to ask the manager for GPU pointers */
 void ask_for_gpu_pointers(void ){
   //now send message to manager asking for the pointer...
   provide_gpu_model * give_gpu_model = (provide_gpu_model *) rte_malloc(NULL,sizeof(provide_gpu_model),0);
-  //struct onvm_nf_info * _nfinfo = (struct onvm_nf_info *) rte_malloc(NULL, sizeof(struct onvm_nf_info), 0);
-  //char * name_of_model = (char *) rte_malloc(NULL, sizeof(char)*20, 0);
-
-  //const char * name = ml_model;
-
   give_gpu_model->model_index = atoi(ml_model); //alexnet
   //memcpy(name_of_model, name, strlen(name));
   //memcpy(_nfinfo,nf_info, sizeof(struct onvm_nf_info));
   give_gpu_model->nf = nf_info;
   //memcpy(give_gpu_model->model_name, name_of_model, sizeof(char)*20);
   onvm_send_gpu_msg_to_mgr(give_gpu_model,MSG_GIVE_GPU_MODEL);
-  printf("Sent message to mgr \n");
+  printf("Sent message to mgr asking for GPU Pointers\n");
 }
+
 /* function to load gpu file 
 void load_gpu_file(void){
   // convert the filename to wchar_t 
@@ -390,7 +392,6 @@ int main(int argc, char *argv[]) {
 	//register the funtion for processing the GPU related message from manager
 	register_gpu_msg_handling_function(&function_to_process_gpu_message);
 	//load_gpu_file();
-
 
 	// loading the gpu model
 	load_ml_file(input_file_name, 0 /*cpu only*/, &cpu_func_ptr, &gpu_func_ptr);

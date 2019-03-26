@@ -1,7 +1,7 @@
 #ifndef _ONVM_IMAGES_H
 #define _ONVM_IMAGES_H
 
-#define NUM_IN_PKTS 92
+#define NUM_IN_PKTS 96
 #define NUM_SIZE 4 //4 bytes number
 #define IMAGE_NUM_ELE 3*224*224
 #define IMAGE_SIZE 3*224*224*4

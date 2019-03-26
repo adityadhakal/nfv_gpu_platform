@@ -54,6 +54,7 @@
 
 //Enable GPU
 #define ONVM_GPU 1
+#define ONVM_GPU_SAME_SIZE_PKTS 1
 
 //check on each node by executing command  $"getconf LEVEL1_DCACHE_LINESIZE" or cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size
 #define ONVM_CACHE_LINE_SIZE (64)
@@ -1061,10 +1062,12 @@ struct onvm_nf_info {
   int gpu_execution_ready;
   int candidate_for_restart; //should this NF be restarted
 
-  float requests_per_second; //the number of requests it is getting per second
-  float images_throughput; //the actual number of images being processed per second
-
+#ifdef ONVM_GPU_SAME_SIZE_PKTS
+  unsigned int number_of_pkts_outstanding; //the number of packets~ images not processed yet
+#endif
   struct image_information *image_info; //image information struct
+  histogram_v2_t image_request_vs_processing; //histogram to observe image request rate
+  histogram_v2_t image_processing_rate; //histogram to process image processing throughput
   
 #endif
 
