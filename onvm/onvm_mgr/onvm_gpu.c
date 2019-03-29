@@ -161,8 +161,13 @@ void nf_is_gpu_ready(struct onvm_nf_info *nf){
 void compute_GPU_allocation(struct onvm_nf_info *nf ){
   //get the reporting from an NF
   int nf_gpu_percentage = nf->gpu_percentage;
-  float request_rate = nf->requests_per_second;
-  float throughput = nf->images_throughput;
+  //TODO: These should be got from histogram
+  //float request_rate = nf->requests_per_second;
+  //float throughput = nf->images_throughput;
+  float request_rate = 0.0;
+  float throughput = 0.0;
+
+  
   float max_throughput = find_max_throughput(nf->gpu_model, nf_gpu_percentage);
   int recommended_gpu_percentage;
   

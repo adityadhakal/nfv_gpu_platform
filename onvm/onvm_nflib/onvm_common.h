@@ -996,6 +996,16 @@ typedef struct provide_gpu_model{
 struct image_information *all_images_information;
 
 
+//helper function
+static inline double time_difference_usec(struct timespec *begin, struct timespec *end){
+  double time_difference;
+  time_difference = (end.tv_sec-begin.tv_sec)*1000000.0 + (end.tv_nsec-begin.tv_nsec)/1000.0;
+  if(((int) time_difference) < 0)
+    return time_difference*(-1.0);
+  else
+    return time_difference;
+}
+
 #endif
 
 
@@ -1061,15 +1071,20 @@ struct onvm_nf_info {
   int job_completion_rate; //0-slow 1 -normal 2 -fast
   int gpu_execution_ready;
   int candidate_for_restart; //should this NF be restarted
+  void * function_ptr; // the ML evaluating function
 
 #ifdef ONVM_GPU_SAME_SIZE_PKTS
   unsigned int number_of_pkts_outstanding; //the number of packets~ images not processed yet
+  unsigned int number_of_images_processed; //the number of images processed in the last time SPAN
 #endif
   struct image_information *image_info; //image information struct
-  histogram_v2_t image_request_vs_processing; //histogram to observe image request rate
+  histogram_v2_t image_queueing_rate; //histogram to observe image request rate
   histogram_v2_t image_processing_rate; //histogram to process image processing throughput
-  
-#endif
+
+  histogram_v2_t end_to_end_image_processing_time; //the time to have data transfer + image processing
+  histogram_v2_t image_processing_gpu_time; //the time for image processing only
+
+ #endif
 
 };
 

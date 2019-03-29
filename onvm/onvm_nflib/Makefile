@@ -63,9 +63,11 @@ CFLAGS += -I$(SRCDIR)/../lib/
 #CFLAGS += -I$(ONVM_HOME)/onvm/lib/
 CFLAGS += -I$(RTE_SDK)/$(RTE_TARGET)/include/
 LDFLAGS += $(RTE_SDK)/$(RTE_TARGET)/lib/librte_timer.a
+CFLAGS += -I/usr/local/cuda/include
+LDFLAGS += -L/usr/local/cuda/lib64
 
 LDFLAGS += -L/usr/local/lib
-LDLIBS  += -lzmq -lonvm_cntk -lstdc++ -lm
+LDLIBS  += -lzmq -lonvm_cntk -lstdc++ -lm -lcudart
 
 CFLAGS += -I$(SRCDIR)/../../cntk_lib/ #-Wl, #-Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
 LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
