@@ -1395,9 +1395,14 @@ void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, f
 
 //a more comprehensive evaluate function that can be called by the timer thread
 void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info){
-  //get the next image.
-  image_data *ready_image = nf_info->image_info->ready_images[nf_info->image_info->index_of_ready_image];
+  //get the next image. only if there is any images to execute
+  if(nf_info->image_info->num_of_ready_images <= 0){
+    return;
+  }
 
+  //otherwise grab one image and proceed
+  image_data *ready_image = nf_info->image_info->ready_images[nf_info->image_info->index_of_ready_image];
+  
   //increase the index of ready image... as well as decrease the number of ready images
   nf_info->image_info->num_of_ready_images--;
   nf_info->image_info->index_of_ready_image++;
@@ -1412,11 +1417,11 @@ void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info){
   
   //submit this image to evaluation
   //evaluate_in_gpu_input_from_host(ready_image->image_data_arr, IMAGE_SIZE*(ready_image->num_data_points_stored/IMAGE_NUM_ELE),ready_image->output,nf_info->function_ptr,ready_image->stats, gpu_finish_work_flag, &gpu_image_callback_function, (void *) ready_image);
-
+  
   //new evaluation function, older one is too cubersome
   evaluate_image_in_gpu(ready_image, &gpu_image_callback_function, (void *) &callback_data, gpu_finish_work_flag);
   //post evaluation...put it in the GPU eval queue.
-  
+    
   gpu_queue_image_id[gpu_queue_current_index]=ready_image->image_id;
   clock_gettime(CLOCK_MONOTONIC, &eval_begin_time); //read the current time
   ready_image->timestamps[1] = eval_begin_time; //the index for timestamp is explained in onvm_image.h 
