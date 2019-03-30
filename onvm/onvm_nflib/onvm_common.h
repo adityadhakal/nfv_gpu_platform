@@ -999,7 +999,7 @@ struct image_information *all_images_information;
 //helper function
 static inline double time_difference_usec(struct timespec *begin, struct timespec *end){
   double time_difference;
-  time_difference = (end.tv_sec-begin.tv_sec)*1000000.0 + (end.tv_nsec-begin.tv_nsec)/1000.0;
+  time_difference = (end->tv_sec-begin->tv_sec)*1000000.0 + (end->tv_nsec-begin->tv_nsec)/1000.0;
   if(((int) time_difference) < 0)
     return time_difference*(-1.0);
   else

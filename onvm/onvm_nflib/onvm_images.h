@@ -8,9 +8,11 @@
 #define NUM_OF_PKTS IMAGE_SIZE/(NUM_IN_PKTS*NUM_SIZE)
 #define IMAGE_BATCH 8
 #define IMAGENET_OUTPUT_SIZE 1000
+#define NF_IMAGE_STATS_PERIOD_MS 1 //1 ms to check the stats
+#define NF_INFERENCE_PERIOD 10
 
 #include <rte_hash.h>
-
+#include <rte_timer.h>
 
 typedef enum data_status{empty, occupied, ready} data_status; //empty... data can be filled, occupied: some pointers available, ready: ready to be processed i.e. data filled.
 typedef struct data_struct{
@@ -43,6 +45,10 @@ typedef struct image_data{
   };
 
 
+// a flag to say if the NF has to finish all the works...
+int gpu_finish_work_flag;
+
+
 //void image_init(struct onvm_nf_info *nf, struct onvm_nf_info *original_nf);
 
 /* count the current images pending */
@@ -63,5 +69,12 @@ int * gpu_queue_image_id;
 struct gpu_callback *gpu_callbacks;
 int num_elements_in_gpu_queue;
 int gpu_queue_current_index;
+
+
+/* the timer for the image stats */
+struct rte_timer image_stats_timer;
+
+/* the timer for performing inference */
+struct rte_timer image_inference_timer;
 
 #endif

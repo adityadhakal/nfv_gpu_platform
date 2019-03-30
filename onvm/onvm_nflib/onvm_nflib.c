@@ -127,6 +127,10 @@ void register_gpu_msg_handling_function(gpu_message_processing_func gmpf){
   }
   return;
 }
+//timer threads...
+void initialize_ml_timers(struct onvm_nf_info *nf_info);
+
+
 #endif
 
 /************************************API**************************************/
@@ -1149,6 +1153,7 @@ onvm_nflib_info_init(const char *tag)
 	hist_init_v2(&(info->image_queueing_rate));
 	hist_init_v2(&(info->image_processing_rate));
 	hist_init_v2(&(info->end_to_end_image_processing_time));
+	initialize_ml_timers(info);
 	
 #endif
         return info;
@@ -1324,17 +1329,21 @@ onvm_nflib_notify_ready(struct onvm_nf_info *nf_info) {
         return 0;
 }
 
-/* aditya's new message function */
+/* aditya's GPU related helper functions... */
 #ifdef ONVM_GPU
 
 /* we require these functions so we can keep track of how many images are present now */
 static image_data* get_image(int pkt_file_index, image_data **pending_img);
-static void delete_image(image_data * image, image_data ** image_list, struct onvm_nf_info * nf_info);
+static void delete_image(image_data * image, struct onvm_nf_info * nf_info);
 //GPU callback function to report after the evaluation is finished...
 void CUDART_CB gpu_image_callback_function(cudaStream_t event, cudaError_t status, void *data);
 //this function will be called to evaluate an image from mempool
-void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info, int gpu_finish_work_flag);
+void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info);
 
+//ml stats function
+void compute_ml_stats(struct onvm_nf_info *nf_info);
+
+/* this function sends message to onvm manager */
 void onvm_send_gpu_msg_to_mgr(provide_gpu_model *message_to_manager, int message_type){
   printf("ONVM SEND GPU MSG TO MGR\n");
   struct onvm_nf_msg * msg_mgr;
@@ -1353,6 +1362,7 @@ void onvm_send_gpu_msg_to_mgr(provide_gpu_model *message_to_manager, int message
   }
 }
 
+/* common function to load ml file */
 void load_ml_file(char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr){
   /* convert the filename to wchar_t */
   size_t filename_length = strlen(file_path);
@@ -1375,6 +1385,7 @@ void load_ml_file(char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void
   if(ret)
     fprintf(stdout, "ML File loading failure \n");
 }
+
 //this function will evaluate your data...
 void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, float *output){
   //printf("%p, %p, %p, %p \n",function_ptr, input_buffer, stats, output);
@@ -1383,10 +1394,15 @@ void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, f
 }
 
 //a more comprehensive evaluate function that can be called by the timer thread
-void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info, int gpu_finish_work_flag){
+void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info){
   //get the next image.
   image_data *ready_image = nf_info->image_info->ready_images[nf_info->image_info->index_of_ready_image];
 
+  //increase the index of ready image... as well as decrease the number of ready images
+  nf_info->image_info->num_of_ready_images--;
+  nf_info->image_info->index_of_ready_image++;
+  nf_info->image_info->index_of_ready_image %= MAX_IMAGE; 
+  
   struct gpu_callback * callback_data = &(gpu_callbacks[gpu_queue_current_index]);
   callback_data->nf_info = nf_info;
   callback_data->ready_image = ready_image;
@@ -1411,6 +1427,7 @@ void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info, int gpu_finis
 
 //GPU callback function to report after the evaluation is finished...
 void CUDART_CB gpu_image_callback_function(__attribute__((unused)) cudaStream_t event, __attribute__((unused)) cudaError_t status, void *data){
+
   //just update the stats here for now...
   struct timespec call_back_time;
   clock_gettime(CLOCK_MONOTONIC, &call_back_time);
@@ -1424,12 +1441,17 @@ void CUDART_CB gpu_image_callback_function(__attribute__((unused)) cudaStream_t 
   #endif
 
   //put the time in histogram
-  hist_store_v2(&(callback_data->nf_info->end_to_end_image_processing_time),(uint32_t)time_difference_usec(callback_data->ready_image->timestamps[0],callback_data->ready_image->timestamps[4]));
+  hist_store_v2(&(callback_data->nf_info->end_to_end_image_processing_time),(uint32_t)time_difference_usec(&(callback_data->ready_image->timestamps[0]),&(callback_data->ready_image->timestamps[4])));
   //store the time of execution only
-    hist_store_v2(&(callback_data->nf_info->end_to_end_image_processing_time),(uint32_t)time_difference_usec(callback_data->ready_image->timestamps[2],callback_data->ready_image->timestamps[4]));
+  hist_store_v2(&(callback_data->nf_info->end_to_end_image_processing_time),(uint32_t)time_difference_usec(&(callback_data->ready_image->timestamps[2]),&(callback_data->ready_image->timestamps[4])));
 
-    //we can delete the image now
-    delete_image(callback_data->ready_image, callback_data->nf_info->image_info->ready_images,callback_data->nf_info);
+  //we can delete the image now
+  delete_image(callback_data->ready_image, callback_data->nf_info);
+
+  //reduce the number of elements in gpu queue
+  num_elements_in_gpu_queue--;
+  
+ 
 }
 
 
@@ -1494,12 +1516,12 @@ static image_data *get_image(int pkt_file_index, image_data **pending_img){
 }
 
 //put the images back in the mempool
- static void delete_image(image_data *image, image_data **image_list, struct onvm_nf_info *nf_info){
-  int retval = get_image_index(image, image_list);//find where the mempool is located
+ static void delete_image(image_data *image, struct onvm_nf_info *nf_info){
+   image_data ** image_list = (image_data **)nf_info->image_info->ready_images;
+   int retval = get_image_index(image, image_list);//find where the mempool is located
   
   if(retval>=0)
     image_list[retval] = NULL;
-
   
   rte_mempool_put(nf_image_pool, (void *)image);
 }
@@ -1522,13 +1544,41 @@ void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
     //remove it from pending image list and put it on 
     pending_images[image->image_id] = NULL;
   }
-  //just to negotiate with the compiler
-  if(0)
-    delete_image(image, pending_images, nf_info);
+
 }
 
+//initializes the timers....
+void initialize_ml_timers(struct onvm_nf_info * nf_info){
+  rte_timer_subsystem_init();//does this happen already.. check
+  rte_timer_init(&image_stats_timer);
+  rte_timer_init(&image_inference_timer);
+  rte_timer_reset_sync(&image_stats_timer,
+		       (NF_IMAGE_STATS_PERIOD_MS * rte_get_timer_hz())/1000,
+		       PERIODICAL,
+		       rte_lcore_id(), //timer_core
+		       (void *)&compute_ml_stats,
+		       (void *) nf_info
+		       );
+  
+  rte_timer_reset_sync(&image_inference_timer,
+		       (NF_INFERENCE_PERIOD * rte_get_timer_hz())/1000,
+		       PERIODICAL,
+		       rte_lcore_id(), //timer_core
+		       (void *)&evaluate_an_image_from_mempool,
+		       (void *) nf_info
+		       );
+}
 
-
+void compute_ml_stats(struct onvm_nf_info *nf_info){
+  //compute the values in per second basis and feed into histogram.
+  #ifdef ONVM_GPU_SAME_SIZE_PKTS
+  int number_of_images_pending = nf_info->number_of_pkts_outstanding/NUM_OF_PKTS;
+  hist_store_v2(&nf_info->image_queueing_rate, number_of_images_pending);
+  nf_info->number_of_pkts_outstanding = 0;
+  #endif
+  hist_store_v2(&nf_info->image_processing_rate, nf_info->number_of_images_processed);
+  nf_info->number_of_images_processed = 0;
+}
 
 
 #endif //ONVM_GPU
