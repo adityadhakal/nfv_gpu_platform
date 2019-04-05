@@ -11,8 +11,8 @@
 #define NF_IMAGE_STATS_PERIOD_MS 1 //1 ms to check the stats
 #define NF_INFERENCE_PERIOD 10
 
-#include <rte_hash.h>
-#include <rte_timer.h>
+//#include <rte_hash.h>
+//#include <rte_timer.h>
 
 typedef enum data_status{empty, occupied, ready} data_status; //empty... data can be filled, occupied: some pointers available, ready: ready to be processed i.e. data filled.
 typedef struct data_struct{
@@ -22,9 +22,10 @@ typedef struct data_struct{
   float data_array[NUM_IN_PKTS];
 }data_struct;
 
-void * gpu_image_buffers[MAX_IMAGE];
+//void * gpu_image_buffers[MAX_IMAGE];
 
 void transfer_to_gpu(void ** ptrs_from_pkts, int image_id, int num_of_pointers);
+
 
 typedef struct image_data{
   int image_id;
@@ -70,11 +71,5 @@ struct gpu_callback *gpu_callbacks;
 int num_elements_in_gpu_queue;
 int gpu_queue_current_index;
 
-
-/* the timer for the image stats */
-struct rte_timer image_stats_timer;
-
-/* the timer for performing inference */
-struct rte_timer image_inference_timer;
 
 #endif

@@ -58,7 +58,7 @@ SRCS-y += onvm_ringbuf.c
 SRCS-y += onvm_comm_utils.c
 CFLAGS += -DUSE_HISTOGRAM_AS_LIB
 
-CFLAGS += $(WERROR_FLAGS) -O3 $(USER_FLAGS)
+CFLAGS += $(WERROR_FLAGS) -O3 -g $(USER_FLAGS)
 CFLAGS += -I$(SRCDIR)/../lib/
 #CFLAGS += -I$(ONVM_HOME)/onvm/lib/
 CFLAGS += -I$(RTE_SDK)/$(RTE_TARGET)/include/

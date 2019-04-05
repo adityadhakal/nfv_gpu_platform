@@ -949,12 +949,12 @@ extern void *onvm_socket_ctx;
 
 #ifdef ONVM_GPU
 #define NUMBER_OF_MODELS 6
-#define MAX_IMAGE 100
+#define MAX_IMAGE 200
 /* a message format to get the alternate nf ready */
 struct image_information{
   //this below should be shared to alternate NF
-  void **image_pending; //the list of pending images.. this pointer will be shared to the shadow NF
-  void **ready_images; //from about array which mempool contain images
+  void *image_pending[MAX_IMAGE]; //the list of pending images.. this pointer will be shared to the shadow NF
+  void *ready_images[MAX_IMAGE]; //from about array which mempool contain images
   int num_of_ready_images; //the number of images that are ready
   int index_of_ready_image; //the increasing index so we know from where to execute.
 };
@@ -1072,7 +1072,7 @@ struct onvm_nf_info {
   int gpu_execution_ready;
   int candidate_for_restart; //should this NF be restarted
   void * function_ptr; // the ML evaluating function
-
+  void * temp_img_info;
 #ifdef ONVM_GPU_SAME_SIZE_PKTS
   unsigned int number_of_pkts_outstanding; //the number of packets~ images not processed yet
   unsigned int number_of_images_processed; //the number of images processed in the last time SPAN
@@ -1134,6 +1134,7 @@ struct onvm_service_chain {
 
 #ifdef ONVM_GPU
 #define _NF_IMAGE_POOL_NAME "NF_IMAGE_POOL_NAME" //mempool for storing images for ML
+#define _IMAGE_STATE_POOL_NAME "NF_%u_STATE_POOL_NAME" //mempool for storing image state for ML
 #endif
 
 /* interrupt semaphore specific updates */
@@ -1299,6 +1300,15 @@ static inline unsigned
 get_associated_standby_nf_id(unsigned nf_id) {
         return (nf_id | MAX_ACTIVE_CLIENTS);
 }
+#endif
+#ifdef ONVM_GPU
+//function to get NF state name
+ static inline const char *
+   get_nf_image_state_name(unsigned id){
+   static char buffer[sizeof(_IMAGE_STATE_POOL_NAME)+2];
+   snprintf(buffer, sizeof(buffer)-1, _IMAGE_STATE_POOL_NAME, id);
+   return buffer;
+ }
 #endif
 
 #ifdef INTERRUPT_SEM

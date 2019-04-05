@@ -92,6 +92,7 @@
 
 /* Feature to enable computation of NF computation cost periodically using the timer */
 //enable: ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
+
 #define ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
 
 /* Feature to enable static ID assignment/request to the NF */

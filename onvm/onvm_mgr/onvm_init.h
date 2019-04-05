@@ -110,6 +110,7 @@
 #ifdef ONVM_GPU
 //#define MAX_IMAGES 100 //defined in onvm_common.h
 #define IMAGE_CACHE_SIZE 4
+#define IMAGE_STATE_CACHE_SIZE 0
 #endif
 
 //For TCP UDP use 70,40

@@ -58,9 +58,10 @@
 //#endif
 #include "onvm_common.h"
 #include "onvm_pkt_common.h"
-#include "onvm_cntk_api.h"
-#ifdef ONVM_GPU
 #include "onvm_images.h"
+#ifdef ONVM_GPU
+
+#include "onvm_cntk_api.h"
 #endif
 //aditya
 
@@ -288,12 +289,18 @@ onvm_nflib_get_default_chain(void);
 typedef int (*gpu_message_processing_func)(struct onvm_nf_msg *message_from_manager);
 extern gpu_message_processing_func nf_gpu_func;
 void register_gpu_msg_handling_function(gpu_message_processing_func gmpf);
-void load_ml_file (char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr);
+void load_ml_file (char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr, struct onvm_nf_info * nf_info);
 void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, float *output);
 
-extern histogram_v2_t *image_rate_histogram;
+//extern histogram_v2_t *image_rate_histogram;
 void onvm_send_gpu_msg_to_mgr(provide_gpu_model *message_to_manager, int msg_type);
 void copy_data_to_image(void *packet_data, struct onvm_nf_info *nf_info);
+
+/* the timer for the image stats */
+struct rte_timer image_stats_timer;
+
+/* the timer for performing inference */
+struct rte_timer image_inference_timer;
 
 
 

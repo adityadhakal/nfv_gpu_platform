@@ -198,7 +198,7 @@ onvm_nflib/onvm_pkt_helper.h,611
 #define ONVM_PKT_GET_FLAGS(74,2692
 #define ONVM_PKT_SET_FLAGS(80,2898
 
-onvm_nflib/onvm_images.h,1219
+onvm_nflib/onvm_images.h,1488
 #define _ONVM_IMAGES_H2,23
 #define NUM_IN_PKTS 4,47
 #define NUM_SIZE 5,70
@@ -207,33 +207,40 @@ onvm_nflib/onvm_images.h,1219
 #define NUM_OF_PKTS 8,169
 #define IMAGE_BATCH 9,223
 #define IMAGENET_OUTPUT_SIZE 10,245
-typedef enum data_status{data_status15,304
-typedef enum data_status{empty,empty15,304
-typedef enum data_status{empty, occupied,15,304
-typedef enum data_status{empty, occupied, ready}ready15,304
-typedef enum data_status{empty, occupied, ready} data_status;15,304
-typedef struct data_struct{data_struct16,479
-  int file_id;17,507
-  int position;18,522
-  int number_of_elements;19,538
-  float data_array[data_array20,564
-}data_struct;data_struct21,597
-void * gpu_image_buffers[gpu_image_buffers23,612
-typedef struct image_data{image_data27,732
-  int image_id;28,759
-  void ** img_data_ptrs;29,775
-  float image_data_arr[image_data_arr30,800
-  float output[output31,930
-  float stats[stats32,1034
-  int num_data_points_stored;33,1114
-  data_status status;34,1210
-} image_data;35,1331
-int * gpu_queue_image_id;53,2060
-struct timespec *gpu_queue_time_inserted;gpu_queue_time_inserted54,2086
-int num_elements_in_gpu_queue;55,2128
-int gpu_queue_current_index;56,2159
+#define NF_IMAGE_STATS_PERIOD_MS 11,279
+#define NF_INFERENCE_PERIOD 12,340
+typedef enum data_status{data_status17,422
+typedef enum data_status{empty,empty17,422
+typedef enum data_status{empty, occupied,17,422
+typedef enum data_status{empty, occupied, ready}ready17,422
+typedef enum data_status{empty, occupied, ready} data_status;17,422
+typedef struct data_struct{data_struct18,597
+  int file_id;19,625
+  int position;20,640
+  int number_of_elements;21,656
+  float data_array[data_array22,682
+}data_struct;data_struct23,715
+typedef struct image_data{image_data30,853
+  int image_id;31,880
+  void ** img_data_ptrs;32,896
+  int batch_size;33,921
+  float image_data_arr[image_data_arr34,969
+  float output[output35,1099
+  float stats[stats36,1203
+  struct timespec timestamps[timestamps37,1282
+  int num_data_points_stored;38,1491
+  data_status status;39,1613
+} image_data;40,1734
+  struct gpu_callback{gpu_callback43,1794
+    struct onvm_nf_info *nf_info;nf_info44,1817
+    struct image_data *ready_image;ready_image45,1851
+int gpu_finish_work_flag;50,1952
+int * gpu_queue_image_id;68,2693
+struct gpu_callback *gpu_callbacks;gpu_callbacks70,2837
+int num_elements_in_gpu_queue;71,2873
+int gpu_queue_current_index;72,2904
 
-onvm_nflib/onvm_nflib_internal.h,2132
+onvm_nflib/onvm_nflib_internal.h,2205
 #define _ONVM_NFLIB_INTERNAL_H_53,2288
 #define NF_PKT_BATCH_SIZE 83,3084
 #define RTDSC_CYCLE_COST 86,3222
@@ -260,26 +267,27 @@ static struct rte_mempool *nf_info_mp;nf_info_mp156,5668
 static struct rte_mempool *nf_msg_pool;nf_msg_pool159,5748
 static struct rte_mempool *pktmbuf_pool;pktmbuf_pool162,5816
 static struct rte_mempool *nf_image_pool;nf_image_pool166,5903
-static uint16_t initial_instance_id 170,6011
-static uint16_t service_id 174,6089
-static uint8_t keep_running 178,6181
-struct onvm_service_chain *default_chain;default_chain183,6267
-uint64_t counter 188,6396
-static rte_atomic16_t * flag_p;193,6701
-static sem_t *mutex;mutex198,6819
-struct rte_timer stats_timer;203,6938
-onvm_interval_timer_t ts,207,7055
-onvm_interval_timer_t ts, g_ts;207,7055
-void *base_memory base_memory211,7155
-pkt_handler_func pkt_hdl_func 216,7310
-callback_handler_func cb_func 217,7348
-#define ONVM_NO_CALLBACK 218,7386
-#define YEILD_DUE_TO_EXPLICIT_REQ 285,8852
-#define YIELD_DUE_TO_EMPTY_RX_RING 286,8892
-#define YIELD_DUE_TO_FULL_TX_RING 287,8932
-void *pReplicaStateMempool pReplicaStateMempool302,9402
-dirty_mon_state_map_tbl_t *dirty_state_map dirty_state_map311,9703
-uint8_t SV_ACCES_PER_PACKET;315,9895
+static struct rte_mempool *image_states_pool;image_states_pool167,5945
+static uint16_t initial_instance_id 171,6057
+static uint16_t service_id 175,6135
+static uint8_t keep_running 179,6227
+struct onvm_service_chain *default_chain;default_chain184,6313
+uint64_t counter 189,6442
+static rte_atomic16_t * flag_p;194,6747
+static sem_t *mutex;mutex199,6865
+struct rte_timer stats_timer;204,6984
+onvm_interval_timer_t ts,208,7101
+onvm_interval_timer_t ts, g_ts;208,7101
+void *base_memory base_memory212,7201
+pkt_handler_func pkt_hdl_func 217,7356
+callback_handler_func cb_func 218,7394
+#define ONVM_NO_CALLBACK 219,7432
+#define YEILD_DUE_TO_EXPLICIT_REQ 286,8898
+#define YIELD_DUE_TO_EMPTY_RX_RING 287,8938
+#define YIELD_DUE_TO_FULL_TX_RING 288,8978
+void *pReplicaStateMempool pReplicaStateMempool303,9448
+dirty_mon_state_map_tbl_t *dirty_state_map dirty_state_map312,9749
+uint8_t SV_ACCES_PER_PACKET;316,9941
 
 onvm_nflib/histogram.h,1677
 #define _HISTOGRAM_H_ 3,23
@@ -361,76 +369,79 @@ onvm_pkt_set_checksums(494,16810
 onvm_tcp_con_close(542,18901
 onvm_tcp_ack_close(554,19231
 
-onvm_nflib/onvm_nflib.c,2826
-#define NF_MODE_UNKNOWN 77,2883
-#define NF_MODE_SINGLE 78,2909
-#define NF_MODE_RING 79,2934
-#define ONVM_NO_CALLBACK 81,2958
-#define ENABLE_NF_PAUSE_TILL_OUTSTANDING_NDSYNC_COMMIT83,2989
-#define __DEBUG__NDSYNC_LOGS__84,3044
-onvm_interval_timer_t nd_ts;88,3160
-int64_t max_nd,89,3189
-int64_t max_nd, min_nd,89,3189
-int64_t max_nd, min_nd, avg_nd,89,3189
-int64_t max_nd, min_nd, avg_nd, delta_nd;89,3189
-static inline void allocate_base_memory(97,3490
-static inline void do_memcopy(100,3587
-nf_explicit_callback_function nf_ecb 108,3866
-static uint8_t need_ecb 109,3911
-void register_explicit_callback_function(110,3940
-gpu_message_processing_func nf_gpu_func;123,4482
-void register_gpu_msg_handling_function(124,4523
-uint32_t get_nf_core_id(140,4959
-int set_cgroup_cpu_share(144,5025
-void init_cgroup_info(160,5749
-typedef struct pal_packet 190,7055
-        uint64_t pal_counter;191,7083
-        uint64_t pal_info;192,7113
-}pal_packet_t;pal_packet_t193,7140
-static inline int send_packets_out(194,7155
-int generate_and_transmit_pals_for_batch(214,8091
-stats_timer_cb(290,11897
-init_nflib_timers(303,12392
-void onvm_nf_yeild(319,13120
-static inline void  onvm_nf_wake_notify(353,14227
-static inline void onvm_nflib_implicit_wakeup(362,14509
-static inline void start_ppkt_processing_cost(370,14748
-static inline void end_ppkt_processing_cost(375,14988
-onvm_nflib_wait_till_notification(406,16442
-static inline void onvm_nflib_check_and_wait_if_interrupted(425,17400
-static inline void onvm_nflib_handle_tx_shadow_ring(442,18303
-static inline void synchronize_replica_nf_state_memory(474,19991
-static inline void update_processed_packet_ts(518,22006
-static inline int onvm_nflib_fetch_packets(543,23288
-inline int onvm_nflib_post_process_packets_batch(578,24973
-static inline int onvm_nflib_process_packets_batch(676,30504
-onvm_nflib_run_callback(768,34018
-onvm_nflib_run(829,36455
-onvm_nflib_return_pkt(835,36612
-onvm_nflib_return_pkt_bulk(852,37168
-onvm_nflib_stop(867,37772
-onvm_nflib_init(872,37892
-onvm_nflib_drop_pkt(1014,43078
-void notify_for_ecb(1020,43208
-onvm_nflib_handle_msg(1031,43408
-onvm_nflib_dequeue_messages(1103,46555
-onvm_nflib_info_init(1115,47076
-onvm_nflib_usage(1158,48536
-onvm_nflib_parse_args(1168,48752
-onvm_nflib_handle_signal(1212,50306
-onvm_nflib_cleanup(1224,50605
-onvm_nflib_notify_ready(1265,52298
-void onvm_send_gpu_msg_to_mgr(1336,55236
-void load_ml_file(1354,55823
-void evaluate_the_image(1377,56621
-void evaluate_an_image_from_mempool(1384,56998
-static int get_image_index(1430,58693
-static image_data *get_image(get_image1441,58905
- static void delete_image(1462,59647
-void copy_data_to_image(1476,60085
-onvm_nflib_start_nf(1504,61203
-static void set_cpu_sched_policy_and_mode(1588,65108
-init_shared_cpu_info(1599,65389
+onvm_nflib/onvm_nflib.c,2953
+#define NF_MODE_UNKNOWN 76,2858
+#define NF_MODE_SINGLE 77,2884
+#define NF_MODE_RING 78,2909
+#define ONVM_NO_CALLBACK 80,2933
+#define ENABLE_NF_PAUSE_TILL_OUTSTANDING_NDSYNC_COMMIT83,2965
+#define __DEBUG__NDSYNC_LOGS__84,3020
+onvm_interval_timer_t nd_ts;88,3136
+int64_t max_nd,89,3165
+int64_t max_nd, min_nd,89,3165
+int64_t max_nd, min_nd, avg_nd,89,3165
+int64_t max_nd, min_nd, avg_nd, delta_nd;89,3165
+static inline void allocate_base_memory(97,3466
+static inline void do_memcopy(100,3563
+nf_explicit_callback_function nf_ecb 108,3842
+static uint8_t need_ecb 109,3887
+void register_explicit_callback_function(110,3916
+gpu_message_processing_func nf_gpu_func;123,4458
+void register_gpu_msg_handling_function(124,4499
+uint32_t get_nf_core_id(144,5013
+int set_cgroup_cpu_share(148,5079
+void init_cgroup_info(164,5803
+typedef struct pal_packet 194,7109
+        uint64_t pal_counter;195,7137
+        uint64_t pal_info;196,7167
+}pal_packet_t;pal_packet_t197,7194
+static inline int send_packets_out(198,7209
+int generate_and_transmit_pals_for_batch(218,8145
+stats_timer_cb(294,11951
+init_nflib_timers(307,12444
+void onvm_nf_yeild(324,13207
+static inline void  onvm_nf_wake_notify(358,14314
+static inline void onvm_nflib_implicit_wakeup(367,14596
+static inline void start_ppkt_processing_cost(375,14835
+static inline void end_ppkt_processing_cost(380,15075
+onvm_nflib_wait_till_notification(411,16529
+static inline void onvm_nflib_check_and_wait_if_interrupted(430,17487
+static inline void onvm_nflib_handle_tx_shadow_ring(447,18390
+static inline void synchronize_replica_nf_state_memory(479,20078
+static inline void update_processed_packet_ts(523,22093
+static inline int onvm_nflib_fetch_packets(548,23375
+inline int onvm_nflib_post_process_packets_batch(583,25060
+static inline int onvm_nflib_process_packets_batch(681,30591
+onvm_nflib_run_callback(773,34105
+onvm_nflib_run(840,36592
+onvm_nflib_return_pkt(846,36749
+onvm_nflib_return_pkt_bulk(863,37305
+onvm_nflib_stop(878,37909
+onvm_nflib_init(883,38029
+onvm_nflib_drop_pkt(1030,43400
+void notify_for_ecb(1036,43530
+onvm_nflib_handle_msg(1047,43730
+onvm_nflib_dequeue_messages(1119,46877
+onvm_nflib_info_init(1131,47398
+onvm_nflib_usage(1179,49010
+onvm_nflib_parse_args(1189,49226
+onvm_nflib_handle_signal(1233,50780
+onvm_nflib_cleanup(1245,51079
+onvm_nflib_notify_ready(1286,52772
+void onvm_send_gpu_msg_to_mgr(1362,55794
+void load_ml_file(1381,56419
+void evaluate_the_image(1408,57323
+void evaluate_an_image_from_mempool(1415,57712
+void CUDART_CB gpu_image_callback_function(1457,59752
+static int get_image_index(1515,61947
+static image_data *get_image(get_image1526,62159
+ static void delete_image(1547,62901
+void copy_data_to_image(1557,63249
+void initialize_ml_timers(1579,64356
+void compute_ml_stats(1601,65108
+onvm_nflib_start_nf(1616,65642
+static void set_cpu_sched_policy_and_mode(1700,69547
+init_shared_cpu_info(1711,69828
 
 onvm_nflib/onvm_comm_utils.c,1169
   struct timespec start,52,2273
@@ -551,7 +562,7 @@ onvm_sc_create(69,2901
 onvm_nflib/onvm_pkt_common.h,36
 #define _ONVM_PKT_COMMON_H_54,2310
 
-onvm_nflib/onvm_common.h,20571
+onvm_nflib/onvm_common.h,20783
 #define _COMMON_H_43,2037
 #define ONVM_GPU 56,2251
 #define ONVM_GPU_SAME_SIZE_PKTS 57,2270
@@ -839,196 +850,200 @@ struct onvm_nf 826,37348
 #define NUMBER_OF_MODELS 951,41724
 #define MAX_IMAGE 952,41751
 struct image_information{image_information954,41826
-  void **image_pending;image_pending956,41900
-  void **ready_images;ready_images957,42000
-  int num_of_ready_images;958,42071
-  int index_of_ready_image;959,42136
-struct get_alternate_NF_ready{get_alternate_NF_ready962,42225
-  int gpu_percentage;963,42256
-typedef struct models_attributes{models_attributes967,42357
-  int number_of_inputs;968,42391
-  int *input_dimensions;input_dimensions969,42415
-  int number_of_parameters;970,42440
-  void *cuda_handles;cuda_handles971,42468
-  int *gpu_percentages;gpu_percentages972,42490
-  float * run_times;973,42557
-  int num_of_runtimes;974,42630
-}models_attributes;models_attributes975,42696
-struct gpu_file_listing{gpu_file_listing978,42760
-  int file_index;979,42785
-  char model_name[model_name980,42803
-  int load_flag;981,42826
-  void *cpu_function;cpu_function982,42911
-  void *gpu_function;gpu_function983,42933
-  models_attributes attributes;984,42955
-typedef struct provide_gpu_model{provide_gpu_model989,43067
-  struct onvm_nf_info *nf;nf990,43101
-  char model_name[model_name991,43128
-  int model_index;992,43151
-}provide_gpu_model;provide_gpu_model993,43170
-struct image_information *all_images_information;all_images_information996,43227
-struct onvm_nf_info 1006,43428
-        uint16_t instance_id;1007,43450
-        uint16_t service_id;1008,43480
-        uint8_t status;1010,43528
-        const char *tag;tag1011,43701
-        void *data;data1012,43726
-        pid_t pid;1013,43795
-        void *nf_state_mempool;nf_state_mempool1016,43838
-        void *service_state_pool;service_state_pool1018,43988
-        uint32_t comp_cost;1022,44148
-        uint32_t cpu_share;1026,44312
-        uint32_t core_id;1027,44381
-        uint32_t load;1028,44458
-        uint32_t avg_load;1029,44588
-        uint32_t svc_rate;1030,44659
-        uint64_t exec_period;1033,44828
-        uint32_t avg_svc;1036,45214
-        uint32_t comp_pkts;1037,45293
-        uint32_t drop_rate;1038,45502
-        histogram_v2_t ht2;1043,45653
-        histogram_v2_t ht2_q;1047,45752
-        volatile uint8_t bNDSycn;1051,45844
-        uint64_t bLastPktId;1052,45878
-        int64_t max_nd,1054,45937
-        int64_t max_nd, min_nd,1054,45937
-        int64_t max_nd, min_nd, avg_nd,1054,45937
-        int64_t max_nd, min_nd, avg_nd, delta_nd;1054,45937
-  int gpu_model;1059,46018
-  int gpu_percentage;1060,46036
-  int job_completion_rate;1061,46078
-  int gpu_execution_ready;1062,46132
-  int candidate_for_restart;1063,46159
-  void * function_ptr;1064,46218
-  unsigned int number_of_pkts_outstanding;1067,46303
-  unsigned int number_of_images_processed;1068,46396
-  struct image_information *image_info;image_info1070,46501
-  histogram_v2_t image_queueing_rate;1071,46568
-  histogram_v2_t image_processing_rate;1072,46648
-struct onvm_service_chain_entry 1081,46817
-        uint16_t destination;1082,46851
-        uint8_t action;1084,46927
-        uint8_t service;1086,46993
-struct onvm_service_chain 1090,47114
-        struct onvm_service_chain_entry sc[sc1091,47142
-        uint8_t chain_length;1092,47211
-        uint8_t ref_cnt;1093,47241
-        volatile uint8_t highest_downstream_nf_index_id;1095,47296
-        uint8_t nf_instances_mapped;1097,47495
-        uint8_t nf_instance_id[nf_instance_id1098,47593
-#define MP_NF_RXQ_NAME 1105,47793
-#define MP_NF_TXQ_NAME 1106,47833
-#define _NF_MSG_QUEUE_NAME 1107,47873
-#define PKTMBUF_POOL_NAME 1108,47918
-#define MZ_PORT_INFO 1109,47965
-#define MZ_NF_INFO 1110,48004
-#define MZ_SERVICES_INFO 1111,48039
-#define MZ_NF_PER_SERVICE_INFO 1112,48086
-#define MZ_SCP_INFO 1113,48145
-#define MZ_FTP_INFO 1114,48182
-#define _MGR_MSG_QUEUE_NAME 1116,48220
-#define _NF_MSG_QUEUE_NAME 1117,48290
-#define _MGR_RSP_QUEUE_NAME 1118,48335
-#define _NF_MEMPOOL_NAME 1119,48426
-#define _NF_MSG_POOL_NAME 1120,48507
-#define _NF_IMAGE_POOL_NAME 1123,48619
-#define SHMSZ 1128,48776
-#define KEY_PREFIX 1129,48862
-#define MP_CLIENT_SEM_NAME 1132,48946
-#define MP_CLIENT_SEM_NAME 1135,49035
-#define SAMPLING_RATE 1141,49271
-#define ONVM_SPECIAL_NF 1142,49361
-#define ONVM_NUM_WAKEUP_THREADS 1147,49483
-#define ONVM_NUM_WAKEUP_THREADS 1149,49568
-#define NF_WAITING_FOR_ID 1153,49688
-#define NF_STARTING 1154,49811
-#define NF_WAITING_FOR_RUN 1155,49920
-#define NF_RUNNING 1156,50090
-#define NF_PAUSED_BIT 1157,50158
-#define NF_WT_ND_SYNC_BIT 1158,50255
-#define NF_PAUSED 1159,50455
-#define NF_WT_ND_SYNC 1160,50557
-#define NF_STOPPED 1161,50673
-#define NF_ID_CONFLICT 1162,50767
-#define NF_NO_IDS 1163,50863
-#define NF_NO_ID 1164,50953
-#define ONVM_NF_HANDLE_TX 1165,50973
-get_rx_queue_name(1171,51168
-get_tx_queue_name(1188,51710
-get_msg_queue_name(1203,52255
-#define MP_NF_RXSQ_NAME 1214,52635
-#define MP_NF_TXSQ_NAME 1215,52678
-get_rx_squeue_name(1217,52748
-get_tx_squeue_name(1224,52982
-get_rsync_tx_port_ring_name(1233,53286
-get_rsync_tx_tx_state_latch_ring_name(1239,53529
-get_rsync_tx_nf_state_latch_ring_name(1245,53784
-get_rsync_tx_tx_state_latch_db_ring_name(1252,54086
-get_rsync_tx_nf_state_latch_db_ring_name(1258,54350
-get_associated_active_or_standby_nf_id(1267,54625
-is_primary_active_nf_id(1274,54848
-is_secondary_active_nf_id(1278,55066
-get_associated_active_nf_id(1282,55182
-get_associated_standby_nf_id(1286,55294
-get_rx_shmkey(1296,55520
-get_sem_name(1305,55678
-#define MP_CLIENT_CGROUP_NAME 1316,56043
-get_cgroup_name(1318,56108
-#define MP_CLIENT_CGROUP_PATH 1324,56300
-get_cgroup_path(1326,56385
-#define MP_CLIENT_CGROUP_CREAT 1332,56577
-get_cgroup_create_cgroup_cmd(1334,56668
-#define MP_CLIENT_CGROUP_ADD_TASK 1340,56875
-get_cgroup_add_task_cmd(1342,56979
-#define MP_CLIENT_CGROUP_SET_CPU_SHARE 1348,57204
-get_cgroup_set_cpu_share_cmd(1350,57318
-#define MP_CLIENT_CGROUP_SET_CPU_SHARE_ONVM_MGR 1356,57565
-get_cgroup_set_cpu_share_cmd_onvm_mgr(1358,57678
-set_cgroup_nf_cpu_share(1366,57958
-set_cgroup_nf_cpu_share_from_onvm_mgr(1381,58592
-#define RTE_LOGTYPE_APP 1399,59252
-typedef struct per_core_nf_pool 1402,59325
-        uint16_t nf_count;1403,59359
-        uint32_t nf_ids[nf_ids1404,59386
-}per_core_nf_pool_t;per_core_nf_pool_t1405,59420
-typedef struct sc_entries 1409,59475
-        struct onvm_service_chain *sc;sc1410,59503
-        uint16_t sc_count;1411,59542
-        uint16_t bneck_flag;1412,59569
-}sc_entries_list;sc_entries_list1413,59598
-typedef struct bottleneck_nf_entries 1419,60003
-        onvm_time_t s_time;1420,60042
-        uint16_t enqueue_status;1421,60070
-        uint16_t nf_id;1422,60209
-        uint16_t enqueued_ctr;1423,60233
-        uint16_t marked_ctr;1424,60264
-}bottleneck_nf_entries_t;bottleneck_nf_entries_t1425,60293
-typedef struct bottlenec_nf_info 1426,60319
-        uint16_t entires;1427,60354
-        bottleneck_nf_entries_t nf[nf1429,60523
-}bottlenec_nf_info_t;bottlenec_nf_info_t1430,60568
-bottlenec_nf_info_t bottleneck_nf_list;1431,60590
-#define WAIT_TIME_BEFORE_MARKING_OVERFLOW_IN_US 1435,60698
-typedef struct fipo_buf_node 1446,61472
-        void *pkt;pkt1447,61503
-        struct fipo_buf_node *next;next1448,61522
-        struct fipo_buf_node *prev;prev1449,61558
-}fipo_buf_node_t;fipo_buf_node_t1450,61594
-typedef struct fipo_list 1452,61613
-        uint32_t buf_count;1453,61640
-        fipo_buf_node_t *head;head1454,61668
-        fipo_buf_node_t *tail;tail1455,61699
-}fipo_list_t;fipo_list_t1456,61730
-typedef fipo_list_t fipo_per_flow_list;1457,61744
-#define MAX_NUM_FIPO_FLOWS 1460,62016
-#define MAX_BUF_PER_FLOW 1461,62049
-typedef struct nf_flow_list 1462,62148
-        uint32_t flow_count;1463,62178
-        fipo_per_flow_list *head;head1464,62207
-        fipo_per_flow_list *tail;tail1465,62241
-}nf_flow_list_t;nf_flow_list_t1466,62275
-#define TEST_INLINE_FUNCTION_CALL1469,62325
-typedef int(*nf_pkt_handler)nf_pkt_handler1471,62392
+  void *image_pending[image_pending956,41900
+  void *ready_images[ready_images957,42010
+  int num_of_ready_images;958,42091
+  int index_of_ready_image;959,42156
+struct get_alternate_NF_ready{get_alternate_NF_ready962,42245
+  int gpu_percentage;963,42276
+typedef struct models_attributes{models_attributes967,42377
+  int number_of_inputs;968,42411
+  int *input_dimensions;input_dimensions969,42435
+  int number_of_parameters;970,42460
+  void *cuda_handles;cuda_handles971,42488
+  int *gpu_percentages;gpu_percentages972,42510
+  float * run_times;973,42577
+  int num_of_runtimes;974,42650
+}models_attributes;models_attributes975,42716
+struct gpu_file_listing{gpu_file_listing978,42780
+  int file_index;979,42805
+  char model_name[model_name980,42823
+  int load_flag;981,42846
+  void *cpu_function;cpu_function982,42931
+  void *gpu_function;gpu_function983,42953
+  models_attributes attributes;984,42975
+typedef struct provide_gpu_model{provide_gpu_model989,43087
+  struct onvm_nf_info *nf;nf990,43121
+  char model_name[model_name991,43148
+  int model_index;992,43171
+}provide_gpu_model;provide_gpu_model993,43190
+struct image_information *all_images_information;all_images_information996,43247
+static inline double time_difference_usec(1000,43317
+struct onvm_nf_info 1016,43786
+        uint16_t instance_id;1017,43808
+        uint16_t service_id;1018,43838
+        uint8_t status;1020,43886
+        const char *tag;tag1021,44059
+        void *data;data1022,44084
+        pid_t pid;1023,44153
+        void *nf_state_mempool;nf_state_mempool1026,44196
+        void *service_state_pool;service_state_pool1028,44346
+        uint32_t comp_cost;1032,44506
+        uint32_t cpu_share;1036,44670
+        uint32_t core_id;1037,44739
+        uint32_t load;1038,44816
+        uint32_t avg_load;1039,44946
+        uint32_t svc_rate;1040,45017
+        uint64_t exec_period;1043,45186
+        uint32_t avg_svc;1046,45572
+        uint32_t comp_pkts;1047,45651
+        uint32_t drop_rate;1048,45860
+        histogram_v2_t ht2;1053,46011
+        histogram_v2_t ht2_q;1057,46110
+        volatile uint8_t bNDSycn;1061,46202
+        uint64_t bLastPktId;1062,46236
+        int64_t max_nd,1064,46295
+        int64_t max_nd, min_nd,1064,46295
+        int64_t max_nd, min_nd, avg_nd,1064,46295
+        int64_t max_nd, min_nd, avg_nd, delta_nd;1064,46295
+  int gpu_model;1069,46376
+  int gpu_percentage;1070,46394
+  int job_completion_rate;1071,46436
+  int gpu_execution_ready;1072,46490
+  int candidate_for_restart;1073,46517
+  void * function_ptr;1074,46576
+  unsigned int number_of_pkts_outstanding;1077,46661
+  unsigned int number_of_images_processed;1078,46754
+  struct image_information *image_info;image_info1080,46859
+  histogram_v2_t image_queueing_rate;1081,46926
+  histogram_v2_t image_processing_rate;1082,47006
+  histogram_v2_t end_to_end_image_processing_time;1084,47098
+  histogram_v2_t image_processing_gpu_time;1085,47201
+struct onvm_service_chain_entry 1094,47359
+        uint16_t destination;1095,47393
+        uint8_t action;1097,47469
+        uint8_t service;1099,47535
+struct onvm_service_chain 1103,47656
+        struct onvm_service_chain_entry sc[sc1104,47684
+        uint8_t chain_length;1105,47753
+        uint8_t ref_cnt;1106,47783
+        volatile uint8_t highest_downstream_nf_index_id;1108,47838
+        uint8_t nf_instances_mapped;1110,48037
+        uint8_t nf_instance_id[nf_instance_id1111,48135
+#define MP_NF_RXQ_NAME 1118,48335
+#define MP_NF_TXQ_NAME 1119,48375
+#define _NF_MSG_QUEUE_NAME 1120,48415
+#define PKTMBUF_POOL_NAME 1121,48460
+#define MZ_PORT_INFO 1122,48507
+#define MZ_NF_INFO 1123,48546
+#define MZ_SERVICES_INFO 1124,48581
+#define MZ_NF_PER_SERVICE_INFO 1125,48628
+#define MZ_SCP_INFO 1126,48687
+#define MZ_FTP_INFO 1127,48724
+#define _MGR_MSG_QUEUE_NAME 1129,48762
+#define _NF_MSG_QUEUE_NAME 1130,48832
+#define _MGR_RSP_QUEUE_NAME 1131,48877
+#define _NF_MEMPOOL_NAME 1132,48968
+#define _NF_MSG_POOL_NAME 1133,49049
+#define _NF_IMAGE_POOL_NAME 1136,49161
+#define _IMAGE_STATE_POOL_NAME 1137,49246
+#define SHMSZ 1142,49411
+#define KEY_PREFIX 1143,49497
+#define MP_CLIENT_SEM_NAME 1146,49581
+#define MP_CLIENT_SEM_NAME 1149,49670
+#define SAMPLING_RATE 1155,49906
+#define ONVM_SPECIAL_NF 1156,49996
+#define ONVM_NUM_WAKEUP_THREADS 1161,50118
+#define ONVM_NUM_WAKEUP_THREADS 1163,50203
+#define NF_WAITING_FOR_ID 1167,50323
+#define NF_STARTING 1168,50446
+#define NF_WAITING_FOR_RUN 1169,50555
+#define NF_RUNNING 1170,50725
+#define NF_PAUSED_BIT 1171,50793
+#define NF_WT_ND_SYNC_BIT 1172,50890
+#define NF_PAUSED 1173,51090
+#define NF_WT_ND_SYNC 1174,51192
+#define NF_STOPPED 1175,51308
+#define NF_ID_CONFLICT 1176,51402
+#define NF_NO_IDS 1177,51498
+#define NF_NO_ID 1178,51588
+#define ONVM_NF_HANDLE_TX 1179,51608
+get_rx_queue_name(1185,51803
+get_tx_queue_name(1202,52345
+get_msg_queue_name(1217,52890
+#define MP_NF_RXSQ_NAME 1228,53270
+#define MP_NF_TXSQ_NAME 1229,53313
+get_rx_squeue_name(1231,53383
+get_tx_squeue_name(1238,53617
+get_rsync_tx_port_ring_name(1247,53921
+get_rsync_tx_tx_state_latch_ring_name(1253,54164
+get_rsync_tx_nf_state_latch_ring_name(1259,54419
+get_rsync_tx_tx_state_latch_db_ring_name(1266,54721
+get_rsync_tx_nf_state_latch_db_ring_name(1272,54985
+get_associated_active_or_standby_nf_id(1281,55260
+is_primary_active_nf_id(1288,55483
+is_secondary_active_nf_id(1292,55701
+get_associated_active_nf_id(1296,55817
+get_associated_standby_nf_id(1300,55929
+get_rx_shmkey(1310,56155
+get_sem_name(1319,56313
+#define MP_CLIENT_CGROUP_NAME 1330,56678
+get_cgroup_name(1332,56743
+#define MP_CLIENT_CGROUP_PATH 1338,56935
+get_cgroup_path(1340,57020
+#define MP_CLIENT_CGROUP_CREAT 1346,57212
+get_cgroup_create_cgroup_cmd(1348,57303
+#define MP_CLIENT_CGROUP_ADD_TASK 1354,57510
+get_cgroup_add_task_cmd(1356,57614
+#define MP_CLIENT_CGROUP_SET_CPU_SHARE 1362,57839
+get_cgroup_set_cpu_share_cmd(1364,57953
+#define MP_CLIENT_CGROUP_SET_CPU_SHARE_ONVM_MGR 1370,58200
+get_cgroup_set_cpu_share_cmd_onvm_mgr(1372,58313
+set_cgroup_nf_cpu_share(1380,58593
+set_cgroup_nf_cpu_share_from_onvm_mgr(1395,59227
+#define RTE_LOGTYPE_APP 1413,59887
+typedef struct per_core_nf_pool 1416,59960
+        uint16_t nf_count;1417,59994
+        uint32_t nf_ids[nf_ids1418,60021
+}per_core_nf_pool_t;per_core_nf_pool_t1419,60055
+typedef struct sc_entries 1423,60110
+        struct onvm_service_chain *sc;sc1424,60138
+        uint16_t sc_count;1425,60177
+        uint16_t bneck_flag;1426,60204
+}sc_entries_list;sc_entries_list1427,60233
+typedef struct bottleneck_nf_entries 1433,60638
+        onvm_time_t s_time;1434,60677
+        uint16_t enqueue_status;1435,60705
+        uint16_t nf_id;1436,60844
+        uint16_t enqueued_ctr;1437,60868
+        uint16_t marked_ctr;1438,60899
+}bottleneck_nf_entries_t;bottleneck_nf_entries_t1439,60928
+typedef struct bottlenec_nf_info 1440,60954
+        uint16_t entires;1441,60989
+        bottleneck_nf_entries_t nf[nf1443,61158
+}bottlenec_nf_info_t;bottlenec_nf_info_t1444,61203
+bottlenec_nf_info_t bottleneck_nf_list;1445,61225
+#define WAIT_TIME_BEFORE_MARKING_OVERFLOW_IN_US 1449,61333
+typedef struct fipo_buf_node 1460,62107
+        void *pkt;pkt1461,62138
+        struct fipo_buf_node *next;next1462,62157
+        struct fipo_buf_node *prev;prev1463,62193
+}fipo_buf_node_t;fipo_buf_node_t1464,62229
+typedef struct fipo_list 1466,62248
+        uint32_t buf_count;1467,62275
+        fipo_buf_node_t *head;head1468,62303
+        fipo_buf_node_t *tail;tail1469,62334
+}fipo_list_t;fipo_list_t1470,62365
+typedef fipo_list_t fipo_per_flow_list;1471,62379
+#define MAX_NUM_FIPO_FLOWS 1474,62651
+#define MAX_BUF_PER_FLOW 1475,62684
+typedef struct nf_flow_list 1476,62783
+        uint32_t flow_count;1477,62813
+        fipo_per_flow_list *head;head1478,62842
+        fipo_per_flow_list *tail;tail1479,62876
+}nf_flow_list_t;nf_flow_list_t1480,62910
+#define TEST_INLINE_FUNCTION_CALL1483,62960
+typedef int(*nf_pkt_handler)nf_pkt_handler1485,63027
 
 onvm_nflib/onvm_sc_common.c,93
 int onvm_sc_append_entry(45,2099
@@ -1119,39 +1134,41 @@ void onvm_sort_generic_r(131,4325
 void onvm_sort_generic(159,5524
 int main(185,6467
 
-onvm_nflib/onvm_nflib.h,1516
+onvm_nflib/onvm_nflib.h,1612
 #define _ONVM_NFLIB_H_54,2277
-typedef int (*gpu_message_processing_func)gpu_message_processing_func288,9481
-typedef int (*nf_explicit_callback_function)nf_explicit_callback_function307,10187
-#define MAX_FILE_PATH_SIZE 314,10440
-#define AIO_OPTION_SYNC_MODE_RW 315,10485
-#define AIO_OPTION_BATCH_PROCESS 316,10563
-#define AIO_OPTION_PER_FLOW_QUEUE 317,10633
-typedef struct nflib_aio_info 318,10709
-        uint8_t file_path[file_path319,10741
-        int mode;320,10788
-        uint32_t num_of_buffers;321,10848
-        uint32_t max_buffer_size;322,10935
-        uint32_t aio_options;323,11013
-        uint32_t wait_pkt_queue_len;324,11085
-}nflib_aio_info_t;nflib_aio_info_t325,11187
-typedef struct onvm_nflib_aio_init_info 326,11206
-        nflib_aio_info_t aio_read;327,11248
-        nflib_aio_info_t aio_write;328,11307
-        uint32_t max_worker_threads;329,11367
-        uint8_t aio_service_type;330,11442
-}onvm_nflib_aio_init_info_t;onvm_nflib_aio_init_info_t331,11533
-typedef struct nflib_aio_status 332,11562
-        int32_t rw_status;333,11596
-        void *rw_buffer;rw_buffer334,11681
-        uint8_t rw_buf_len;335,11784
-        off_t rw_offset;336,11832
-}nflib_aio_status_t;nflib_aio_status_t337,11903
-typedef int (*aio_notify_handler_cb)aio_notify_handler_cb342,12071
-typedef struct dirty_mon_state_map_tbl 359,13000
-        uint64_t dirty_index;360,13041
-}dirty_mon_state_map_tbl_t;dirty_mon_state_map_tbl_t362,13125
-#define DIRTY_MAP_PER_CHUNK_SIZE 366,13184
+typedef int (*gpu_message_processing_func)gpu_message_processing_func289,9482
+struct rte_timer image_stats_timer;300,10160
+struct rte_timer image_inference_timer;303,10238
+typedef int (*nf_explicit_callback_function)nf_explicit_callback_function314,10376
+#define MAX_FILE_PATH_SIZE 321,10629
+#define AIO_OPTION_SYNC_MODE_RW 322,10674
+#define AIO_OPTION_BATCH_PROCESS 323,10752
+#define AIO_OPTION_PER_FLOW_QUEUE 324,10822
+typedef struct nflib_aio_info 325,10898
+        uint8_t file_path[file_path326,10930
+        int mode;327,10977
+        uint32_t num_of_buffers;328,11037
+        uint32_t max_buffer_size;329,11124
+        uint32_t aio_options;330,11202
+        uint32_t wait_pkt_queue_len;331,11274
+}nflib_aio_info_t;nflib_aio_info_t332,11376
+typedef struct onvm_nflib_aio_init_info 333,11395
+        nflib_aio_info_t aio_read;334,11437
+        nflib_aio_info_t aio_write;335,11496
+        uint32_t max_worker_threads;336,11556
+        uint8_t aio_service_type;337,11631
+}onvm_nflib_aio_init_info_t;onvm_nflib_aio_init_info_t338,11722
+typedef struct nflib_aio_status 339,11751
+        int32_t rw_status;340,11785
+        void *rw_buffer;rw_buffer341,11870
+        uint8_t rw_buf_len;342,11973
+        off_t rw_offset;343,12021
+}nflib_aio_status_t;nflib_aio_status_t344,12092
+typedef int (*aio_notify_handler_cb)aio_notify_handler_cb349,12260
+typedef struct dirty_mon_state_map_tbl 366,13189
+        uint64_t dirty_index;367,13230
+}dirty_mon_state_map_tbl_t;dirty_mon_state_map_tbl_t369,13314
+#define DIRTY_MAP_PER_CHUNK_SIZE 373,13373
 
 onvm_nflib/histogram.c,623
 #define MIN(6,83
@@ -1249,15 +1266,15 @@ onvm_nf_send_msg(682,34918
 #define MAX_SYNC_RETRY_COUNT 703,35606
 onvm_nf_send_msg_sync(706,35653
 int onvm_nf_register_run(732,37001
-onvm_nf_start(829,42651
-onvm_nf_stop(890,44805
-static sc_entries_list sc_list[sc_list974,48180
-onvm_mark_all_entries_for_bottleneck(978,48240
-onvm_clear_all_entries_for_bottleneck(1047,51972
-int enqueu_nf_to_bottleneck_watch_list(1116,56335
-int dequeue_nf_from_bottleneck_watch_list(1143,57701
-static inline void mark_nf_backpressure_from_bottleneck_watch_list(1170,59055
-int check_and_enqueue_or_dequeue_nfs_from_bottleneck_watch_list(1183,59567
+onvm_nf_start(837,42901
+onvm_nf_stop(898,45055
+static sc_entries_list sc_list[sc_list982,48430
+onvm_mark_all_entries_for_bottleneck(986,48490
+onvm_clear_all_entries_for_bottleneck(1055,52222
+int enqueu_nf_to_bottleneck_watch_list(1124,56585
+int dequeue_nf_from_bottleneck_watch_list(1151,57951
+static inline void mark_nf_backpressure_from_bottleneck_watch_list(1178,59305
+int check_and_enqueue_or_dequeue_nfs_from_bottleneck_watch_list(1191,59817
 
 onvm_mgr/zoo_queue.h,371
 #define ZOOKEEPER_QUEUE_H_20,835
@@ -1301,7 +1318,7 @@ can_scale_remotely(448,15701
 mac_string_to_struct(494,17267
 free_String_vector(517,17872
 
-onvm_mgr/onvm_init.c,3207
+onvm_mgr/onvm_init.c,3273
 struct onvm_nf *nfs nfs58,2377
 struct port_info *ports ports59,2405
 struct rte_mempool *pktmbuf_pool;pktmbuf_pool61,2438
@@ -1309,64 +1326,65 @@ struct rte_mempool *nf_info_pool;nf_info_pool62,2472
 struct rte_mempool *nf_msg_pool;nf_msg_pool63,2506
 struct rte_ring *mgr_msg_queue;mgr_msg_queue64,2539
 struct rte_mempool *nf_image_pool;nf_image_pool67,2588
-struct rte_ring *mgr_rsp_queue;mgr_rsp_queue71,2664
-struct rte_mempool *nf_state_pool;nf_state_pool75,2727
-struct rte_mempool *service_state_pool;service_state_pool79,2829
-void **services_state_pool;services_state_pool80,2869
-struct rte_mempool *per_flow_ts_pool;per_flow_ts_pool85,3012
-void *onvm_mgr_tx_per_flow_ts_info;onvm_mgr_tx_per_flow_ts_info87,3119
-void *onvm_mgr_tx_per_flow_ts_info_db[onvm_mgr_tx_per_flow_ts_info_db90,3238
-void *onvm_mgr_tx_per_flow_ts_info_db;onvm_mgr_tx_per_flow_ts_info_db92,3313
-struct rte_ring *tx_port_ring[tx_port_ring98,3414
-struct rte_ring *tx_tx_state_latch_ring[tx_tx_state_latch_ring99,3542
-struct rte_ring *tx_nf_state_latch_ring[tx_nf_state_latch_ring100,3680
-struct rte_ring *tx_tx_state_latch_db_ring[tx_tx_state_latch_db_ring103,3933
-struct rte_ring *tx_nf_state_latch_db_ring[tx_nf_state_latch_db_ring104,4129
-struct rte_ring *tx_tx_state_latch_db_ring[tx_tx_state_latch_db_ring106,4363
-struct rte_ring *tx_nf_state_latch_db_ring[tx_nf_state_latch_db_ring107,4504
-uint16_t **services;services112,4699
-uint16_t *nf_per_service_count;nf_per_service_count113,4720
-struct onvm_service_chain *default_chain;default_chain115,4753
-struct onvm_service_chain **default_sc_p;default_sc_p116,4795
-int onvm_socket_id;119,4890
-void *zmq_ctx;zmq_ctx123,4967
-void *onvm_socket_id;onvm_socket_id124,4982
-void *onvm_socket_ctx;onvm_socket_ctx125,5004
-uint8_t remote_eth_addr[remote_eth_addr129,5055
-struct ether_addr remote_eth_addr_struct;130,5117
-uint32_t nf_mgr_id;154,5777
-#define RX_PTHRESH 177,6471
-#define RX_HTHRESH 178,6543
-#define RX_WTHRESH 179,6611
-#define TX_PTHRESH 186,6893
-#define TX_HTHRESH 187,6966
-#define TX_WTHRESH 188,7035
-static const struct rte_eth_conf port_conf 190,7111
-static const struct rte_eth_rxconf rx_conf 211,7866
-static const struct rte_eth_txconf tx_conf 220,8098
-init(236,8476
-init_mbuf_pools(359,13076
-static int init_nf_state_pool(376,13851
-static int init_service_state_pool(396,15003
-static int init_per_flow_ts_pool(414,15944
-                        #define PER_FLOW_TS_POOL_COUNT 418,16130
-                        #define PER_FLOW_TS_POOL_COUNT 420,16251
-                        #define PER_FLOW_TS_POOL_COUNT 424,16521
-                        #define PER_FLOW_TS_POOL_COUNT 426,16612
-                #define PER_FLOW_TS_POOL_COUNT 431,16777
-                #define PER_FLOW_TS_POOL_COUNT 433,16852
-static int init_rsync_tx_rings(454,17909
-init_nf_msg_pool(523,23097
-static int init_image_pool(539,23665
-static int init_images_state(555,24204
-init_client_info_pool(586,25253
-init_port(630,27099
-init_shm_rings(724,31158
-init_mgr_queues(937,41675
-check_all_ports_link_status(967,42601
-#define CHECK_INTERVAL 968,42669
-#define MAX_CHECK_TIME 969,42708
-static uint32_t read_onvm_mgr_id_from_system(1030,45347
+struct rte_mempool *image_states_pool;image_states_pool68,2623
+struct rte_ring *mgr_rsp_queue;mgr_rsp_queue72,2703
+struct rte_mempool *nf_state_pool;nf_state_pool76,2766
+struct rte_mempool *service_state_pool;service_state_pool80,2868
+void **services_state_pool;services_state_pool81,2908
+struct rte_mempool *per_flow_ts_pool;per_flow_ts_pool86,3051
+void *onvm_mgr_tx_per_flow_ts_info;onvm_mgr_tx_per_flow_ts_info88,3158
+void *onvm_mgr_tx_per_flow_ts_info_db[onvm_mgr_tx_per_flow_ts_info_db91,3277
+void *onvm_mgr_tx_per_flow_ts_info_db;onvm_mgr_tx_per_flow_ts_info_db93,3352
+struct rte_ring *tx_port_ring[tx_port_ring99,3453
+struct rte_ring *tx_tx_state_latch_ring[tx_tx_state_latch_ring100,3581
+struct rte_ring *tx_nf_state_latch_ring[tx_nf_state_latch_ring101,3719
+struct rte_ring *tx_tx_state_latch_db_ring[tx_tx_state_latch_db_ring104,3972
+struct rte_ring *tx_nf_state_latch_db_ring[tx_nf_state_latch_db_ring105,4168
+struct rte_ring *tx_tx_state_latch_db_ring[tx_tx_state_latch_db_ring107,4402
+struct rte_ring *tx_nf_state_latch_db_ring[tx_nf_state_latch_db_ring108,4543
+uint16_t **services;services113,4738
+uint16_t *nf_per_service_count;nf_per_service_count114,4759
+struct onvm_service_chain *default_chain;default_chain116,4792
+struct onvm_service_chain **default_sc_p;default_sc_p117,4834
+int onvm_socket_id;120,4929
+void *zmq_ctx;zmq_ctx124,5006
+void *onvm_socket_id;onvm_socket_id125,5021
+void *onvm_socket_ctx;onvm_socket_ctx126,5043
+uint8_t remote_eth_addr[remote_eth_addr130,5094
+struct ether_addr remote_eth_addr_struct;131,5156
+uint32_t nf_mgr_id;155,5816
+#define RX_PTHRESH 178,6510
+#define RX_HTHRESH 179,6582
+#define RX_WTHRESH 180,6650
+#define TX_PTHRESH 187,6932
+#define TX_HTHRESH 188,7005
+#define TX_WTHRESH 189,7074
+static const struct rte_eth_conf port_conf 191,7150
+static const struct rte_eth_rxconf rx_conf 212,7905
+static const struct rte_eth_txconf tx_conf 221,8137
+init(237,8515
+init_mbuf_pools(360,13114
+static int init_nf_state_pool(377,13889
+static int init_service_state_pool(397,15041
+static int init_per_flow_ts_pool(415,15982
+                        #define PER_FLOW_TS_POOL_COUNT 419,16168
+                        #define PER_FLOW_TS_POOL_COUNT 421,16289
+                        #define PER_FLOW_TS_POOL_COUNT 425,16559
+                        #define PER_FLOW_TS_POOL_COUNT 427,16650
+                #define PER_FLOW_TS_POOL_COUNT 432,16815
+                #define PER_FLOW_TS_POOL_COUNT 434,16890
+static int init_rsync_tx_rings(455,17947
+init_nf_msg_pool(524,23135
+static int init_image_pool(540,23703
+static int init_images_state(556,24257
+init_client_info_pool(595,25581
+init_port(639,27427
+init_shm_rings(733,31486
+init_mgr_queues(963,42462
+check_all_ports_link_status(993,43388
+#define CHECK_INTERVAL 994,43456
+#define MAX_CHECK_TIME 995,43495
+static uint32_t read_onvm_mgr_id_from_system(1056,46134
 
 onvm_mgr/onvm_wakemgr.c,1309
 unsigned nfs_wakethr[nfs_wakethr61,2542
@@ -1742,7 +1760,7 @@ union tunnel_offload_info 77,3096
                 uint64_t outer_l3_len:outer_l3_len85,3498
 } __rte_cache_aligned;87,3582
 
-onvm_mgr/onvm_init.h,912
+onvm_mgr/onvm_init.h,953
 #define _ONVM_INIT_H_54,2317
 #define MBUFS_PER_NF 97,3416
 #define MBUFS_PER_PORT 98,3514
@@ -1755,18 +1773,19 @@ onvm_mgr/onvm_init.h,912
 #define NF_MSG_SIZE 107,3971
 #define NF_MSG_CACHE_SIZE 108,4018
 #define IMAGE_CACHE_SIZE 112,4115
-#define CLIENT_QUEUE_RING_THRESHOLD 119,4437
-#define CLIENT_QUEUE_RING_THRESHOLD_GAP 120,4478
-#define CLIENT_QUEUE_RING_THRESHOLD 122,4584
-#define CLIENT_QUEUE_RING_THRESHOLD_GAP 123,4625
-#define CLIENT_QUEUE_RING_WATER_MARK_SIZE 126,4707
-#define CLIENT_QUEUE_RING_LOW_THRESHOLD 127,4815
-#define CLIENT_QUEUE_RING_LOW_WATER_MARK_SIZE 128,5015
-#define ECN_EWMA_ALPHA 129,5131
-#define CLIENT_QUEUE_RING_ECN_MARK_SIZE 130,5162
-#define NO_FLAGS 131,5335
-#define DYNAMIC_CLIENTS 133,5355
-#define STATIC_CLIENTS 134,5381
+#define IMAGE_STATE_CACHE_SIZE 113,4142
+#define CLIENT_QUEUE_RING_THRESHOLD 120,4470
+#define CLIENT_QUEUE_RING_THRESHOLD_GAP 121,4511
+#define CLIENT_QUEUE_RING_THRESHOLD 123,4617
+#define CLIENT_QUEUE_RING_THRESHOLD_GAP 124,4658
+#define CLIENT_QUEUE_RING_WATER_MARK_SIZE 127,4740
+#define CLIENT_QUEUE_RING_LOW_THRESHOLD 128,4848
+#define CLIENT_QUEUE_RING_LOW_WATER_MARK_SIZE 129,5048
+#define ECN_EWMA_ALPHA 130,5164
+#define CLIENT_QUEUE_RING_ECN_MARK_SIZE 131,5195
+#define NO_FLAGS 132,5368
+#define DYNAMIC_CLIENTS 134,5388
+#define STATIC_CLIENTS 135,5414
 
 onvm_mgr/onvm_special_nf0.c,4237
 #define ONVM_MGR_ACT_AS_2PORT_FWD_BRIDGE 74,2939

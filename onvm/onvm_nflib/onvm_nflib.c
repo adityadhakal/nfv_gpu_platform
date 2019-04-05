@@ -1,3 +1,4 @@
+
 /*********************************************************************
  *                     openNetVM
  *              https://sdnfv.github.io
@@ -65,7 +66,6 @@
 #include "onvm_nflib.h"
 #ifdef ONVM_GPU
 #include <cuda_runtime.h>
-#include "onvm_images.h"
 #endif
 #include "onvm_includes.h"
 #include "onvm_sc_common.h"
@@ -79,6 +79,7 @@
 #define NF_MODE_RING 2
 
 #define ONVM_NO_CALLBACK NULL
+
 
 #define ENABLE_NF_PAUSE_TILL_OUTSTANDING_NDSYNC_COMMIT
 #define __DEBUG__NDSYNC_LOGS__
@@ -129,6 +130,8 @@ void register_gpu_msg_handling_function(gpu_message_processing_func gmpf){
 }
 //timer threads...
 void initialize_ml_timers(struct onvm_nf_info *nf_info);
+//image state mempool function
+static void get_image_state_mempool(struct onvm_nf_info *info);
 
 
 #endif
@@ -298,7 +301,7 @@ stats_timer_cb(__attribute__((unused)) struct rte_timer *ptr_timer,
         counter = SAMPLING_RATE;
 #endif //INTERRUPT_SEM
 
-        //printf("\n On core [%d] Inside Timer Callback function: %"PRIu64" !!\n", rte_lcore_id(), rte_rdtsc_precise());
+        printf("\n On core [%d] Inside Timer Callback function: %"PRIu64" !!\n", rte_lcore_id(), rte_rdtsc_precise());
         //printf("Echo %d", system("echo > hello_timer.txt"));
         //printf("\n Inside Timer Callback function: %"PRIu64" !!\n", rte_rdtsc_precise());
 }
@@ -309,6 +312,7 @@ init_nflib_timers(void) {
         //unsigned timer_core = rte_get_next_lcore(cur_lcore, 1, 1);
         //printf("cur_core [%u], timer_core [%u]", cur_lcore,timer_core);
         rte_timer_subsystem_init();
+	printf("Timer subsystem init\n");
         rte_timer_init(&stats_timer);
         rte_timer_reset_sync(&stats_timer,
                                 (NF_STATS_PERIOD_IN_MS * rte_get_timer_hz()) / 1000,
@@ -796,6 +800,10 @@ onvm_nflib_run_callback(struct onvm_nf_info* nf_info, pkt_handler_func handler, 
                 onvm_nflib_check_and_wait_if_interrupted(nf_info);
 
 		//printf("------ ***** ------- ##### We got inside keep_running after wait if interrupted ----- ***** ------\n");
+#ifdef ONVM_GPU
+		rte_timer_manage();
+#endif
+
 
                 nb_pkts = onvm_nflib_fetch_packets(pkts, NF_PKT_BATCH_SIZE);
                 if(likely(nb_pkts)) {
@@ -809,12 +817,14 @@ onvm_nflib_run_callback(struct onvm_nf_info* nf_info, pkt_handler_func handler, 
 			nf_info->number_of_pkts_outstanding += nb_pkts; //added the number of packets
 #endif
 #endif
+
+
                 }
 
 #ifdef ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
                 rte_timer_manage();
 #endif  //ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
-
+		
                 /* Finally Check for any Messages/Notifications */
                 onvm_nflib_dequeue_messages(nf_info);
 		//printf("------ ***** ------- ##### We got after nflib_dequeue if interrupted ----- ***** ------\n");
@@ -929,6 +939,7 @@ onvm_nflib_init(int argc, char *argv[], const char *nf_tag, struct onvm_nf_info 
 	nf_image_pool = rte_mempool_lookup(_NF_IMAGE_POOL_NAME);
 	if(nf_image_pool == NULL)
 	  rte_exit(EXIT_FAILURE, "No Image Mempool -bye\n");
+
 #endif
         /* Initialize the info struct */
         nf_info = onvm_nflib_info_init(nf_tag);
@@ -1138,6 +1149,7 @@ onvm_nflib_info_init(const char *tag)
         info->pid = getpid();
 	
 #ifdef ONVM_GPU
+	//TODO REMOVE MALLOCS AND PUT IT IN STATIC ARRAYS
 	//initialize the array that is a queue for GPU
 	gpu_queue_image_id = (int *) rte_malloc(NULL, sizeof(int )*MAX_IMAGE, 0);
 	//array for noting what time the image is inserted in GPU queue
@@ -1148,11 +1160,14 @@ onvm_nflib_info_init(const char *tag)
 	  original_instance_id = get_associated_active_or_standby_nf_id(info->instance_id);
 	  printf("DEBUG... this is a secondary NF ---+++_---+++___ We get associated NF id %d \n",original_instance_id);
 	}
-	info->image_info = &all_images_information[original_instance_id];
+	//info->image_info = &(all_images_information[original_instance_id]);
+	printf("original instance id %d \n", original_instance_id);
+
 	//initialize the histograms
 	hist_init_v2(&(info->image_queueing_rate));
 	hist_init_v2(&(info->image_processing_rate));
 	hist_init_v2(&(info->end_to_end_image_processing_time));
+	get_image_state_mempool(info); //get the image state
 	initialize_ml_timers(info);
 	
 #endif
@@ -1338,10 +1353,42 @@ static void delete_image(image_data * image, struct onvm_nf_info * nf_info);
 //GPU callback function to report after the evaluation is finished...
 void CUDART_CB gpu_image_callback_function(cudaStream_t event, cudaError_t status, void *data);
 //this function will be called to evaluate an image from mempool
-void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info);
+void evaluate_an_image_from_mempool(struct rte_timer *timer_ptr, void *info);
 
 //ml stats function
-void compute_ml_stats(struct onvm_nf_info *nf_info);
+void compute_ml_stats(struct rte_timer * timer_ptr,void *info);
+
+
+static void get_image_state_mempool(struct onvm_nf_info *info)
+{	const char *state_mempool_name;
+	//we have to attach the mempools here... and then put it back...
+  printf("THe instance ID of the nf is %d and associated id %d\n", info->instance_id,get_associated_active_or_standby_nf_id(info->instance_id));
+	if(is_secondary_active_nf_id(info->instance_id)){
+	  state_mempool_name = get_nf_image_state_name(get_associated_active_or_standby_nf_id(info->instance_id));
+	}
+	else
+	  {
+	    state_mempool_name = get_nf_image_state_name(info->instance_id);
+	  }
+
+	printf("State mempool name is %s \n",state_mempool_name);
+	struct rte_mempool *state_mempool = rte_mempool_lookup(state_mempool_name);
+
+	if(state_mempool == NULL)
+	  printf("Cannot find state mempool \n");
+
+	int retval;
+	void * address;
+	retval = rte_mempool_get(state_mempool, (void **) &address);
+	if(retval != 0){
+	  printf("--- Couldn't get image mempool %d \n", retval);
+	}	  
+	//rte_mempool_put(state_mempool, info->image_info);
+	info->image_info = address;
+	info->temp_img_info = address;
+
+	printf("Info image info mempool updated to %p \n",info->image_info);
+}
 
 /* this function sends message to onvm manager */
 void onvm_send_gpu_msg_to_mgr(provide_gpu_model *message_to_manager, int message_type){
@@ -1363,7 +1410,7 @@ void onvm_send_gpu_msg_to_mgr(provide_gpu_model *message_to_manager, int message
 }
 
 /* common function to load ml file */
-void load_ml_file(char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr){
+void load_ml_file(char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr, struct onvm_nf_info *nf_info){
   /* convert the filename to wchar_t */
   size_t filename_length = strlen(file_path);
   wchar_t file_name[filename_length];
@@ -1382,6 +1429,9 @@ void load_ml_file(char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void
 
   int ret = load_model(file_name, cpu_func_ptr, gpu_func_ptr, cpu_gpu_flag, 0);
 
+  /* put it in NF info as well */
+  nf_info->function_ptr = gpu_func_ptr;
+
   if(ret)
     fprintf(stdout, "ML File loading failure \n");
 }
@@ -1389,17 +1439,25 @@ void load_ml_file(char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void
 //this function will evaluate your data...
 void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, float *output){
   //printf("%p, %p, %p, %p \n",function_ptr, input_buffer, stats, output);
-  evaluate_in_gpu_input_from_host((float *)input_buffer, IMAGE_SIZE*IMAGE_BATCH, output, function_ptr, stats, 0);
+  evaluate_in_gpu_input_from_host((float *)input_buffer, IMAGE_SIZE*IMAGE_BATCH, output, function_ptr, stats, 0, NULL, NULL);
   return;
 }
 
 //a more comprehensive evaluate function that can be called by the timer thread
-void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info){
+void evaluate_an_image_from_mempool(struct rte_timer *timer_ptr,void *info){
+  struct onvm_nf_info* nf_info = (struct onvm_nf_info *)info;
+  printf("DEBUG.. timer thread acting properly\n");
+  if(nf_info->image_info == NULL){
+    printf("image info address %p \n", nf_info->image_info);
+  }
   //get the next image. only if there is any images to execute
+  printf("the image info address %p and nf instance ID %d the num of ready images--- nf_info address %p gpu model %d temp_img_info %p\n",nf_info->image_info,nf_info->instance_id, nf_info, nf_info->gpu_model, nf_info->temp_img_info);
   if(nf_info->image_info->num_of_ready_images <= 0){
+    printf("Testing timer thread.. timer period %"PRIu64" \n", timer_ptr->period);
     return;
   }
 
+  printf("Number of ready images %d \n", nf_info->image_info->num_of_ready_images);
   //otherwise grab one image and proceed
   image_data *ready_image = nf_info->image_info->ready_images[nf_info->image_info->index_of_ready_image];
   
@@ -1419,7 +1477,7 @@ void evaluate_an_image_from_mempool(struct onvm_nf_info * nf_info){
   //evaluate_in_gpu_input_from_host(ready_image->image_data_arr, IMAGE_SIZE*(ready_image->num_data_points_stored/IMAGE_NUM_ELE),ready_image->output,nf_info->function_ptr,ready_image->stats, gpu_finish_work_flag, &gpu_image_callback_function, (void *) ready_image);
   
   //new evaluation function, older one is too cubersome
-  evaluate_image_in_gpu(ready_image, &gpu_image_callback_function, (void *) &callback_data, gpu_finish_work_flag);
+  evaluate_image_in_gpu(ready_image, nf_info->function_ptr, &gpu_image_callback_function, (void *) &callback_data, gpu_finish_work_flag);
   //post evaluation...put it in the GPU eval queue.
     
   gpu_queue_image_id[gpu_queue_current_index]=ready_image->image_id;
@@ -1554,14 +1612,15 @@ void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
 
 //initializes the timers....
 void initialize_ml_timers(struct onvm_nf_info * nf_info){
-  rte_timer_subsystem_init();//does this happen already.. check
+  printf("Aditya's initialize the timer called ... image_state mempool address %p, nf_info address %p\n", nf_info->image_info, nf_info);
+  //rte_timer_subsystem_init();//does this happen already.. check
   rte_timer_init(&image_stats_timer);
   rte_timer_init(&image_inference_timer);
   rte_timer_reset_sync(&image_stats_timer,
 		       (NF_IMAGE_STATS_PERIOD_MS * rte_get_timer_hz())/1000,
 		       PERIODICAL,
 		       rte_lcore_id(), //timer_core
-		       (void *)&compute_ml_stats,
+		       &compute_ml_stats,
 		       (void *) nf_info
 		       );
   
@@ -1569,12 +1628,13 @@ void initialize_ml_timers(struct onvm_nf_info * nf_info){
 		       (NF_INFERENCE_PERIOD * rte_get_timer_hz())/1000,
 		       PERIODICAL,
 		       rte_lcore_id(), //timer_core
-		       (void *)&evaluate_an_image_from_mempool,
+		       &evaluate_an_image_from_mempool,
 		       (void *) nf_info
 		       );
 }
 
-void compute_ml_stats(struct onvm_nf_info *nf_info){
+void compute_ml_stats(__attribute__((unused))struct rte_timer *timer_ptr,void *info){
+  struct onvm_nf_info *nf_info = (struct onvm_nf_info *) info;
   //compute the values in per second basis and feed into histogram.
   #ifdef ONVM_GPU_SAME_SIZE_PKTS
   int number_of_images_pending = nf_info->number_of_pkts_outstanding/NUM_OF_PKTS;

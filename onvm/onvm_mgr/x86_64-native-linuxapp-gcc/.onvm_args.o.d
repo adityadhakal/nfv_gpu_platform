@@ -229,5 +229,4 @@ dep_onvm_args.o = \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../onvm_nflib/onvm_pkt_helper.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../onvm_nflib/onvm_flow_dir.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../onvm_nflib/onvm_flow_table.h \
- /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../onvm_nflib/onvm_images.h \
- /home/skulk901/dev/openNetVM_Mainline/dpdk/x86_64-native-linuxapp-gcc/include/rte_hash.h
+ /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../onvm_nflib/onvm_images.h

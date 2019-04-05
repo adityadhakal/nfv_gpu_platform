@@ -65,6 +65,7 @@ struct rte_ring *mgr_msg_queue;
 
 #ifdef ONVM_GPU
 struct rte_mempool *nf_image_pool;
+struct rte_mempool *image_states_pool;
 #endif
 
 #ifdef ENABLE_SYNC_MGR_TO_NF_MSG
@@ -281,14 +282,17 @@ init(int argc, char *argv[]) {
                 rte_exit(EXIT_FAILURE, "Cannot create nf message pool: %s\n", rte_strerror(rte_errno));
         }
 
-	#ifdef ONVM_GPU
+#ifdef ONVM_GPU
 	/* initialize the pool for images */
 	retval = init_image_pool();
 	if(retval != 0){
 	  rte_exit(EXIT_FAILURE, "Cannot create image pool: %s \n", rte_strerror(rte_errno));
 	}
 	//also initialize the other variables for images
-	init_images_state();
+	retval = init_images_state();
+	if(retval != 0){
+	  rte_exit(EXIT_FAILURE, "Cannot create image state mempool: %s \n", rte_strerror(rte_errno));
+	}
 #endif
 	
         /* now initialise the ports we will use */
@@ -542,7 +546,7 @@ static int init_image_pool(void)
          * create as it seems faster to use a cache instead */
         printf("Creating mbuf pool '%s' ...\n", _NF_IMAGE_POOL_NAME);
 	nf_image_pool = rte_mempool_create(_NF_IMAGE_POOL_NAME, MAX_IMAGE,
-					   IMAGE_SIZE, IMAGE_CACHE_SIZE,
+					   sizeof(struct image_data), IMAGE_CACHE_SIZE,
 					   0, NULL, NULL, NULL, NULL, rte_socket_id(), NO_FLAGS);
 	return(nf_image_pool == NULL); /* 0 on success */
 }
@@ -555,15 +559,31 @@ static int init_image_pool(void)
 static int init_images_state(void){
   /* we need half the number of buffers compared to total NF and this variable should be available in common
    */
-  printf("Creating state arrays for images for %d NFs \n",MAX_NFS);
+  printf("Creating mempool image states for %d NFs \n",MAX_NFS);
   //since we share image information with alternate NF, all we need it half of MAX_NFs
-  int half_nfs = MAX_NFS/2;
+  //int half_nfs = MAX_ACTIVE_CLIENTS;
 
+  int i;
+  for(i = 0; i<MAX_ACTIVE_CLIENTS; i++){
+    
+    const char * state_mempool_name = get_nf_image_state_name(i);
+    printf("Image state mempool created for Name %s \n",state_mempool_name);
+    image_states_pool = rte_mempool_create(state_mempool_name, 1,
+					 sizeof(struct image_information), IMAGE_STATE_CACHE_SIZE,
+					 0, NULL, NULL, NULL, NULL, rte_socket_id(), NO_FLAGS);
+    /*image_states_pool = rte_mempool_create(_IMAGE_STATE_POOL_NAME, MAX_ACTIVE_CLIENTS,
+					 sizeof(struct image_information), IMAGE_STATE_CACHE_SIZE,
+					 0, NULL, NULL, NULL, NULL, rte_socket_id(), NO_FLAGS);
+    */
+  }
   //this variables should be defined in common
-  all_images_information = (struct image_information*) rte_malloc(NULL, sizeof(struct image_information)*half_nfs,0);
+  //all_images_information = (struct image_information*) rte_malloc(NULL, sizeof(struct image_information*)*half_nfs,0);
 
   //Now also intialize all the ready images and image pending info in that array
-  int i;
+
+  // this part is moved to the nflib.
+  //int i;
+  /*
   for(i = 0; i<half_nfs; i++)
     {
       all_images_information[i].image_pending = (void **) rte_malloc(NULL, sizeof(void *)*MAX_IMAGE, 0);
@@ -571,8 +591,9 @@ static int init_images_state(void){
       all_images_information[i].num_of_ready_images = 0;
       all_images_information[i].index_of_ready_image = 0;
     }
-
-  return 0;
+  */
+  
+  return (image_states_pool== NULL);
 }
   
 
@@ -775,6 +796,7 @@ init_shm_rings(void) {
         }
         nf_per_service_count = mz_nf_per_service->addr;
 
+
         /* Create the NF Resources: Rx, Tx, Message Rings,  shared Memory Pool, etc.. */
         for (i = 0; i < MAX_NFS; i++) {
                 /* Create an RX queue for each client */
@@ -814,10 +836,24 @@ init_shm_rings(void) {
                                         sringsize, socket_id,
                                         RING_F_SP_ENQ|RING_F_SC_DEQ);               /* single prod, single cons (Enqueue only by NF Thread, and dequeue only by dedicated Tx thread) */
 #endif
+			/*
+#ifdef 0 //ONVM_GPU
+			void *state_mempool = NULL;
+			if(rte_mempool_get(image_states_pool,&state_mempool) < 0){
+			  rte_exit(EXIT_FAILURE, "Failed to get image state mempool \n");
+			}
+			printf("Address of state mempool %p \n",state_mempool);
+			nfs[i].info->image_info = (struct image_information *)state_mempool;
+#endif//onvm_gpu
+			*/
                 } else {
                         nfs[i].rx_q = nfs[get_associated_active_or_standby_nf_id(i)].rx_q;
                         nfs[i].tx_q = nfs[get_associated_active_or_standby_nf_id(i)].tx_q;
                         nfs[i].nf_state_mempool = nfs[get_associated_active_or_standby_nf_id(i)].nf_state_mempool;
+
+			//#ifdef 0 //ONVM_GPU
+			//nfs[i].info->image_info = nfs[get_associated_active_or_standby_nf_id(i)].info->image_info;
+			//#endif
 #ifdef ENABLE_NFLIB_PER_FLOW_TS_STORE
                         nfs[i].per_flow_ts_info =  nfs[get_associated_active_or_standby_nf_id(i)].per_flow_ts_info;
 #endif
@@ -897,6 +933,9 @@ init_shm_rings(void) {
                 nfs[i].bft_list.max_len=NF_QUEUE_RINGSIZE*2;
 #endif
         }
+	
+
+	
         /* This is a separate service state pool maintained in NF MGR for each of the services: NFs need to attach to it on the run time after the NFs service type is identified */
 #if defined (ENABLE_PER_SERVICE_MEMPOOL)
         services_state_pool = rte_calloc("services_state_pool", num_services, sizeof(struct rte_mempool*), 0);

@@ -738,12 +738,20 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 	//if the alternate of this NF is running... we should just let it run...
 	uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_info->instance_id); //here we just need instance ID Of other NF
 
+	//giving NF information about the images
+	if(is_secondary_active_nf_id(nf_info->instance_id)){
+	  nf_info->image_info = &(all_images_information[stdby_nfid]);
+	}else{
+	  nf_info->image_info = &(all_images_information[nf_info->instance_id]);
+	}
+
 	//if we have alternate running then do not do anything.. put the original in pause
 	if(likely(onvm_nf_is_valid(&nfs[stdby_nfid]))){
 	  printf("###____-----#### OtherNF instance %d is up so we pause__+++++ Service count: %d\n", stdby_nfid,service_count);
 	  //here we should just pause the new NF if the alternate is running
 	  nf_info->status = NF_PAUSED;
 	  //onvm_nf_send_msg(stdby_nfid, MSG_RESUME, MSG_MODE_ASYNCHRONOUS,NULL);
+	  
 	}
 	else{
 	  printf("###____-----#### Primary NF is up service count %d \n",service_count);
