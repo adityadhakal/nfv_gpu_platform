@@ -542,7 +542,14 @@ void onvm_nf_recv_and_process_msgs(void) {
 			 {
 			   //send it to the NF
 			   //onvm_nf_send_msg(uint16_t dest, uint8_t msg_type, __attribute__((unused)) uint8_t msg_mode, void *msg_data);
-			   onvm_nf_send_msg(nf->instance_id,MSG_GPU_MODEL ,0,returnable_msg);
+			   if(onvm_nf_is_valid(&nfs[get_associated_active_or_standby_nf_id(nf->instance_id)])){
+			     //if the alternate NF is running then send the model pointer in message destined for secondary NF
+			     onvm_nf_send_msg(nf->instance_id,MSG_GPU_MODEL_SEC,0,returnable_msg);
+			   }
+			   else
+			     {
+			       onvm_nf_send_msg(nf->instance_id, MSG_GPU_MODEL_PRI,0,returnable_msg);
+			     }
 			 }
 		       else
 			 {
@@ -559,8 +566,12 @@ void onvm_nf_recv_and_process_msgs(void) {
 		       nf = (struct onvm_nf_info*) msg->msg_data;
 		       restart_nf(nf);
 		       break;
-		       		     
-#endif
+#ifdef ONVM_GPU_TEST
+		case MSG_NF_VOLUNTARY_RE:
+		  nf = (struct onvm_nf_info *) msg->msg_data;
+		  voluntary_restart_the_nf(nf);
+#endif //onvm_gpu_test
+#endif//onvm_gpu
                 default:
                         break;
                 }
@@ -737,13 +748,6 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 
 	//if the alternate of this NF is running... we should just let it run...
 	uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_info->instance_id); //here we just need instance ID Of other NF
-
-	//giving NF information about the images
-	if(is_secondary_active_nf_id(nf_info->instance_id)){
-	  nf_info->image_info = &(all_images_information[stdby_nfid]);
-	}else{
-	  nf_info->image_info = &(all_images_information[nf_info->instance_id]);
-	}
 
 	//if we have alternate running then do not do anything.. put the original in pause
 	if(likely(onvm_nf_is_valid(&nfs[stdby_nfid]))){

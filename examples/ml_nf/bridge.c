@@ -82,7 +82,8 @@ void * gpu_func_ptr = NULL;
 int function_to_process_gpu_message(struct onvm_nf_msg *message);
 void store_the_gpu_pointers(struct onvm_nf_msg *message);
 void ask_for_gpu_pointers(void);
-void load_gpu_ptrs(void);
+void load_gpu_ptrs(struct onvm_nf_msg *message);
+void voluntary_restart_the_nf(void);
   
 cudaIpcMemHandle_t * cuda_handles;
 models_attributes loaded_models;
@@ -201,17 +202,23 @@ int function_to_process_gpu_message(struct onvm_nf_msg *message){
   // we have  a swtich case to handle the messages.
   switch (message->msg_type)
     {
-         case MSG_GPU_MODEL:
+         case MSG_GPU_MODEL_SEC:
 	   //switch the GPU pointers and warm up the model
 	   store_the_gpu_pointers(message);
 	   break;
-        case MSG_GET_GPU_READY:
-	  load_gpu_ptrs();
-	  break;
-      //case MSG_RESTART:
-      
-    default:
+         case MSG_GPU_MODEL_PRI:
+	   store_the_gpu_pointers(message);
+	   load_gpu_ptrs(NULL);
+	   break;
+         case MSG_GET_GPU_READY:
+	   load_gpu_ptrs(message);
+	   break;
+    case MSG_RESTART:
+      prepare_to_restart(nf_info,message);
       break;
+	   //case MSG_RESTART:
+         default:
+	   break;
     }
   return 0;
 }   
@@ -236,36 +243,43 @@ void store_the_gpu_pointers(struct onvm_nf_msg *message){
 
 }
 /* this function loads the GPU pointer */
-void load_gpu_ptrs(void){
+void load_gpu_ptrs(struct onvm_nf_msg *message){
 
-  //the GPU percentage is set before hand by user or manager whenever there is "SET_GPU_PERCENTAGE" message is sent..
-  //so we can safely load the pointers
-  
-  struct timespec begin,end;
-  clock_gettime(CLOCK_MONOTONIC, &begin);
-  printf("the output of moving pointers = %d (0 means success) \n",link_gpu_pointers(cpu_func_ptr, cuda_handles, count_parameters(cpu_func_ptr)));
-  clock_gettime(CLOCK_MONOTONIC, &end);
-  double load_time = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
-  printf("The time to switch pointers to GPU is %f microseconds \n",load_time);
+  //if the message is equal to null, then this is a primary NF so we can leave the GPU percentage as it is.
+  if(message == NULL){
+    printf("Primary NF\n");
+    struct timespec begin,end;
+    clock_gettime(CLOCK_MONOTONIC, &begin);
+    printf("the output of moving pointers = %d (0 means success) \n",link_gpu_pointers(cpu_func_ptr, cuda_handles, count_parameters(cpu_func_ptr)));
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double load_time = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
+    printf("The time to switch pointers to GPU is %f microseconds \n",load_time);
+    printf("since we are first NF, we will try to restart.. first wake up another NF\n");
+    sleep(10);
+    //trigger the NF restart...
+    voluntary_restart_the_nf();
+	
 
-    //randomize the image data
-    //srand(2);
-    /*  
-  for(i = 0; i < IMAGE_SIZE*IMAGE_BATCH; i++){
-    images[0].image_data[i] = (float)(rand()%255);
   }
-    */
-
-  //void *output = rte_malloc(NULL, sizeof(float), 0);
-  //float *stats = rte_malloc(NULL, sizeof(float)*2,0);
+  else
+    {
+      printf(" This is Secondary NF\n");
+      //load the GPU percentage and then link the GPU pointers
+      //we should get GPU percentage from the message
+      char gpu_percent[3];
+      sprintf(gpu_percent,"%d", *((int*) message->msg_data));
+      
+      setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);//overwrite cuda_mps_active_thread_precentage
+      struct timespec begin,end;
+      clock_gettime(CLOCK_MONOTONIC, &begin);
+      printf("the output of moving pointers = %d (0 means success) \n",link_gpu_pointers(cpu_func_ptr, cuda_handles, count_parameters(cpu_func_ptr)));
+      clock_gettime(CLOCK_MONOTONIC, &end);
+      double load_time = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
+      printf("The time to switch pointers to GPU is %f microseconds \n",load_time);
+      onvm_send_gpu_msg_to_mgr(nf_info, MSG_NF_GPU_READY);
+    }
+  nf_info->function_ptr = cpu_func_ptr;
   
-  //now time to run..
-  /*for (i = 0; i<10; i++){
-    evaluate_the_image(cpu_func_ptr,images[0].image_data, stats ,output);
-    }*/
-  //  evaluate_the_image(cpu_func_ptr,images[0].image_data, stats ,output);
-  //evaluate_the_image(cpu_func_ptr,images[0].image_data, stats ,output);
-
 }
 
 /* the function to ask the manager for GPU pointers */
@@ -281,6 +295,12 @@ void ask_for_gpu_pointers(void ){
   printf("Sent message to mgr asking for GPU Pointers\n");
 }
 
+void voluntary_restart_the_nf(void){
+
+  printf("We are restarting the NF \n");
+  onvm_send_gpu_msg_to_mgr(nf_info,MSG_NF_VOLUNTARY_RE);
+  
+}
 /* function to load gpu file 
 void load_gpu_file(void){
   // convert the filename to wchar_t 
@@ -394,11 +414,11 @@ int main(int argc, char *argv[]) {
 	//load_gpu_file();
 
 	// loading the gpu model
-	load_ml_file(input_file_name, 0 /*cpu only*/, &cpu_func_ptr, &gpu_func_ptr);
+	load_ml_file(input_file_name, 0 /*cpu only*/, &cpu_func_ptr, &gpu_func_ptr, nf_info);
 
 	//ask gpu pointers from the manager
 	ask_for_gpu_pointers();
-	
+
 	//receive packets.
 	onvm_nflib_run(nf_info, &packet_handler);
         printf("If we reach here, program is ending\n");

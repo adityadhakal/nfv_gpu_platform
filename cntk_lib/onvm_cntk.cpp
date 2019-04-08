@@ -2,6 +2,7 @@
 #include <iostream>
 #include "CNTKLibrary.h"
 #include <time.h>
+#include <unistd.h>
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 #include <cuda.h>
@@ -11,6 +12,7 @@
 
 extern "C"{
   #include "onvm_cntk_api.h"
+  #include "onvm_images.h"
 }
 
 using namespace CNTK;
@@ -133,10 +135,22 @@ int link_gpu_pointers(void * cpu_function_pointer, void * cuda_handles_for_gpu_d
   return 0;
 }
 
+void CUDART_CB callback_function_example(cudaStream_t event, cudaError_t status, void *data);
+void CUDART_CB callback_function_example(cudaStream_t event, cudaError_t status, void *data){
+  std::cout<<"---- Callback called -----\n";
+  
+}
 
 /* evaluate a data set */
-// let's hard code 
-void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *output, void *function_pointer, float* evaluation_time, int cuda_event_flag){
+// let's hard code
+extern "C"
+void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *output, void *function_pointer, void* evaluation_time, int cuda_event_flag, void *cb_function, void *callback_data){
+
+  cudaStreamCallback_t *callback_function = (cudaStreamCallback_t *) cb_function;
+  float cuda_time = 0;
+  struct timespec *timestamps = (struct timespec *)evaluation_time;
+  clock_gettime(CLOCK_MONOTONIC, &(timestamps[0]));
+
   //convert to function
   Function *rootFunc = (Function *) function_pointer;
   // get the input and output
@@ -144,6 +158,13 @@ void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *out
 
   std::vector<Variable> inputs = rootFunc->Arguments();
 
+  //checking the input
+  int i;
+  std::cout<<"The input in evaluate func \n";
+  for(i = 0; i<10 ; i++){
+    std::cout<<input[i]<<" "<<std::endl;
+  }
+  std::cout<<"\n";
   //create a new vector
   Variable inputvar = inputs[0];
   long total_size = 1;
@@ -160,14 +181,12 @@ void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *out
       total_size *= a;
     }
   }
+  
   std::vector<float> inputData(input, input+input_size); //allocating a vector
   //allocate a new vector... to feed in the data..
   //for(int i =0; i<total_size;i++){
   //  inputData.at(i) = (float) (i%255);
   //}
-
-  struct timespec begin, end;
-  clock_gettime(CLOCK_MONOTONIC, &begin);
   const auto& gpu_device = CNTK::DeviceDescriptor::GPUDevice(0);
     
   ValuePtr inputVal = Value::CreateBatch(inputvar.Shape(), inputData, gpu_device);
@@ -182,28 +201,36 @@ void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *out
   cudaEventCreate(&stop);
 
   /*the execution block */
+  clock_gettime(CLOCK_MONOTONIC, &timestamps[1]);
   cudaEventRecord(start);
   rootFunc->Evaluate(inputDataMap, outputDataMap, gpu_device);
-  cudaEventRecord(stop);
-  
   ValuePtr outputVal = outputDataMap[outputvar];
-
   //std::cout<<"output var shape "<<outputvar.Shape().TotalSize()<<std::endl;
   auto output_ndarray = outputVal->Data()->DataBuffer<float>();
+  cudaMemcpyAsync(output, output_ndarray, sizeof(float)*1000, cudaMemcpyDeviceToHost, 0); //currently in zero stream
 
+  //add callback if it exists
+  if(callback_function != NULL)
+    cudaStreamAddCallback(0, *callback_function, callback_data, 0);
   
-  cudaMemcpy(output, output_ndarray, sizeof(float)*1000, cudaMemcpyDeviceToHost);
   
-  clock_gettime(CLOCK_MONOTONIC, &end);
 
-  //if(cuda_event_flag)
-  //  cudaEventSynchronize(stop);
+  if(cuda_event_flag){
+      
+      cudaEventSynchronize(stop);
   
-  float cuda_time = 0;
+  }
+
+  cudaEventRecord(stop);
   cudaEventElapsedTime(&cuda_time, start, stop);
+
+  /*
   double time_taken = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
+  double exec_time = (execution_end.tv_sec-execution_begin.tv_sec)*1000000.0+(execution_end.tv_nsec-execution_begin.tv_nsec)/1000.0;
   //std::cout<<"time taken to run this module is "<<time_taken<<" micro-seconds ... and event time "<<cuda_time<<std::endl;
-  std::cout<<""<<time_taken<<","<<cuda_time<<std::endl;
+  std::cout<<""<<time_taken<<","<<cuda_time<<", exec_time "<<exec_time<<std::endl;  
+  */
+  //std::cout<<cuda_time<<std::endl;
   //for(int k = 0; k<1000; k++)
   //  std::cout<<result[k]<<" ";
 
@@ -232,4 +259,12 @@ void get_all_input_sizes(void *function_pointer,int *input_dim, int input_var_nu
   for(auto a: inputShapeDim){
     input_dim[counter++] = a;
   }
+}
+
+// new function to evaluate the images...
+extern "C"
+void evaluate_image_in_gpu(void *image, void * function_pointer,void * gpu_callback_function, void *callback_data, int gpu_barrier_flag){
+  //call the other function... just put a timestamp in here
+  image_data * ready_image = (image_data *) image;
+  evaluate_in_gpu_input_from_host(ready_image->image_data_arr, ready_image->num_data_points_stored, ready_image->output, function_pointer, &(ready_image->timestamps[2]), gpu_barrier_flag, gpu_callback_function, callback_data);
 }

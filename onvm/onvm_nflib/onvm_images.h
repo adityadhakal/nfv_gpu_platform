@@ -65,9 +65,9 @@ int gpu_finish_work_flag;
  * we need this array as this array should be private to the NF and no need to be shared to alternate NF
  * We will store the time in time_spec.. should suffice for microseconds
  */
-int * gpu_queue_image_id;
+int  gpu_queue_image_id[MAX_IMAGE];
 //TODO: Remove the below array.. and make an array that will rather store the pair of image data and nf_info pointers
-struct gpu_callback *gpu_callbacks;
+struct gpu_callback gpu_callbacks[MAX_IMAGE];
 int num_elements_in_gpu_queue;
 int gpu_queue_current_index;
 

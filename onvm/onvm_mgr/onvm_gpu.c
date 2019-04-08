@@ -118,7 +118,8 @@ void * provide_nf_with_model(struct onvm_nf_msg * msg){
   //find which NF this came from.
   uint16_t nf_instance = query->nf->instance_id; //the instance ID of nf, this way we can get the msg key
 
-  //check if the NF is original NF or backup
+  //check if the NF is original NF or it has alternate? If original, let it know that it can load the pointers to GPU
+  //otherwise it should wait for Manager's message.
   
   
   printf("--- sending ML model to NF instance %d ", nf_instance);
@@ -137,9 +138,14 @@ void restart_nf(struct onvm_nf_info *nf){
 }
 
 
+//this function should be only called if the NF has been ordered to get ready
+//in case of first NF, this will never get called... 
 void nf_is_gpu_ready(struct onvm_nf_info *nf){
   //TODO just print for now
   printf("NF instance %d is now ready to process packets \n", nf->instance_id);
+  //find the alternate NF... and then send it a message to shutdown...
+  struct onvm_nf_info *alt_nf = shadow_nf(nf->instance_id);
+  inform_NF_of_pending_restart(alt_nf); //sent message to tell the logic to restart it.
 }
 
 
@@ -183,8 +189,8 @@ void compute_GPU_allocation(struct onvm_nf_info *nf ){
       //this means we are going to provide the shadow NF with the GPU percentage
       get_shadow_NF_ready(nf, recommended_gpu_percentage);
 
-      //inform the NF that it is going to be restarted...
-      inform_NF_of_pending_restart(nf);
+      //inform the NF that it is going to be restarted... only when the shadow NF replies, we going to inform previous of restart
+      //inform_NF_of_pending_restart(nf);
     }
       
 }
@@ -227,12 +233,35 @@ void get_shadow_NF_ready(struct onvm_nf_info *shadow, int gpu_percentage){
   alternate_message->gpu_percentage = gpu_percentage;
 
   struct onvm_nf_info * alternate_nf = shadow_nf(shadow->instance_id);
-  if(alternate_nf != NULL){
+  
+  if(onvm_nf_is_valid(&nfs[alternate_nf->instance_id])){
     //alternate_message->image_info = alternate_nf->image_info;
     onvm_nf_send_msg((shadow_nf(shadow->instance_id))->instance_id, MSG_GET_GPU_READY, 0, alternate_message);
   }
+  else
+    {
+      printf("Alternate NF not ready so No \"ready\" message passed \n");
+    }
   
 }
+
+#ifdef ONVM_GPU_TEST
+void voluntary_restart_the_nf(struct onvm_nf_info *nf){
+  //check if alternate is active... if not cancel the volutary restart
+  struct onvm_nf_info *alternate_nf = shadow_nf(nf->instance_id);
+  if(!onvm_nf_is_valid(&nfs[alternate_nf->instance_id])){
+    printf("The alternate NF is not running.. cannot initiate voluntary restart \n");
+  }
+  else
+    {
+      get_shadow_NF_ready(nf, 50);
+    }
+
+}
+#endif
+
+
+
 /* ------- <MESASAGING API > ******** */
 void init_zmq(void){
   ipc_file_path = "ipc:///home/adhak001/dev/ipc_file";

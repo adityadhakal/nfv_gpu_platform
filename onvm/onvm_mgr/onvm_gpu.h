@@ -79,6 +79,11 @@ float find_max_throughput(int gpu_model, int gpu_percentage);
 /* the model that computes the GPU allocation and then recommends the new GPU percentage */
 void compute_GPU_allocation(struct onvm_nf_info *nf);
 
+#ifdef ONVM_GPU_TEST
+/* the function to test above apparatus */
+void voluntary_restart_the_nf(struct onvm_nf_info *nf);
+#endif
+
 /*
 static inline struct onvm_nf_info *shadow_nf(int instance_id){
   if(instance_id > 8)

@@ -57,7 +57,7 @@
 #include "onvm_nflib.h"
 #include "onvm_pkt_helper.h"
 #include "onvm_cntk_api.h"
-#include "onvm_netml.h"
+//#include "onvm_netml.h"
 #include <cuda_runtime.h>
 
 #define MSG_RING_NAME1 "msg_ring1"
@@ -230,19 +230,26 @@ int move_the_model_to_gpu(struct onvm_nf_msg *message){
 
     //randomize the image data
     srand(2);
+    float *images = (float *) rte_malloc(NULL, sizeof(float)*IMAGE_SIZE, 0);
     
   for(i = 0; i < IMAGE_SIZE; i++){
-    images[0].image_data[i] = (float)(rand()%255);
+    images[i] = (float)(rand()%255);
   }
 
   int j ;
   int max_loop = atoi(number_of_loops);
   float evaluation_time[2];
   float * output = (float *) rte_malloc(NULL, sizeof(float)*1000, 0);
-  //now time to run..
+  //now time to run.. also check.. the time it took to execute
+  struct timespec begin1, end1;
   for(j = 0; j<max_loop; j++){
-    evaluate_in_gpu_input_from_host(images[0].image_data, IMAGE_SIZE, output, cpu_func_ptr, evaluation_time, 1);
+    clock_gettime(CLOCK_MONOTONIC, &begin1);
+    evaluate_in_gpu_input_from_host(images, IMAGE_SIZE, output, cpu_func_ptr, evaluation_time, 0);
+    clock_gettime(CLOCK_MONOTONIC, &end1);
+    double time_spent = (end1.tv_sec-begin1.tv_sec)*1000000.0+(end1.tv_nsec-begin1.tv_nsec)/1000.0;
+    printf("the return time of function is %f \n", time_spent);
     //evaluate_in_gpu_input_from_host(images[0].image_data, IMAGE_SIZE, NULL, cpu_func_ptr);
+    sleep(1);
   }
   //onvm_send_gpu_msg_to_mgr(give_gpu_model, MSG_NF_GPU_READY);
   return 0;
@@ -357,7 +364,7 @@ int main(int argc, char *argv[]) {
 	register_gpu_msg_handling_function(&function_to_process_gpu_message);
 	load_gpu_file();
 	//init the images for GPU
-	image_init();
+	//image_init();
 
 	//receive packets.
 	onvm_nflib_run(nf_info, &packet_handler);

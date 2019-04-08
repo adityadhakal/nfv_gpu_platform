@@ -1,4 +1,5 @@
 CPPFLAGS+=-I/home/adhak001/microsoft/cntk/Source/CNTKv2LibraryDll/API/
+CPPFLAGS+=-I/home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/
 LDFLAGS= -L/home/adhak001/microsoft/cntk/build/release/lib/ -Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
 LDLIBS= -lCntk.Core-2.6 -lCntk.Math-2.6 -lCntk.Eval-2.6 -lcudart -lcuda
 CXX=g++

@@ -55,6 +55,7 @@
 //Enable GPU
 #define ONVM_GPU 1
 #define ONVM_GPU_SAME_SIZE_PKTS 1
+#define ONVM_GPU_TEST 1
 
 //check on each node by executing command  $"getconf LEVEL1_DCACHE_LINESIZE" or cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size
 #define ONVM_CACHE_LINE_SIZE (64)
@@ -992,9 +993,6 @@ typedef struct provide_gpu_model{
   int model_index;
 }provide_gpu_model;
 
-//the variable for all image states
-struct image_information *all_images_information;
-
 
 //helper function
 static inline double time_difference_usec(struct timespec *begin, struct timespec *end){
@@ -1070,9 +1068,8 @@ struct onvm_nf_info {
   int gpu_percentage; //the NF percentage
   int job_completion_rate; //0-slow 1 -normal 2 -fast
   int gpu_execution_ready;
-  int candidate_for_restart; //should this NF be restarted
+  int candidate_for_restart; //should this NF be restarted 0 - do not restart yet, 1 - restart
   void * function_ptr; // the ML evaluating function
-  void * temp_img_info;
 #ifdef ONVM_GPU_SAME_SIZE_PKTS
   unsigned int number_of_pkts_outstanding; //the number of packets~ images not processed yet
   unsigned int number_of_images_processed; //the number of images processed in the last time SPAN

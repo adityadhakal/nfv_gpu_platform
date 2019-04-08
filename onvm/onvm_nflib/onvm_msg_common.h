@@ -52,9 +52,10 @@
 #define MSG_RESUME          (4|MSG_FROM_MGR)
 #define MSG_RUN             (MSG_RESUME)
 #define MAX_MSG_FROM_MGR    (0x0F)
-#define MSG_GPU_MODEL       (8|MSG_FROM_MGR) //provide GPU model pointers (see onvm_nf.c)
-#define MSG_RESTART         (9|MSG_FROM_MGR) //tell NF it is going to restart
-#define MSG_GET_GPU_READY   (10|MSG_FROM_MGR) //tell NF to get GPU model ready with this percentage
+#define MSG_GPU_MODEL_PRI   (8|MSG_FROM_MGR) //provide GPU model pointers for Active NF ( (see onvm_nf.c)
+#define MSG_GPU_MODEL_SEC   (9|MSG_FROM_MGR) //provide GPU model for secondary NF 
+#define MSG_RESTART         (10|MSG_FROM_MGR) //tell NF it is going to restart
+#define MSG_GET_GPU_READY   (11|MSG_FROM_MGR) //tell NF to get GPU model ready with this percentage
 
 #define MSG_FROM_NF (0xF0)
 #define MSG_NF_STARTING     (1|MSG_FROM_NF)
@@ -65,8 +66,9 @@
 #define MSG_NF_TRIGGER_ECB  (6|MSG_FROM_NF)
 #define MSG_NF_SYNC_RESP    (7|MSG_FROM_NF)
 #define MSG_GIVE_GPU_MODEL  (8|MSG_FROM_NF) //ask for GPU models pointers
-#define MSG_NF_GPU_READY    (9|MSG_FROM_NF) //tell GPU it is ready to execute
-#define MSG_NF_RESTART_OK   (10|MSG_FROM_NF) //tell manager it can restart now
+#define MSG_NF_GPU_READY    (9|MSG_FROM_NF) //tell manager it is ready to execute... 
+#define MSG_NF_RESTART_OK   (10|MSG_FROM_NF) //tell manager it can restart now...
+#define MSG_NF_VOLUNTARY_RE  (11|MSG_FROM_NF) //message for testing purpose only.. voluntary restart...
 
 #define MSG_MODE_ASYNCHRONOUS   (0)
 #define MSG_MODE_SYNCHRONOUS    (1)

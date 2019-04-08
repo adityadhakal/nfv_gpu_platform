@@ -293,8 +293,11 @@ void load_ml_file (char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, voi
 void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, float *output);
 
 //extern histogram_v2_t *image_rate_histogram;
-void onvm_send_gpu_msg_to_mgr(provide_gpu_model *message_to_manager, int msg_type);
+void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int msg_type);
 void copy_data_to_image(void *packet_data, struct onvm_nf_info *nf_info);
+
+/* the function to make sure the GPU side work is completed */
+void prepare_to_restart(struct onvm_nf_info *nf_info, struct onvm_nf_msg *message);
 
 /* the timer for the image stats */
 struct rte_timer image_stats_timer;

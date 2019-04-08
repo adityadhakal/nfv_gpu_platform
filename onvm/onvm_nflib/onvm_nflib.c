@@ -301,7 +301,7 @@ stats_timer_cb(__attribute__((unused)) struct rte_timer *ptr_timer,
         counter = SAMPLING_RATE;
 #endif //INTERRUPT_SEM
 
-        printf("\n On core [%d] Inside Timer Callback function: %"PRIu64" !!\n", rte_lcore_id(), rte_rdtsc_precise());
+        //printf("\n On core [%d] Inside Timer Callback function: %"PRIu64" !!\n", rte_lcore_id(), rte_rdtsc_precise());
         //printf("Echo %d", system("echo > hello_timer.txt"));
         //printf("\n Inside Timer Callback function: %"PRIu64" !!\n", rte_rdtsc_precise());
 }
@@ -1062,10 +1062,14 @@ onvm_nflib_handle_msg(struct onvm_nf_msg *msg, __attribute__((unused)) struct on
 
 		/* Aditya's edit ONVM_GPU*/
 #ifdef ONVM_GPU
-	case MSG_GPU_MODEL:
+	case MSG_GPU_MODEL_PRI:
 	       if((*nf_gpu_func)(msg))
 		 printf("The NF didn't process GPU_MODEL message well \n");
 	       break;
+	case MSG_GPU_MODEL_SEC:
+	  if((*nf_gpu_func)(msg))
+	    printf("The NF didn't process GPU_MODEL message well \n");
+	  break;
 	case MSG_GET_GPU_READY:
 	       if((*nf_gpu_func)(msg))
 		 printf("The NF didn't process GET_GPU_READY message well \n");
@@ -1149,11 +1153,6 @@ onvm_nflib_info_init(const char *tag)
         info->pid = getpid();
 	
 #ifdef ONVM_GPU
-	//TODO REMOVE MALLOCS AND PUT IT IN STATIC ARRAYS
-	//initialize the array that is a queue for GPU
-	gpu_queue_image_id = (int *) rte_malloc(NULL, sizeof(int )*MAX_IMAGE, 0);
-	//array for noting what time the image is inserted in GPU queue
-	gpu_callbacks = (struct gpu_callback *) rte_malloc(NULL, sizeof(struct gpu_callback)*MAX_IMAGE,0);
 	
 	int original_instance_id = initial_instance_id;
 	if(is_secondary_active_nf_id(info->instance_id)){
@@ -1353,7 +1352,7 @@ static void delete_image(image_data * image, struct onvm_nf_info * nf_info);
 //GPU callback function to report after the evaluation is finished...
 void CUDART_CB gpu_image_callback_function(cudaStream_t event, cudaError_t status, void *data);
 //this function will be called to evaluate an image from mempool
-void evaluate_an_image_from_mempool(struct rte_timer *timer_ptr, void *info);
+void evaluate_an_image_from_mempool(__attribute__((unused))struct rte_timer *timer_ptr, void *info);
 
 //ml stats function
 void compute_ml_stats(struct rte_timer * timer_ptr,void *info);
@@ -1382,16 +1381,16 @@ static void get_image_state_mempool(struct onvm_nf_info *info)
 	retval = rte_mempool_get(state_mempool, (void **) &address);
 	if(retval != 0){
 	  printf("--- Couldn't get image mempool %d \n", retval);
-	}	  
-	//rte_mempool_put(state_mempool, info->image_info);
+	}
 	info->image_info = address;
-	info->temp_img_info = address;
+	rte_mempool_put(state_mempool, info->image_info);
+
 
 	printf("Info image info mempool updated to %p \n",info->image_info);
 }
 
 /* this function sends message to onvm manager */
-void onvm_send_gpu_msg_to_mgr(provide_gpu_model *message_to_manager, int message_type){
+void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int message_type){
   printf("ONVM SEND GPU MSG TO MGR\n");
   struct onvm_nf_msg * msg_mgr;
   int ret = 0;
@@ -1444,48 +1443,57 @@ void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, f
 }
 
 //a more comprehensive evaluate function that can be called by the timer thread
-void evaluate_an_image_from_mempool(struct rte_timer *timer_ptr,void *info){
+void evaluate_an_image_from_mempool(__attribute__((unused))struct rte_timer *timer_ptr,void *info){
   struct onvm_nf_info* nf_info = (struct onvm_nf_info *)info;
-  printf("DEBUG.. timer thread acting properly\n");
+  //printf("DEBUG.. timer thread acting properly\n");
   if(nf_info->image_info == NULL){
     printf("image info address %p \n", nf_info->image_info);
   }
   //get the next image. only if there is any images to execute
-  printf("the image info address %p and nf instance ID %d the num of ready images--- nf_info address %p gpu model %d temp_img_info %p\n",nf_info->image_info,nf_info->instance_id, nf_info, nf_info->gpu_model, nf_info->temp_img_info);
+  //printf("the image info address %p and nf instance ID %d the num of ready images--- nf_info address %p gpu model %d \n",nf_info->image_info,nf_info->instance_id, nf_info, nf_info->gpu_model);
   if(nf_info->image_info->num_of_ready_images <= 0){
-    printf("Testing timer thread.. timer period %"PRIu64" \n", timer_ptr->period);
+  //  printf("Testing timer thread.. timer period %"PRIu64" \n", timer_ptr->period);
     return;
   }
 
   printf("Number of ready images %d \n", nf_info->image_info->num_of_ready_images);
-  //otherwise grab one image and proceed
-  image_data *ready_image = nf_info->image_info->ready_images[nf_info->image_info->index_of_ready_image];
+
+  if(nf_info->candidate_for_restart != 1){
+    //if the NF is destined to restart.. do not add to the GPU queue
+    //otherwise grab one image and proceed
+    image_data *ready_image = nf_info->image_info->ready_images[nf_info->image_info->index_of_ready_image];
+    
+    //increase the index of ready image... as well as decrease the number of ready images
+    nf_info->image_info->num_of_ready_images--;
+    if(nf_info->image_info->num_of_ready_images < 0)
+      nf_info->image_info->num_of_ready_images=0;
   
-  //increase the index of ready image... as well as decrease the number of ready images
-  nf_info->image_info->num_of_ready_images--;
-  nf_info->image_info->index_of_ready_image++;
-  nf_info->image_info->index_of_ready_image %= MAX_IMAGE; 
+    nf_info->image_info->index_of_ready_image++;
+    nf_info->image_info->index_of_ready_image %= MAX_IMAGE; 
   
-  struct gpu_callback * callback_data = &(gpu_callbacks[gpu_queue_current_index]);
-  callback_data->nf_info = nf_info;
-  callback_data->ready_image = ready_image;
+    struct gpu_callback * callback_data = &(gpu_callbacks[gpu_queue_current_index]);
+    callback_data->nf_info = nf_info;
+    callback_data->ready_image = ready_image;
   
-  //get the time
-  struct timespec eval_begin_time;
+    //get the time
+    struct timespec eval_begin_time;
   
   //submit this image to evaluation
   //evaluate_in_gpu_input_from_host(ready_image->image_data_arr, IMAGE_SIZE*(ready_image->num_data_points_stored/IMAGE_NUM_ELE),ready_image->output,nf_info->function_ptr,ready_image->stats, gpu_finish_work_flag, &gpu_image_callback_function, (void *) ready_image);
   
   //new evaluation function, older one is too cubersome
-  evaluate_image_in_gpu(ready_image, nf_info->function_ptr, &gpu_image_callback_function, (void *) &callback_data, gpu_finish_work_flag);
+    evaluate_image_in_gpu(ready_image, nf_info->function_ptr, &gpu_image_callback_function, (void *) &callback_data, gpu_finish_work_flag);
   //post evaluation...put it in the GPU eval queue.
     
-  gpu_queue_image_id[gpu_queue_current_index]=ready_image->image_id;
-  clock_gettime(CLOCK_MONOTONIC, &eval_begin_time); //read the current time
-  ready_image->timestamps[1] = eval_begin_time; //the index for timestamp is explained in onvm_image.h 
-  gpu_queue_current_index++;
-  gpu_queue_current_index %= MAX_IMAGE;
-  num_elements_in_gpu_queue++;  
+    gpu_queue_image_id[gpu_queue_current_index]=ready_image->image_id;
+    clock_gettime(CLOCK_MONOTONIC, &eval_begin_time); //read the current time
+    ready_image->timestamps[1] = eval_begin_time; //the index for timestamp is explained in onvm_image.h 
+
+  //increase the index for queue and number of elements in the queue
+    gpu_queue_current_index++;
+    gpu_queue_current_index %= MAX_IMAGE; 
+    num_elements_in_gpu_queue++;  //increase how many images are in GPU queue
+  }
 }
 
 //GPU callback function to report after the evaluation is finished...
@@ -1513,8 +1521,6 @@ void CUDART_CB gpu_image_callback_function(__attribute__((unused)) cudaStream_t 
 
   //reduce the number of elements in gpu queue
   num_elements_in_gpu_queue--;
-  
- 
 }
 
 
@@ -1644,6 +1650,22 @@ void compute_ml_stats(__attribute__((unused))struct rte_timer *timer_ptr,void *i
   hist_store_v2(&nf_info->image_processing_rate, nf_info->number_of_images_processed);
   nf_info->number_of_images_processed = 0;
 }
+
+//this function will put a marker in the onvm_nf_info so new images are not put in GPU queue
+//and we wait till number of images in GPU processing queue is zero
+//which will then trigger a message to manager saying NF is okay to restart
+void prepare_to_restart(struct onvm_nf_info *nf_info, __attribute__((unused))struct onvm_nf_msg *message){
+
+  printf("Preparing this NF to restart... images in GPU queue %d \n", num_elements_in_gpu_queue);
+  //first check how many images are in GPU queue
+  if(num_elements_in_gpu_queue <= 0){
+    //send message to manager saying can restart now
+    onvm_send_gpu_msg_to_mgr(nf_info, MSG_NF_RESTART_OK);
+  }
+  //else put a flag in nf_info so we do not put the images in GPU queue anymore
+  nf_info->candidate_for_restart = 1;
+}
+
 
 
 #endif //ONVM_GPU
