@@ -290,11 +290,20 @@ typedef int (*gpu_message_processing_func)(struct onvm_nf_msg *message_from_mana
 extern gpu_message_processing_func nf_gpu_func;
 void register_gpu_msg_handling_function(gpu_message_processing_func gmpf);
 void load_ml_file (char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr, struct onvm_nf_info * nf_info);
+
 void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, float *output);
 
 //extern histogram_v2_t *image_rate_histogram;
 void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int msg_type);
 void copy_data_to_image(void *packet_data, struct onvm_nf_info *nf_info);
+
+/* copy the data to existing image batch */
+void copy_data_to_image_batch(void *packet_data, struct onvm_nf_info *nf_info, int batch_size);
+//throughput calculations
+float throughputs[105];
+struct timespec batch_fed[105], batch_processed[105];
+int num_throughput_stored;
+
 
 /* the function to make sure the GPU side work is completed */
 void prepare_to_restart(struct onvm_nf_info *nf_info, struct onvm_nf_msg *message);
@@ -304,6 +313,21 @@ struct rte_timer image_stats_timer;
 
 /* the timer for performing inference */
 struct rte_timer image_inference_timer;
+
+//the GPU "queue".
+/* We have noticed that executing in CNTK is "asynchronous", i.e. we won't know when it ends.
+ * So we need to have a GPU queue, that will store the information about the images that has been sent to GPU
+ * for processing
+
+ * we will keep the time spent to process information till we give back the image mempool. 
+ * we need this array as this array should be private to the NF and no need to be shared to alternate NF
+ * We will store the time in time_spec.. should suffice for microseconds
+ */
+int  gpu_queue_image_id[MAX_IMAGE];
+//TODO: Remove the below array.. and make an array that will rather store the pair of image data and nf_info pointers
+struct gpu_callback gpu_callbacks[MAX_IMAGE];
+int num_elements_in_gpu_queue;
+int gpu_queue_current_index;
 
 
 

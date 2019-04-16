@@ -57,6 +57,10 @@
 #include <rte_malloc.h>
 #include <rte_mbuf.h>
 
+#include <rte_eal.h>
+#include <rte_eal_memconfig.h>
+#include <rte_lcore.h>
+
 #include "onvm_nflib.h"
 #include "onvm_pkt_helper.h"
 #include "onvm_cntk_api.h"
@@ -75,6 +79,7 @@ struct onvm_nf_info *nf_info;
 /* ML related variables */
 static char *input_file_name = NULL;
 static const char *ml_model = NULL;
+static char *batchsize = NULL;
 int other_core_function(void *);
 void * cpu_func_ptr = NULL;
 void * gpu_func_ptr = NULL;
@@ -82,8 +87,10 @@ void * gpu_func_ptr = NULL;
 int function_to_process_gpu_message(struct onvm_nf_msg *message);
 void store_the_gpu_pointers(struct onvm_nf_msg *message);
 void ask_for_gpu_pointers(void);
-void load_gpu_ptrs(void)
-  
+void load_gpu_ptrs(struct onvm_nf_msg *message);
+void voluntary_restart_the_nf(void);
+void cuda_register_memseg_info(void);
+
 cudaIpcMemHandle_t * cuda_handles;
 models_attributes loaded_models;
 
@@ -105,7 +112,7 @@ static int
 parse_app_args(int argc, char *argv[], const char *progname) {
         int c;
 
-        while ((c = getopt (argc, argv, "p:f:m:")) != -1) {
+        while ((c = getopt (argc, argv, "p:f:m:b:")) != -1) {
                 switch (c) {
                 case 'p':
                         print_delay = strtoul(optarg, NULL, 10);
@@ -116,6 +123,9 @@ parse_app_args(int argc, char *argv[], const char *progname) {
 		case 'm':
 		        ml_model = optarg;
 		        break;
+		case 'b':
+		  batchsize = optarg;
+		  break;
                 case '?':
                         usage(progname);
                         if (optopt == 'p')
@@ -179,11 +189,13 @@ packet_handler(struct rte_mbuf *pkt, struct onvm_pkt_meta *meta, __attribute__((
                 counter = 0;
         }
 
+	//copying the packet data to the right buffer ...
+	//THis functionality has been moved to onvm_nflib
 	if(onvm_pkt_ipv4_hdr(pkt) != NULL){
-	  //printf("parsing the packet data \n");
 	  void * packet_data = rte_pktmbuf_mtod_offset(pkt, void *, sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr));
-	  copy_data_to_image(packet_data, nf_info);
-	}
+	  copy_data_to_image_batch(packet_data, nf_info,4);
+       }
+	
         if (pkt->port == 0) {
                 meta->destination = 1;
         }
@@ -199,17 +211,23 @@ int function_to_process_gpu_message(struct onvm_nf_msg *message){
   // we have  a swtich case to handle the messages.
   switch (message->msg_type)
     {
-         case MSG_GPU_MODEL:
+         case MSG_GPU_MODEL_SEC:
 	   //switch the GPU pointers and warm up the model
 	   store_the_gpu_pointers(message);
 	   break;
-        case MSG_GET_GPU_READY:
-	  load_gpu_ptrs();
-	  break;
-      //case MSG_RESTART:
-      
-    default:
+         case MSG_GPU_MODEL_PRI:
+	   store_the_gpu_pointers(message);
+	   load_gpu_ptrs(NULL);
+	   break;
+         case MSG_GET_GPU_READY:
+	   load_gpu_ptrs(message);
+	   break;
+    case MSG_RESTART:
+      prepare_to_restart(nf_info,message);
       break;
+	   //case MSG_RESTART:
+         default:
+	   break;
     }
   return 0;
 }   
@@ -234,51 +252,87 @@ void store_the_gpu_pointers(struct onvm_nf_msg *message){
 
 }
 /* this function loads the GPU pointer */
-void load_gpu_ptrs(void){
+void load_gpu_ptrs(struct onvm_nf_msg *message){
+
+  //if the message is equal to null, then this is a primary NF so we can leave the GPU percentage as it is.
+  if(message == NULL){
+    printf("Primary NF\n");
     struct timespec begin,end;
     clock_gettime(CLOCK_MONOTONIC, &begin);
-    printf("the output of moving pointers  %d \n",link_gpu_pointers(cpu_func_ptr, cuda_handles, count_parameters(cpu_func_ptr)));
+    printf("the output of moving pointers = %d (0 means success) \n",link_gpu_pointers(cpu_func_ptr, cuda_handles, count_parameters(cpu_func_ptr)));
     clock_gettime(CLOCK_MONOTONIC, &end);
     double load_time = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
     printf("The time to switch pointers to GPU is %f microseconds \n",load_time);
-
-    //randomize the image data
-    //srand(2);
-    /*  
-  for(i = 0; i < IMAGE_SIZE*IMAGE_BATCH; i++){
-    images[0].image_data[i] = (float)(rand()%255);
+    printf("since we are first NF, we will try to restart.. first wake up another NF\n");
+    //sleep(10);
+    //trigger the NF restart...
+    //voluntary_restart_the_nf();
   }
-    */
-
-  //void *output = rte_malloc(NULL, sizeof(float), 0);
-  //float *stats = rte_malloc(NULL, sizeof(float)*2,0);
+  else
+    {
+      printf(" This is Secondary NF\n");
+      //load the GPU percentage and then link the GPU pointers
+      //we should get GPU percentage from the message
+      char gpu_percent[3];
+      sprintf(gpu_percent,"%d", *((int*) message->msg_data));
+      
+      setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);//overwrite cuda_mps_active_thread_precentage
+      struct timespec begin,end;
+      clock_gettime(CLOCK_MONOTONIC, &begin);
+      printf("the output of moving pointers = %d (0 means success) \n",link_gpu_pointers(cpu_func_ptr, cuda_handles, count_parameters(cpu_func_ptr)));
+      clock_gettime(CLOCK_MONOTONIC, &end);
+      double load_time = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
+      printf("The time to switch pointers to GPU is %f microseconds \n",load_time);
+      onvm_send_gpu_msg_to_mgr(nf_info, MSG_NF_GPU_READY);
+    }
+  nf_info->function_ptr = cpu_func_ptr;
   
-  //now time to run..
-  /*for (i = 0; i<10; i++){
-    evaluate_the_image(cpu_func_ptr,images[0].image_data, stats ,output);
-    }*/
-  //  evaluate_the_image(cpu_func_ptr,images[0].image_data, stats ,output);
-  //evaluate_the_image(cpu_func_ptr,images[0].image_data, stats ,output);
-
 }
 
-
+/* the function to ask the manager for GPU pointers */
 void ask_for_gpu_pointers(void ){
   //now send message to manager asking for the pointer...
   provide_gpu_model * give_gpu_model = (provide_gpu_model *) rte_malloc(NULL,sizeof(provide_gpu_model),0);
-  //struct onvm_nf_info * _nfinfo = (struct onvm_nf_info *) rte_malloc(NULL, sizeof(struct onvm_nf_info), 0);
-  //char * name_of_model = (char *) rte_malloc(NULL, sizeof(char)*20, 0);
-
-  //const char * name = ml_model;
-
   give_gpu_model->model_index = atoi(ml_model); //alexnet
   //memcpy(name_of_model, name, strlen(name));
   //memcpy(_nfinfo,nf_info, sizeof(struct onvm_nf_info));
   give_gpu_model->nf = nf_info;
   //memcpy(give_gpu_model->model_name, name_of_model, sizeof(char)*20);
   onvm_send_gpu_msg_to_mgr(give_gpu_model,MSG_GIVE_GPU_MODEL);
-  printf("Sent message to mgr \n");
+  printf("Sent message to mgr asking for GPU Pointers\n");
 }
+
+void voluntary_restart_the_nf(void){
+
+  printf("We are restarting the NF \n");
+  onvm_send_gpu_msg_to_mgr(nf_info,MSG_NF_VOLUNTARY_RE);
+  
+}
+
+void cuda_register_memseg_info(void){
+
+  //get the memory config
+  struct rte_config * rte_config = rte_eal_get_configuration();
+
+  //now get the memory locations
+  struct rte_mem_config * memory_config = rte_config->mem_config;
+
+  int i;
+  struct timespec begin,end;
+  clock_gettime(CLOCK_MONOTONIC, &begin);
+  for(i = 0; i<RTE_MAX_MEMSEG_LISTS; i++){
+    struct rte_memseg_list *memseg_ptr = &(memory_config->memsegs[i]);
+    if(memseg_ptr->page_sz > 0 && memseg_ptr->socket_id == (int)rte_socket_id()){
+      //printf("Pointer to huge page %p and size of the page %"PRIu64"\n",memseg_ptr->base_va, memseg_ptr->page_sz);
+      cudaHostRegister(memseg_ptr->base_va, memseg_ptr->page_sz, cudaHostRegisterDefault);
+    }
+  }
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  double time_taken_to_register = (end.tv_sec-begin.tv_sec)*1000000.0 + (end.tv_nsec-begin.tv_nsec)/1000.0;
+  printf("Total time taken to register the mempages to cuda is %f micro-seconds \n",time_taken_to_register);
+    
+}
+  
 /* function to load gpu file 
 void load_gpu_file(void){
   // convert the filename to wchar_t 
@@ -391,13 +445,17 @@ int main(int argc, char *argv[]) {
 	register_gpu_msg_handling_function(&function_to_process_gpu_message);
 	//load_gpu_file();
 
-	image_init(nf_info, NULL); //in onvm_netml.c
-
 	// loading the gpu model
-	load_ml_file(input_file_name, 0 /*cpu only*/, &cpu_func_ptr, &gpu_func_ptr);
+	load_ml_file(input_file_name, 0 /*cpu only*/, &cpu_func_ptr, &gpu_func_ptr, nf_info);
 
 	//ask gpu pointers from the manager
 	ask_for_gpu_pointers();
+
+	//check memsegs..
+	cuda_register_memseg_info();
+
+	//put in the batch size
+	nf_info->user_batch_size = atoi(batchsize);
 	
 	//receive packets.
 	onvm_nflib_run(nf_info, &packet_handler);

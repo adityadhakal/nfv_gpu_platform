@@ -689,7 +689,7 @@ static inline int onvm_nflib_process_packets_batch(struct onvm_nf_info *nf_info,
         uint8_t bCurND=0;
         uint64_t bCurNDPktId=0;
 #ifdef ONVM_GPU
-	void *packet_data;
+	//void *packet_data;
 #endif
 	
 #ifdef INTERRUPT_SEM
@@ -704,10 +704,12 @@ static inline int onvm_nflib_process_packets_batch(struct onvm_nf_info *nf_info,
 
 #ifdef ONVM_GPU
 		//we shall copy the packets here itself.. why should we give it to the handler
+		/*
 		if(onvm_pkt_ipv4_hdr(pkts[i]) != NULL){
 		  packet_data = rte_pktmbuf_mtod_offset((struct rte_mbuf *)pkts[i], void *, sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr));
 		  copy_data_to_image(packet_data, nf_info);
 		}
+		*/
 #endif
                 ret = (*handler)((struct rte_mbuf*) pkts[i], onvm_get_pkt_meta((struct rte_mbuf*) pkts[i]), nf_info);
 
@@ -1350,7 +1352,7 @@ onvm_nflib_notify_ready(struct onvm_nf_info *nf_info) {
 static image_data* get_image(int pkt_file_index, image_data **pending_img);
 static void delete_image(image_data * image, struct onvm_nf_info * nf_info);
 //GPU callback function to report after the evaluation is finished...
-void CUDART_CB gpu_image_callback_function(cudaStream_t event, cudaError_t status, void *data);
+void gpu_image_callback_function(void *data);
 //this function will be called to evaluate an image from mempool
 void evaluate_an_image_from_mempool(__attribute__((unused))struct rte_timer *timer_ptr, void *info);
 
@@ -1456,7 +1458,7 @@ void evaluate_an_image_from_mempool(__attribute__((unused))struct rte_timer *tim
     return;
   }
 
-  printf("Number of ready images %d \n", nf_info->image_info->num_of_ready_images);
+  //printf("Number of ready images %d \n", nf_info->image_info->num_of_ready_images);
 
   if(nf_info->candidate_for_restart != 1){
     //if the NF is destined to restart.. do not add to the GPU queue
@@ -1480,24 +1482,52 @@ void evaluate_an_image_from_mempool(__attribute__((unused))struct rte_timer *tim
   
   //submit this image to evaluation
   //evaluate_in_gpu_input_from_host(ready_image->image_data_arr, IMAGE_SIZE*(ready_image->num_data_points_stored/IMAGE_NUM_ELE),ready_image->output,nf_info->function_ptr,ready_image->stats, gpu_finish_work_flag, &gpu_image_callback_function, (void *) ready_image);
-  
-  //new evaluation function, older one is too cubersome
-    evaluate_image_in_gpu(ready_image, nf_info->function_ptr, &gpu_image_callback_function, (void *) &callback_data, gpu_finish_work_flag);
-  //post evaluation...put it in the GPU eval queue.
-    
-    gpu_queue_image_id[gpu_queue_current_index]=ready_image->image_id;
-    clock_gettime(CLOCK_MONOTONIC, &eval_begin_time); //read the current time
-    ready_image->timestamps[1] = eval_begin_time; //the index for timestamp is explained in onvm_image.h 
 
-  //increase the index for queue and number of elements in the queue
+
+    //check if the image has right size
+    //printf("Image size %d \n",ready_image->num_data_points_stored);
+
+    //increase the index for queue and number of elements in the queue
     gpu_queue_current_index++;
     gpu_queue_current_index %= MAX_IMAGE; 
     num_elements_in_gpu_queue++;  //increase how many images are in GPU queue
+    
+    //new evaluation function, older one is too cubersome
+    evaluate_image_in_gpu(ready_image, nf_info->function_ptr, gpu_image_callback_function, (void *) callback_data, gpu_finish_work_flag);
+    //post evaluation...put it in the GPU eval queue. if the above call is synchronous, then we can take a timestamp of finishing the image.
+    gpu_queue_image_id[gpu_queue_current_index]=ready_image->image_id;
+    clock_gettime(CLOCK_MONOTONIC, &eval_begin_time); //read the current time
+    ready_image->timestamps[1] = eval_begin_time; //the index for timestamp is explained in onvm_image.h
+
+    //store the throughputs
+    if(num_throughput_stored < 100){
+      throughputs[num_throughput_stored] = nf_info->user_batch_size*(1000000.0/((float)time_difference_usec(&(ready_image->timestamps[5]),&(ready_image->timestamps[1]))));
+      batch_fed[num_throughput_stored] = ready_image->timestamps[5];
+      batch_processed[num_throughput_stored] = ready_image->timestamps[1];
+
+      //ignoring first two data points
+      if(num_throughput_stored > 10)  {
+	//double current_total_latency = time_difference_usec(&batch_fed[num_throughput_stored-5], &batch_processed[num_throughput_stored]);
+	double current_total_latency = (ready_image->timestamps[1].tv_sec-batch_fed[num_throughput_stored-10].tv_sec)*1000.0+(ready_image->timestamps[1].tv_nsec-batch_fed[num_throughput_stored-10].tv_nsec)/1000000.0;
+	//printf("Current latency %f milliseconds \n",current_total_latency);
+	double current_throughput = (nf_info->user_batch_size*10*(1000.0/current_total_latency));
+	printf("Image batch %d, single images processed till now %d, throughput of last 10 batches %f, latency including data movement of current batch %f (ms)\n", num_throughput_stored, num_throughput_stored*nf_info->user_batch_size, current_throughput, time_difference_usec(&(ready_image->timestamps[5]), &(ready_image->timestamps[1]))/1000.0);
+      }
+      if(num_throughput_stored == 99){
+	//final output
+	printf("\n \n====== Summary output ======== \n");
+	double total_latency = time_difference_usec(&batch_fed[20], &batch_processed[99]);
+	double total_throughput = nf_info->user_batch_size*80*(1000000.0/total_latency);
+	printf("based on data of 80 image batch or %d images, the throughput is %f images per second \n", 80*nf_info->user_batch_size, total_throughput);
+	printf("\n \n ===== summary ended ======== \n");
+      }
+    }
+    num_throughput_stored++;
   }
 }
 
 //GPU callback function to report after the evaluation is finished...
-void CUDART_CB gpu_image_callback_function(__attribute__((unused)) cudaStream_t event, __attribute__((unused)) cudaError_t status, void *data){
+void gpu_image_callback_function(void *data){
 
   //just update the stats here for now...
   struct timespec call_back_time;
@@ -1595,6 +1625,8 @@ static image_data *get_image(int pkt_file_index, image_data **pending_img){
   rte_mempool_put(nf_image_pool, (void *)image);
 }
 
+
+//consider single image.
 void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
   image_data **pending_images = (image_data **)nf_info->image_info->image_pending;
   data_struct *pkt_data = (data_struct *)packet_data;
@@ -1609,11 +1641,41 @@ void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
     nf_info->image_info->ready_images[(nf_info->image_info->num_of_ready_images+nf_info->image_info->index_of_ready_image)%MAX_IMAGE] = (void *)image;
     image->status = ready;
     nf_info->image_info->num_of_ready_images++;
-    printf("DEBUG.... all packets of image is received \n");
+    //printf("DEBUG.... all packets of image is received \n");
     //remove it from pending image list and put it on 
     pending_images[image->image_id] = NULL;
   }
+}
 
+//considers user provided batch sizes
+void copy_data_to_image_batch(void *packet_data, struct onvm_nf_info *nf_info, int batch_size){
+  image_data **pending_images = (image_data **)nf_info->image_info->image_pending;
+  data_struct *pkt_data = (data_struct *)packet_data;
+  int batch_id = pkt_data->file_id/batch_size; //which batch does the file belong to
+  //printf("Debug, file_id %d the batch id is %d \n",pkt_data->file_id,batch_id);
+  image_data *image = get_image(batch_id, pending_images);
+  int batch_entry = pkt_data->file_id%batch_size; //where does the file belong in the batch
+
+  //check if the batch is empty.. store a timer for first packet.
+  if(image->num_data_points_stored == 0){
+    clock_gettime(CLOCK_MONOTONIC, &(image->timestamps[5]));
+  }
+  
+  //copy it correctly in a batch.
+  memcpy(&(image->image_data_arr[batch_entry*IMAGE_NUM_ELE+pkt_data->position]), pkt_data->data_array, sizeof(float)*pkt_data->number_of_elements);
+  image->num_data_points_stored += pkt_data->number_of_elements;
+
+  
+  //check if the image is ready for evaluation
+  if(image->num_data_points_stored >= IMAGE_NUM_ELE*batch_size){
+    //add to the ready image list.
+    nf_info->image_info->ready_images[(nf_info->image_info->num_of_ready_images+nf_info->image_info->index_of_ready_image)%MAX_IMAGE] = (void *)image;
+    image->status = ready;
+    nf_info->image_info->num_of_ready_images++;
+    //printf("DEBUG.... all packets of image is received \n");
+    //remove it from pending image list and put it on 
+    pending_images[image->image_id] = NULL;
+  }
 }
 
 //initializes the timers....

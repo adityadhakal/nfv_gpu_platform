@@ -57,6 +57,10 @@
 #include <rte_malloc.h>
 #include <rte_mbuf.h>
 
+#include <rte_eal.h>
+#include <rte_eal_memconfig.h>
+#include <rte_lcore.h>
+
 #include "onvm_nflib.h"
 #include "onvm_pkt_helper.h"
 #include "onvm_cntk_api.h"
@@ -75,6 +79,7 @@ struct onvm_nf_info *nf_info;
 /* ML related variables */
 static char *input_file_name = NULL;
 static const char *ml_model = NULL;
+static char *batchsize = NULL;
 int other_core_function(void *);
 void * cpu_func_ptr = NULL;
 void * gpu_func_ptr = NULL;
@@ -84,7 +89,8 @@ void store_the_gpu_pointers(struct onvm_nf_msg *message);
 void ask_for_gpu_pointers(void);
 void load_gpu_ptrs(struct onvm_nf_msg *message);
 void voluntary_restart_the_nf(void);
-  
+void cuda_register_memseg_info(void);
+
 cudaIpcMemHandle_t * cuda_handles;
 models_attributes loaded_models;
 
@@ -106,7 +112,7 @@ static int
 parse_app_args(int argc, char *argv[], const char *progname) {
         int c;
 
-        while ((c = getopt (argc, argv, "p:f:m:")) != -1) {
+        while ((c = getopt (argc, argv, "p:f:m:b:")) != -1) {
                 switch (c) {
                 case 'p':
                         print_delay = strtoul(optarg, NULL, 10);
@@ -117,6 +123,9 @@ parse_app_args(int argc, char *argv[], const char *progname) {
 		case 'm':
 		        ml_model = optarg;
 		        break;
+		case 'b':
+		  batchsize = optarg;
+		  break;
                 case '?':
                         usage(progname);
                         if (optopt == 'p')
@@ -182,10 +191,10 @@ packet_handler(struct rte_mbuf *pkt, struct onvm_pkt_meta *meta, __attribute__((
 
 	//copying the packet data to the right buffer ...
 	//THis functionality has been moved to onvm_nflib
-	//	if(onvm_pkt_ipv4_hdr(pkt) != NULL){
-	//  void * packet_data = rte_pktmbuf_mtod_offset(pkt, void *, sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr));
-	//  copy_data_to_image(packet_data, nf_info);
-	//}
+	if(onvm_pkt_ipv4_hdr(pkt) != NULL){
+	  void * packet_data = rte_pktmbuf_mtod_offset(pkt, void *, sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr));
+	  copy_data_to_image_batch(packet_data, nf_info,4);
+       }
 	
         if (pkt->port == 0) {
                 meta->destination = 1;
@@ -255,11 +264,9 @@ void load_gpu_ptrs(struct onvm_nf_msg *message){
     double load_time = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
     printf("The time to switch pointers to GPU is %f microseconds \n",load_time);
     printf("since we are first NF, we will try to restart.. first wake up another NF\n");
-    sleep(10);
+    //sleep(10);
     //trigger the NF restart...
-    voluntary_restart_the_nf();
-	
-
+    //voluntary_restart_the_nf();
   }
   else
     {
@@ -301,6 +308,31 @@ void voluntary_restart_the_nf(void){
   onvm_send_gpu_msg_to_mgr(nf_info,MSG_NF_VOLUNTARY_RE);
   
 }
+
+void cuda_register_memseg_info(void){
+
+  //get the memory config
+  struct rte_config * rte_config = rte_eal_get_configuration();
+
+  //now get the memory locations
+  struct rte_mem_config * memory_config = rte_config->mem_config;
+
+  int i;
+  struct timespec begin,end;
+  clock_gettime(CLOCK_MONOTONIC, &begin);
+  for(i = 0; i<RTE_MAX_MEMSEG_LISTS; i++){
+    struct rte_memseg_list *memseg_ptr = &(memory_config->memsegs[i]);
+    if(memseg_ptr->page_sz > 0 && memseg_ptr->socket_id == (int)rte_socket_id()){
+      //printf("Pointer to huge page %p and size of the page %"PRIu64"\n",memseg_ptr->base_va, memseg_ptr->page_sz);
+      cudaHostRegister(memseg_ptr->base_va, memseg_ptr->page_sz, cudaHostRegisterDefault);
+    }
+  }
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  double time_taken_to_register = (end.tv_sec-begin.tv_sec)*1000000.0 + (end.tv_nsec-begin.tv_nsec)/1000.0;
+  printf("Total time taken to register the mempages to cuda is %f micro-seconds \n",time_taken_to_register);
+    
+}
+  
 /* function to load gpu file 
 void load_gpu_file(void){
   // convert the filename to wchar_t 
@@ -419,6 +451,12 @@ int main(int argc, char *argv[]) {
 	//ask gpu pointers from the manager
 	ask_for_gpu_pointers();
 
+	//check memsegs..
+	cuda_register_memseg_info();
+
+	//put in the batch size
+	nf_info->user_batch_size = atoi(batchsize);
+	
 	//receive packets.
 	onvm_nflib_run(nf_info, &packet_handler);
         printf("If we reach here, program is ending\n");

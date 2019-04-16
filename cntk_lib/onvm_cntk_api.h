@@ -2,7 +2,7 @@
 #define ONVM_CNTK_API_H
 
 #define NUMBER_OF_MODELS 6
-
+#include <cuda_runtime.h>
 
 /* This function loads the model file from disk
  * Arguments are:
@@ -29,10 +29,10 @@ void get_all_input_sizes(void * function_ptr, int *input_dim_array, int input_se
 int link_gpu_pointers(void * cpu_function_pointer, void * cuda_handles_for_gpu_data, int number_of_parameters);
 
 /* evaluate a data set */
-void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *output, void *function_pointer, void *evaluation_time, int cuda_event_flag, void * callback_function, void *callback_data);
+void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *output, void *function_pointer, void *evaluation_time, int cuda_event_flag, cudaHostFn_t callback_function, void *callback_data);
 
 /* evaluate an image in GPU */
-void evaluate_image_in_gpu(void * image, void *function_pointer, void * gpu_callback_function, void * callback_data, int gpu_barrier_flag);
+void evaluate_image_in_gpu(void * image, void *function_pointer,cudaHostFn_t callback_function, void * callback_data, int gpu_barrier_flag);
 
 
 /*

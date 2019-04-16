@@ -41,14 +41,15 @@ then
     usage
 fi
 
-while getopts ":p:f:m:" opt; do
+while getopts ":p:f:m:b:" opt; do
   case $opt in
     p) print="-p $OPTARG";;
     f) file_name="-f $OPTARG";;
     m) model_name="-m $OPTARG";;
+    b) batch_size="-b $OPTARG";;
     \?) echo "Unknown option -$OPTARG" && usage
     ;;
   esac
 done
-echo sudo $SCRIPTPATH/build/app/bridge -l $cpu -n 3 --proc-type=secondary -- -r $service -n $inst_id -- $print $file_name $model_name
-exec sudo $SCRIPTPATH/build/app/bridge -l $cpu -n 3 --proc-type=secondary -- -r $service -n $inst_id -- $print $file_name $model_name
+echo sudo $SCRIPTPATH/build/app/bridge -l $cpu -n 3 --proc-type=secondary -- -r $service -n $inst_id -- $print $file_name $model_name $batch_size
+exec sudo $SCRIPTPATH/build/app/bridge -l $cpu -n 3 --proc-type=secondary -- -r $service -n $inst_id -- $print $file_name $model_name $batch_size

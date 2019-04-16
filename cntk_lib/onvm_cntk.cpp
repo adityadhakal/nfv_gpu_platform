@@ -144,9 +144,9 @@ void CUDART_CB callback_function_example(cudaStream_t event, cudaError_t status,
 /* evaluate a data set */
 // let's hard code
 extern "C"
-void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *output, void *function_pointer, void* evaluation_time, int cuda_event_flag, void *cb_function, void *callback_data){
+void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *output, void *function_pointer, void* evaluation_time, int cuda_event_flag, cudaHostFn_t callback_function, void *callback_data){
 
-  cudaStreamCallback_t *callback_function = (cudaStreamCallback_t *) cb_function;
+  //  cudaHostFn_t *callback_function = (cudaHostFn_t *) cb_function;
   float cuda_time = 0;
   struct timespec *timestamps = (struct timespec *)evaluation_time;
   clock_gettime(CLOCK_MONOTONIC, &(timestamps[0]));
@@ -160,11 +160,12 @@ void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *out
 
   //checking the input
   int i;
-  std::cout<<"The input in evaluate func \n";
-  for(i = 0; i<10 ; i++){
-    std::cout<<input[i]<<" "<<std::endl;
-  }
-  std::cout<<"\n";
+  //std::cout<<"The input in evaluate func \n";
+  //for(i = 0; i<10 ; i++){
+  //  std::cout<<input[i]<<" ";
+  //}
+  //std::cout<<"\n";
+
   //create a new vector
   Variable inputvar = inputs[0];
   long total_size = 1;
@@ -200,32 +201,37 @@ void evaluate_in_gpu_input_from_host(float *input, size_t input_size, float *out
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
 
+  struct timespec start1, finish1;
+
   /*the execution block */
   clock_gettime(CLOCK_MONOTONIC, &timestamps[1]);
+  clock_gettime(CLOCK_MONOTONIC, &start1);
   cudaEventRecord(start);
   rootFunc->Evaluate(inputDataMap, outputDataMap, gpu_device);
+  cudaEventRecord(stop);
+  clock_gettime(CLOCK_MONOTONIC, &finish1);
   ValuePtr outputVal = outputDataMap[outputvar];
   //std::cout<<"output var shape "<<outputvar.Shape().TotalSize()<<std::endl;
   auto output_ndarray = outputVal->Data()->DataBuffer<float>();
-  cudaMemcpyAsync(output, output_ndarray, sizeof(float)*1000, cudaMemcpyDeviceToHost, 0); //currently in zero stream
-
-  //add callback if it exists
-  if(callback_function != NULL)
-    cudaStreamAddCallback(0, *callback_function, callback_data, 0);
-  
-  
-
-  if(cuda_event_flag){
-      
-      cudaEventSynchronize(stop);
-  
+  if(callback_function != NULL){
+    cudaLaunchHostFunc(0, callback_function, callback_data);
   }
 
-  cudaEventRecord(stop);
+  //cudaMemcpy(output, output_ndarray, sizeof(float)*1000, cudaMemcpyDeviceToHost); //currently in zero stream
+  //add callback if it exists
+
+  if(cuda_event_flag){
+    cudaEventSynchronize(stop);
+  }
+
+  cudaEventSynchronize(stop);
   cudaEventElapsedTime(&cuda_time, start, stop);
 
+  
+  
+  double time_taken = (finish1.tv_sec-start1.tv_sec)*1000000.0+(finish1.tv_nsec-start1.tv_nsec)/1000.0;
+  std::cout<<"CPU side time taken "<<time_taken<<" micro-seconds, CUDA timer time taken "<<cuda_time<<" milli-seconds\n";
   /*
-  double time_taken = (end.tv_sec-begin.tv_sec)*1000000.0+(end.tv_nsec-begin.tv_nsec)/1000.0;
   double exec_time = (execution_end.tv_sec-execution_begin.tv_sec)*1000000.0+(execution_end.tv_nsec-execution_begin.tv_nsec)/1000.0;
   //std::cout<<"time taken to run this module is "<<time_taken<<" micro-seconds ... and event time "<<cuda_time<<std::endl;
   std::cout<<""<<time_taken<<","<<cuda_time<<", exec_time "<<exec_time<<std::endl;  
@@ -263,8 +269,9 @@ void get_all_input_sizes(void *function_pointer,int *input_dim, int input_var_nu
 
 // new function to evaluate the images...
 extern "C"
-void evaluate_image_in_gpu(void *image, void * function_pointer,void * gpu_callback_function, void *callback_data, int gpu_barrier_flag){
+void evaluate_image_in_gpu(void *image, void * function_pointer,cudaHostFn_t callback_function, void *callback_data, int gpu_barrier_flag){
   //call the other function... just put a timestamp in here
   image_data * ready_image = (image_data *) image;
-  evaluate_in_gpu_input_from_host(ready_image->image_data_arr, ready_image->num_data_points_stored, ready_image->output, function_pointer, &(ready_image->timestamps[2]), gpu_barrier_flag, gpu_callback_function, callback_data);
+
+  evaluate_in_gpu_input_from_host(ready_image->image_data_arr, ready_image->num_data_points_stored, ready_image->output, function_pointer, &(ready_image->timestamps[2]), gpu_barrier_flag, callback_function, callback_data);
 }

@@ -950,7 +950,7 @@ extern void *onvm_socket_ctx;
 
 #ifdef ONVM_GPU
 #define NUMBER_OF_MODELS 6
-#define MAX_IMAGE 200
+#define MAX_IMAGE 300
 /* a message format to get the alternate nf ready */
 struct image_information{
   //this below should be shared to alternate NF
@@ -1080,6 +1080,8 @@ struct onvm_nf_info {
 
   histogram_v2_t end_to_end_image_processing_time; //the time to have data transfer + image processing
   histogram_v2_t image_processing_gpu_time; //the time for image processing only
+
+  int user_batch_size; //user can define the batch size.
 
  #endif
 

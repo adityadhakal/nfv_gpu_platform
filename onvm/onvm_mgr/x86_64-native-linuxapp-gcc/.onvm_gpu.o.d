@@ -199,6 +199,14 @@ dep_onvm_gpu.o = /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_gpu.c \
  /home/skulk901/dev/openNetVM_Mainline/dpdk/x86_64-native-linuxapp-gcc/include/rte_timer.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../onvm_nflib/histogram.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../../cntk_lib/onvm_cntk_api.h \
+ /usr/local/cuda/include/cuda_runtime.h \
+ /usr/local/cuda/include/crt/host_config.h \
+ /usr/local/cuda/include/library_types.h \
+ /usr/local/cuda/include/channel_descriptor.h \
+ /usr/local/cuda/include/cuda_runtime_api.h \
+ /usr/local/cuda/include/driver_functions.h \
+ /usr/local/cuda/include/vector_functions.h \
+ /usr/local/cuda/include/vector_functions.hpp \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_mgr.h \
  /usr/include/netinet/ip.h /usr/include/netinet/in.h \
  /usr/include/x86_64-linux-gnu/sys/socket.h \
