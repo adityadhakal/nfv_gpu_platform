@@ -65,6 +65,7 @@
 #include "onvm_pkt_helper.h"
 #include "onvm_cntk_api.h"
 #include "onvm_images.h"
+#include "tensorrt_api.h"
 #include <cuda_runtime.h>
 
 #define MSG_RING_NAME1 "msg_ring1"
@@ -151,6 +152,7 @@ parse_app_args(int argc, char *argv[], const char *progname) {
  */
 static void
 do_stats_display(struct rte_mbuf* pkt) {
+        return;
         const char clr[] = { 27, '[', '2', 'J', '\0' };
         const char topLeft[] = { 27, '[', '1', ';', '1', 'H', '\0' };
         static uint64_t pkt_process = 0;
@@ -191,10 +193,12 @@ packet_handler(struct rte_mbuf *pkt, struct onvm_pkt_meta *meta, __attribute__((
 
 	//copying the packet data to the right buffer ...
 	//THis functionality has been moved to onvm_nflib
+	/*
 	if(onvm_pkt_ipv4_hdr(pkt) != NULL){
 	  void * packet_data = rte_pktmbuf_mtod_offset(pkt, void *, sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr));
 	  copy_data_to_image_batch(packet_data, nf_info,nf_info->user_batch_size);
        }
+	*/
 	
         if (pkt->port == 0) {
                 meta->destination = 1;
@@ -446,13 +450,13 @@ int main(int argc, char *argv[]) {
 	//load_gpu_file();
 
 	// loading the gpu model
-	load_ml_file(input_file_name, 0 /*cpu only*/, &cpu_func_ptr, &gpu_func_ptr, nf_info);
+	//load_ml_file(input_file_name, 0 /*cpu only*/, &cpu_func_ptr, &gpu_func_ptr, nf_info);
 
 	//ask gpu pointers from the manager
-	ask_for_gpu_pointers();
+	//ask_for_gpu_pointers();
 
 	//check memsegs..
-	cuda_register_memseg_info();
+	//cuda_register_memseg_info();
 
 	//put in the batch size
 	nf_info->user_batch_size = atoi(batchsize);

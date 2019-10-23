@@ -57,11 +57,13 @@ CFLAGS += -I$(ONVM)/onvm_nflib
 CFLAGS += -I$(ONVM)/lib
 #CFLAGS += -I$(ONVM)/shared
 LDFLAGS += $(ONVM)/onvm_nflib/$(RTE_TARGET)/libonvm.a
-LDFLAGS += $(ONVM)/lib/$(RTE_TARGET)/lib/libonvmhelper.a -lm -lonvm_cntk
+LDFLAGS += $(ONVM)/lib/$(RTE_TARGET)/lib/libonvmhelper.a -lm
 #LDFLAGS += $(ONVM)/onvm_nflib/onvm_nflib/$(RTE_TARGET)/onvm_nflib.a
 #LDFLAGS += $(ONVM)/onvm_nflib/onvm_nflib/$(RTE_TARGET)/onvm_nflib.o
+CFLAGS += -I/usr/local/cuda/include
+LDFLAGS += -L/usr/local/cuda/lib64 -lcudart -lstdc++
 
-LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
+#LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib 
 
 #LDFLAGS += $(ONVM)/shared/shared/$(RTE_TARGET)/onvm_shared.a
 #LDFLAGS += $(ONVM)/shared/shared/$(RTE_TARGET)/onvm_pkt_helper.o
@@ -69,7 +71,7 @@ LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/rele
 #LDFLAGS += $(ONVM)/shared/shared/$(RTE_TARGET)/onvm_flow_table.o
 #LDFLAGS += $(ONVM)/shared/shared/$(RTE_TARGET)/onvm_flow_dir.o
 
-CFLAGS += -I$(ONVM)/../cntk_lib/
+#CFLAGS += -I$(ONVM)/../cntk_lib/
 CFLAGS += -I$(RTE_SDK)/$(RTE_TARGET)/include/
 LDFLAGS += $(RTE_SDK)/$(RTE_TARGET)/lib/librte_timer.a
 #LDFLAGS += $(RTE_SDK)/lib/librte_timer

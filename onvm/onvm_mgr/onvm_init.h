@@ -79,17 +79,18 @@
 
 /*****************************Internal library********************************/
 
-
+#include "onvm_common.h"
 #include "onvm_mgr/onvm_args.h"
 #include "onvm_mgr/onvm_stats.h"
 #include "onvm_includes.h"
-#include "onvm_common.h"
+
 #include "onvm_sc_mgr.h"
 #include "onvm_sc_common.h"
 #include "onvm_flow_table.h"
 #include "onvm_flow_dir.h"
+
 #ifdef ONVM_GPU
-#include "onvm_images.h"
+#include "onvm_netml.h"
 #endif
 /***********************************Macros************************************/
 
@@ -108,10 +109,10 @@
 #define NF_MSG_CACHE_SIZE 8
 
 #ifdef ONVM_GPU
-//#define MAX_IMAGES 100 //defined in onvm_common.h
-#define IMAGE_CACHE_SIZE 4
+
 #define IMAGE_STATE_CACHE_SIZE 0
-#endif
+#define GPU_MODEL_INFO_CACHE_SIZE 0
+#endif //onvm_gpu
 
 //For TCP UDP use 70,40
 //For TCP TCP, IO use 80 20

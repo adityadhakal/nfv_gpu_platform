@@ -57,6 +57,11 @@
 #define ONVM_GPU_SAME_SIZE_PKTS 1
 #define ONVM_GPU_TEST 1
 
+#ifdef ONVM_GPU
+#include "onvm_netml.h"
+
+#endif
+
 //check on each node by executing command  $"getconf LEVEL1_DCACHE_LINESIZE" or cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size
 #define ONVM_CACHE_LINE_SIZE (64)
 
@@ -114,7 +119,6 @@
 #define ONVM_NF_ACTION_OUT  3   // send the packet out the NIC port set in the argument field
 #define ONVM_NF_ACTION_TO_NF_INSTANCE   4   //send to NF Instance ID (specified in the meta->destination. Note unlike ONVM_NF_ACTION_TONF which means to NF SERVICE ID, this is direct destination instance ID.
 
-
 /******************************************************************************/
 /*              MACROS (FEATURE FLAGS)  FOR ADDON FEATURES                    */
 /******************************************************************************/
@@ -126,10 +130,8 @@
 
 /** Feature to Enable Packet Time stamping and to measure processing latency */
 //#define ENABLE_PACKET_TIMESTAMPING
-
 /** Feature to enable Extra Debug Logs on all components */
 //#define __DEBUG_LOGS__
-
 /** Feature to Enable NFs Tx Statistics Logs */
 #define ENABLE_NF_TX_STAT_LOGS
 
@@ -141,13 +143,10 @@
 
 /** VXLAN Feature Addition **/
 //#define ENABLE_VXLAN
-
 /** Enable Zookeeper Data store */
 //#define ENABLE_ZOOKEEPER
-
 /** Enable Packet Dumper **/
 //#define RTE_LIBRTE_PDUMP
-
 #ifdef RTE_LIBRTE_PDUMP
 #include <rte_pdump.h>
 #endif
@@ -162,7 +161,6 @@
 //#define __DEBUG_NDSYNC_LOGS__
 //#define __DEBUG_BFD_LOGS__
 #endif
-
 
 /******************************************************************************/
 // SUB FEATURES FOR ENABLE_PACKET_TIMESTAMPING
@@ -210,7 +208,6 @@
 
 /* Enable back-pressure handling to throttle NFs upstream */
 //#define ENABLE_NF_BACKPRESSURE          // (Preferred Usage: Enabled)
-
 /* Enable CGROUP cpu share setting Feature */
 #define ENABLE_CGROUPS_FEATURE          // (Preferred Usage: Enabled)
 
@@ -241,7 +238,6 @@
 #define ENABLE_USE_RTE_TIMER_MODE_FOR_MAIN_THREAD   //(Usage Preference: Enabled)
 /* Run Wake thread in Timer mode ( muti task wake thread for Arbiter case */
 //#define ENABLE_USE_RTE_TIMER_MODE_FOR_WAKE_THREAD //(Usage Preference: Disabled)
-
 #if defined (ENABLE_USE_RTE_TIMER_MODE_FOR_MAIN_THREAD)
 #include <rte_timer.h>
 #endif //ENABLE_USE_RTE_TIMER_MODE_FOR_MAIN_THREAD
@@ -261,7 +257,6 @@ struct onvm_service_chain;
 
 /** Global backpressure only for default chain; choose any below backpressure modes  */
 //#define ENABLE_GLOBAL_BACKPRESSURE    // (Preferred Usage: Disabled)
-
 /* #1 Throttle enqueue of packets to the upstream NFs (handle in onvm_pkts_enqueue) */
 #define NF_BACKPRESSURE_APPROACH_1      // (Preferred Usage: Enabled)
 
@@ -285,23 +280,19 @@ struct onvm_service_chain;
  *  (Preferred Usage: Disabled )
  *  */
 //#define DO_NOT_DROP_PKTS_ON_FLUSH_FOR_BOTTLENECK_NF   //(Preferred Usage: Disabled)
-
 /** Sub Feature to enable to re-check for back-pressure marking, at the time of packet dequeue from the NFs Tx Ring.*/
 //#define RECHECK_BACKPRESSURE_MARK_ON_TX_DEQUEUE   //(Preferred Usage: Disabled: Not worth the overhead)
-
 // Enable extra profile logs for back-pressure: Move all prints and additional variables under this flag (as optimization)
 //#define BACKPRESSURE_EXTRA_DEBUG_LOGS
-
 /* Enable the Arbiter Logic to control the NFs scheduling and period on each core */
 //#define ENABLE_ARBITER_MODE
 //NFLib check for wake;/sleep state and Wakeup thread to put the the NFs to sleep after timer expiry (This feature is not working as expected..)
 //#define USE_ARBITER_NF_EXEC_PERIOD
-
 #endif //ENABLE_NF_BACKPRESSURE
 
 #if defined(ENABLE_NF_BASED_BKPR_MARKING)
 /* Perform Backpressure marking in Timer Thread context  :: Decouple control plane and data plane processing.
-Note: Requires to enable timer mode main thread. (currently directly called from wake mgr; ensure timer dependency later) */
+ Note: Requires to enable timer mode main thread. (currently directly called from wake mgr; ensure timer dependency later) */
 #define USE_BKPR_V2_IN_TIMER_MODE     // (Preferred Usage: Enabled (better) or Disabled is fine)
 #endif
 
@@ -375,9 +366,9 @@ Note: Requires to enable timer mode main thread. (currently directly called from
 #define ENABLE_NF_MGR_IDENTIFIER    // Identifier for the NF Manager node
 #define ENABLE_BFD                  // BFD management
 //#define ENABLE_SHADOW_RINGS         //enable shadow rings in the NF to save enqueued packets.
-#define ENABLE_PER_SERVICE_MEMPOOL  //enable common mempool for all NFs on same service type.
-#define ENABLE_REPLICA_STATE_UPDATE //enable feature to update (copy over NF state (_NF_STATE_MEMPOOL_NAME) info to local replic's state
-#define ENABLE_REMOTE_SYNC_WITH_TX_LATCH    //enable feature to hold the Tx buffers until NF state/Tx ppkt table is updated.        (Remote Sync)
+//#define ENABLE_PER_SERVICE_MEMPOOL  //enable common mempool for all NFs on same service type.
+//#define ENABLE_REPLICA_STATE_UPDATE //enable feature to update (copy over NF state (_NF_STATE_MEMPOOL_NAME) info to local replic's state
+//#define ENABLE_REMOTE_SYNC_WITH_TX_LATCH    //enable feature to hold the Tx buffers until NF state/Tx ppkt table is updated.        (Remote Sync)
 //#define RESL_UPDATE_MODE_PER_PACKET   //update mode Shadow Ring, Replica state, per flow TS for every packet
 #ifndef RESL_UPDATE_MODE_PER_PACKET
 #define RESL_UPDATE_MODE_PER_BATCH      //update mode Shadow Ring, Replica state, per flow TS for batch of packets
@@ -387,7 +378,7 @@ Note: Requires to enable timer mode main thread. (currently directly called from
 #ifdef ENABLE_REMOTE_SYNC_WITH_TX_LATCH
 #define ENABLE_PER_FLOW_TS_STORE    //enable to store TS of the last processed/updated packet at each NF and last released packet at NF MGR.    (Remote Sync)
 #define ENABLE_CHAIN_BYPASS_RSYNC_ISOLATION //enable to isolate chains that need no rsync to bypass same tx path and provide latency isolation
-#define ENABLE_NF_PAUSE_TILL_OUTSTANDING_NDSYNC_COMMIT  //enable NF to pause (wait) if it has 1 outstanding ND to be synced and encounters second ND event in the interim.
+//#define ENABLE_NF_PAUSE_TILL_OUTSTANDING_NDSYNC_COMMIT  //enable NF to pause (wait) if it has 1 outstanding ND to be synced and encounters second ND event in the interim.
 
 #define PRIMARY_NODE     (0)
 #define SECONDARY_NODE   (1)
@@ -416,7 +407,6 @@ Note: Requires to enable timer mode main thread. (currently directly called from
 //#define ENABLE_PICO_RX_NON_BLOCKING_MODE              //do not halt the rx_input while state transfer
 //#define ENABLE_PICO_EXPLICT_NF_PAUSE_RESUME           //notify NF to pause till state commit and then resume ( issues: doesnt work due to race b/w pause action and resume message post)
 #endif
-
 
 /* Feature toe Enable FTMB mode of operation:
  * Note: NFLIB generate PALS; ignore VOR packets as there is only 1NF thread.
@@ -526,14 +516,13 @@ Note: Requires to enable timer mode main thread. (currently directly called from
 #define _PER_FLOW_TS_CACHE_MAX_ENTRIES      ((_PER_FLOW_TS_SIZE)/sizeof(uint64_t))
 #endif
 
-
 #define MAX_ACTIVE_CLIENTS  (MAX_NFS>>1)
 #define MAX_STANDBY_CLIENTS  (MAX_NFS - MAX_ACTIVE_CLIENTS)
 #define ACTIVE_NF_MASK   (MAX_ACTIVE_CLIENTS-1)
 
 typedef struct onvm_per_flow_ts_info {
-        uint64_t ts;
-}  __attribute__((__packed__)) onvm_per_flow_ts_info_t;
+	uint64_t ts;
+}__attribute__((__packed__)) onvm_per_flow_ts_info_t;
 #else
 #ifndef ONVM_NUM_RSYNC_THREADS
 #define ONVM_NUM_RSYNC_THREADS ((int)0)
@@ -574,14 +563,14 @@ typedef struct onvm_per_flow_ts_info {
 
 /** Structure to represent the Dirty state map for the in-memory NF state **/
 typedef struct dirty_mon_state_map_tbl {
-        uint64_t dirty_index;
-        // Bit index to every 1K LSB=0-1K, MSB=63-64K
-}dirty_mon_state_map_tbl_t;
+	uint64_t dirty_index;
+	// Bit index to every 1K LSB=0-1K, MSB=63-64K
+} dirty_mon_state_map_tbl_t;
 
 typedef struct dirty_mon_state_map_tbl_txts {
-        uint8_t dirty_index;
-        // Bit index to every 1K LSB=0-1K, MSB=63-64K
-}dirty_mon_state_map_tbl_txts_t;
+	uint8_t dirty_index;
+	// Bit index to every 1K LSB=0-1K, MSB=63-64K
+} dirty_mon_state_map_tbl_txts_t;
 /* Note: To optimize, use two level indexing.
  * First index uint64_t designate which 2nd level indexes are dirtied
  * Second level index sixty-four of the uint64_t index the chunk in the memory
@@ -601,57 +590,59 @@ typedef struct dirty_mon_state_map_tbl_txts {
 /******************************************************************************/
 #define SET_BIT(x,bitNum) ((x)|=(1<<(bitNum-1)))
 static inline void set_bit(long *x, unsigned bitNum) {
-    *x |= (1L << (bitNum-1));
+	*x |= (1L << (bitNum - 1));
 }
 
 #define CLEAR_BIT(x,bitNum) ((x) &= ~(1<<(bitNum-1)))
 static inline void clear_bit(long *x, unsigned bitNum) {
-    *x &= (~(1L << (bitNum-1)));
+	*x &= (~(1L << (bitNum - 1)));
 }
 
 #define TOGGLE_BIT(x,bitNum) ((x) ^= (1<<(bitNum-1)))
 static inline void toggle_bit(long *x, unsigned bitNum) {
-    *x ^= (1L << (bitNum-1));
+	*x ^= (1L << (bitNum - 1));
 }
 #define TEST_BIT(x,bitNum) ((x) & (1<<(bitNum-1)))
 static inline long test_bit(long x, unsigned bitNum) {
-    return (x & (1L << (bitNum-1)));
+	return (x & (1L << (bitNum - 1)));
 }
 
 static inline long is_upstream_NF(long chain_throttle_value, long chain_index) {
 #ifndef HOP_BY_HOP_BACKPRESSURE
-        long chain_index_value = 0;
-        SET_BIT(chain_index_value, chain_index);
-        CLEAR_BIT(chain_throttle_value, chain_index);
-        return ((chain_throttle_value > chain_index_value)? (1):(0) );
+	long chain_index_value = 0;
+	SET_BIT(chain_index_value, chain_index);
+	CLEAR_BIT(chain_throttle_value, chain_index);
+	return ((chain_throttle_value > chain_index_value) ? (1) : (0));
 #else
-        long chain_index_value = 0;
-        SET_BIT(chain_index_value, (chain_index+1));
-        return ((chain_throttle_value & chain_index_value));
-        //return is_immediate_upstream_NF(chain_throttle_value,chain_index);
+	long chain_index_value = 0;
+	SET_BIT(chain_index_value, (chain_index+1));
+	return ((chain_throttle_value & chain_index_value));
+	//return is_immediate_upstream_NF(chain_throttle_value,chain_index);
 #endif //HOP_BY_HOP_BACKPRESSURE
-        //1 => NF component at chain_index is an upstream component w.r.t where the bottleneck is seen in the chain (do not drop/throttle)
-        //0 => NF component at chain_index is an downstream component w.r.t where the bottleneck is seen in the chain (so drop/throttle)
+	//1 => NF component at chain_index is an upstream component w.r.t where the bottleneck is seen in the chain (do not drop/throttle)
+	//0 => NF component at chain_index is an downstream component w.r.t where the bottleneck is seen in the chain (so drop/throttle)
 }
-static inline long is_immediate_upstream_NF(long chain_throttle_value, long chain_index) {
+static inline long is_immediate_upstream_NF(long chain_throttle_value,
+		long chain_index) {
 #ifdef HOP_BY_HOP_BACKPRESSURE
-        long chain_index_value = 0;
-        SET_BIT(chain_index_value, (chain_index+1));
-        return ((chain_throttle_value & chain_index_value));
+	long chain_index_value = 0;
+	SET_BIT(chain_index_value, (chain_index+1));
+	return ((chain_throttle_value & chain_index_value));
 #else
-        return is_upstream_NF(chain_throttle_value,chain_index);
+	return is_upstream_NF(chain_throttle_value, chain_index);
 #endif  //HOP_BY_HOP_BACKPRESSURE
-        //1 => NF component at chain_index is an immediate upstream component w.r.t where the bottleneck is seen in the chain (do not drop/throttle)
-        //0 => NF component at chain_index is an downstream component w.r.t where the bottleneck is seen in the chain (so drop/throttle)
+	//1 => NF component at chain_index is an immediate upstream component w.r.t where the bottleneck is seen in the chain (do not drop/throttle)
+	//0 => NF component at chain_index is an downstream component w.r.t where the bottleneck is seen in the chain (so drop/throttle)
 }
 
 static inline long get_index_of_highest_set_bit(long x) {
-        long next_set_index = 0;
-        //SET_BIT(chain_index_value, chain_index);
-        //while ((1<<(next_set_index++)) < x);
-        //for(; (x > (1<<next_set_index));next_set_index++)
-        for(; (x >= (1<<next_set_index));next_set_index++);
-        return next_set_index;
+	long next_set_index = 0;
+	//SET_BIT(chain_index_value, chain_index);
+	//while ((1<<(next_set_index++)) < x);
+	//for(; (x > (1<<next_set_index));next_set_index++)
+	for (; (x >= (1 << next_set_index)); next_set_index++)
+		;
+	return next_set_index;
 }
 
 //flag operations that should be used on onvm_pkt_meta
@@ -662,26 +653,27 @@ static inline long get_index_of_highest_set_bit(long x) {
 //extern uint8_t rss_symmetric_key[40];
 //size of onvm_pkt_meta cannot exceed 8 bytes, so how to add onvm_service_chain* sc pointer?
 struct onvm_pkt_meta {
-        uint8_t action; /* Action to be performed */
-        uint8_t destination; /* where to go next */
-        uint8_t src; /* who processed the packet last */
-        uint8_t chain_index;    /*index of the current step in the service chain*/
+	uint8_t action; /* Action to be performed */
+	uint8_t destination; /* where to go next */
+	uint8_t src; /* who processed the packet last */
+	uint8_t chain_index; /*index of the current step in the service chain*/
 #ifdef ENABLE_FT_INDEX_IN_META
-        uint16_t ft_index;       /* Index of the FT if the packet is mapped in SDN Flow Table */
+	uint16_t ft_index; /* Index of the FT if the packet is mapped in SDN Flow Table */
 #endif
 	uint8_t flags; /* bits for custom NF data. Use with caution to prevent collisions from different NFs. */
-        uint8_t reserved_word; /* reserved byte */
-        //reserved word usage: 0x01==Need NF RSYNC; 0x02=BYPASS RSYNC on TX;
-};//__attribute__((__aligned__(ONVM_CACHE_LINE_SIZE)));
+	uint8_t reserved_word; /* reserved byte */
+	//reserved word usage: 0x01==Need NF RSYNC; 0x02=BYPASS RSYNC on TX;
+};
+//__attribute__((__aligned__(ONVM_CACHE_LINE_SIZE)));
 #define NF_NEED_ND_SYNC (0x01)
 #define NF_BYPASS_RSYNC (0x02)
 
 static inline struct onvm_pkt_meta* onvm_get_pkt_meta(struct rte_mbuf* pkt) {
-        return (struct onvm_pkt_meta*)&pkt->udata64;
+	return (struct onvm_pkt_meta*) &pkt->udata64;
 }
 
 static inline uint8_t onvm_get_pkt_chain_index(struct rte_mbuf* pkt) {
-        return ((struct onvm_pkt_meta*)&pkt->udata64)->chain_index;
+	return ((struct onvm_pkt_meta*) &pkt->udata64)->chain_index;
 }
 
 /*
@@ -701,8 +693,8 @@ static inline uint8_t onvm_get_pkt_chain_index(struct rte_mbuf* pkt) {
  * NFs or to the NIC
  */
 struct packet_buf {
-        struct rte_mbuf *buffer[PACKET_READ_SIZE];
-        uint16_t count;
+	struct rte_mbuf *buffer[PACKET_READ_SIZE];
+	uint16_t count;
 };
 
 /*  
@@ -711,9 +703,9 @@ struct packet_buf {
  * tx threads. 
  */
 struct tx_thread_info {
-        unsigned first_nf;
-        unsigned last_nf;
-        struct packet_buf *port_tx_bufs;
+	unsigned first_nf;
+	unsigned last_nf;
+	struct packet_buf *port_tx_bufs;
 };
 
 /*
@@ -721,101 +713,100 @@ struct tx_thread_info {
  * Allows pkt functions to be shared
  * */
 struct queue_mgr {
-        unsigned id;
-        enum {NF, MGR} mgr_type_t;
-        union {
-                struct tx_thread_info *tx_thread_info;
-                struct packet_buf *to_tx_buf;
-        };
-        struct packet_buf *nf_rx_bufs;
+	unsigned id;
+	enum {
+		NF, MGR
+	} mgr_type_t;
+	union {
+		struct tx_thread_info *tx_thread_info;
+		struct packet_buf *to_tx_buf;
+	};
+	struct packet_buf *nf_rx_bufs;
 };
 
-struct rx_stats{
-        uint64_t rx[RTE_MAX_ETHPORTS];
+struct rx_stats {
+	uint64_t rx[RTE_MAX_ETHPORTS];
 };
 
-
-struct tx_stats{
-        uint64_t tx[RTE_MAX_ETHPORTS];
-        uint64_t tx_drop[RTE_MAX_ETHPORTS];
+struct tx_stats {
+	uint64_t tx[RTE_MAX_ETHPORTS];
+	uint64_t tx_drop[RTE_MAX_ETHPORTS];
 };
-
 
 struct port_info {
-        uint8_t num_ports;
-        uint8_t id[RTE_MAX_ETHPORTS];
-        struct ether_addr mac[RTE_MAX_ETHPORTS];
-        uint8_t down_status[RTE_MAX_ETHPORTS]; //store BFD live=0/dead(1,2) status
-        volatile struct rx_stats rx_stats;
-        volatile struct tx_stats tx_stats;
+	uint8_t num_ports;
+	uint8_t id[RTE_MAX_ETHPORTS];
+	struct ether_addr mac[RTE_MAX_ETHPORTS];
+	uint8_t down_status[RTE_MAX_ETHPORTS]; //store BFD live=0/dead(1,2) status
+	volatile struct rx_stats rx_stats;
+	volatile struct tx_stats tx_stats;
 };
-
 
 /** Thread state. This specifies which NFs the thread will handle and
  *  includes the packet buffers used by the thread for NFs and ports.
  *  TODO: MERGE or NOT with new code tx_thread_info and queue_mgr sructs
  */
 struct thread_info {
-       unsigned queue_id;
-       unsigned first_cl;   //inclusive [
-       unsigned last_cl;    //exclusive ) so f_cl=1 and l_cl=4 -> 1,2,3 only.
-       /* FIXME: This is confusing since it is non-inclusive. It would be
-        *        better to have this take the first client and the number
-        *        of consecutive nfs after it to handle.
-        */
-       struct packet_buf *nf_rx_buf;
-       struct packet_buf *port_tx_buf;
+	unsigned queue_id;
+	unsigned first_cl;   //inclusive [
+	unsigned last_cl;    //exclusive ) so f_cl=1 and l_cl=4 -> 1,2,3 only.
+	/* FIXME: This is confusing since it is non-inclusive. It would be
+	 *        better to have this take the first client and the number
+	 *        of consecutive nfs after it to handle.
+	 */
+	struct packet_buf *nf_rx_buf;
+	struct packet_buf *port_tx_buf;
 #ifdef ENABLE_CHAIN_BYPASS_RSYNC_ISOLATION
-       struct packet_buf *port_tx_direct_buf;   //use this buffer to directly output bypassing the rsync if enabled!
+	struct packet_buf *port_tx_direct_buf; //use this buffer to directly output bypassing the rsync if enabled!
 #endif
 };
 
 struct onvm_nf_info;
 /* Function prototype for NF packet handlers */
-typedef int(*pkt_handler_func)(struct rte_mbuf *pkt, struct onvm_pkt_meta *meta, __attribute__ ((unused)) struct onvm_nf_info *nf_info);
+typedef int (*pkt_handler_func)(struct rte_mbuf *pkt,
+		struct onvm_pkt_meta *meta, __attribute__ ((unused)) struct onvm_nf_info *nf_info);
 /* Function prototype for NF callback handlers */
-typedef int(*callback_handler_func)(__attribute__ ((unused)) struct onvm_nf_info *nf_info);
+typedef int (*callback_handler_func)(__attribute__ ((unused)) struct onvm_nf_info *nf_info);
 /* Function prototype for NFs running advanced rings */
-typedef void(*advanced_rings_func)(struct onvm_nf_info *nf_info);
+typedef void (*advanced_rings_func)(struct onvm_nf_info *nf_info);
 /* Function prototype for NFs that want extra initalization/setup before running */
-typedef void(*setup_func)(struct onvm_nf_info *nf_info);
+typedef void (*setup_func)(struct onvm_nf_info *nf_info);
 
 /* Information needed to initialize a new NF child thread */
 struct onvm_nf_scale_info {
-        struct onvm_nf_info *parent;
-        uint16_t instance_id;
-        uint16_t service_id;
-        const char *tag;
-        void *data;
-        setup_func setup_func;
-        pkt_handler_func pkt_func;
-        callback_handler_func callback_func;
-        advanced_rings_func adv_rings_func;
+	struct onvm_nf_info *parent;
+	uint16_t instance_id;
+	uint16_t service_id;
+	const char *tag;
+	void *data;
+	setup_func setup_func;
+	pkt_handler_func pkt_func;
+	callback_handler_func callback_func;
+	advanced_rings_func adv_rings_func;
 };
 
 #ifdef INTERRUPT_SEM
 /** NFs wakeup Info: used by manager to update NFs pool and wakeup stats
- */ 
+ */
 struct wakeup_info {
-        unsigned first_client;
-        unsigned last_client;
-        uint64_t num_wakeups;
+	unsigned first_client;
+	unsigned last_client;
+	uint64_t num_wakeups;
 };
 #endif //INTERRUPT_SEM
 
-
 #ifdef NF_BACKPRESSURE_APPROACH_1
 typedef struct bottleneck_ft_data {
-        uint16_t chain_index;           //index of NF (bottleneck) in the chain
-         struct onvm_flow_entry* bft;   //flow_entry field
+	uint16_t chain_index;           //index of NF (bottleneck) in the chain
+	struct onvm_flow_entry* bft;//flow_entry field
 }bottleneck_ft_data_t;
 typedef struct bottleneck_ft_info {
-        uint16_t bft_count;         // num of entries in the bft[]
-        uint16_t r_h;               // read_head in the bft[]
-        uint16_t w_h;               // write head in the bft[]
-        uint16_t max_len;           // Max size/count of bft[]
-        //struct onvm_flow_entry* bft[NF_QUEUE_RINGSIZE];
-        bottleneck_ft_data_t bft[NF_QUEUE_RINGSIZE*2+1];
+	uint16_t bft_count;         // num of entries in the bft[]
+	uint16_t r_h;// read_head in the bft[]
+	uint16_t w_h;// write head in the bft[]
+	uint16_t max_len;// Max size/count of bft[]
+	//struct onvm_flow_entry* bft[NF_QUEUE_RINGSIZE];
+	bottleneck_ft_data_t bft[NF_QUEUE_RINGSIZE*2+1];
 }bottlenect_ft_info_t;
 
 #endif //NF_BACKPRESSURE_APPROACH_1
@@ -825,114 +816,114 @@ typedef struct bottleneck_ft_info {
  * stats from the nfs.
  */
 struct onvm_nf {
-        struct rte_ring *rx_q;
-        struct rte_ring *tx_q;
-        struct rte_ring *msg_q;
-        struct onvm_nf_info *info;
-        uint16_t instance_id;
-        /* Advanced ring mode or packet handler mode */
-        uint8_t nf_mode;
-        /* Instance ID of parent NF or 0 */
-        uint16_t parent;
-        /* Struct for NF to NF communication (NF tx) */
-        struct queue_mgr *nf_tx_mgr;
+	struct rte_ring *rx_q;
+	struct rte_ring *tx_q;
+	struct rte_ring *msg_q;
+	struct onvm_nf_info *info;
+	uint16_t instance_id;
+	/* Advanced ring mode or packet handler mode */
+	uint8_t nf_mode;
+	/* Instance ID of parent NF or 0 */
+	uint16_t parent;
+	/* Struct for NF to NF communication (NF tx) */
+	struct queue_mgr *nf_tx_mgr;
 
-        /* NF specifc functions */
-        pkt_handler_func nf_pkt_function;
-        callback_handler_func nf_callback_function;
-        advanced_rings_func nf_advanced_rings_function;
-        setup_func nf_setup_function;
+	/* NF specifc functions */
+	pkt_handler_func nf_pkt_function;
+	callback_handler_func nf_callback_function;
+	advanced_rings_func nf_advanced_rings_function;
+	setup_func nf_setup_function;
 
-        /*
-         * Define a structure with stats from the NFs.
-         *
-         * These stats hold how many packets the NF will actually receive, send,
-         * and how many packets were dropped because the NF's queue was full.
-         * The port-info stats, in contrast, record how many packets were received
-         * or transmitted on an actual NIC port.
-         */
-        struct {
-                volatile uint64_t rx;
-                volatile uint64_t rx_drop;
-                volatile uint64_t tx;
-                volatile uint64_t tx_drop;
+	/*
+	 * Define a structure with stats from the NFs.
+	 *
+	 * These stats hold how many packets the NF will actually receive, send,
+	 * and how many packets were dropped because the NF's queue was full.
+	 * The port-info stats, in contrast, record how many packets were received
+	 * or transmitted on an actual NIC port.
+	 */
+	struct {
+		volatile uint64_t rx;
+		volatile uint64_t rx_drop;
+		volatile uint64_t tx;
+		volatile uint64_t tx_drop;
 #ifdef ENABLE_NF_TX_STAT_LOGS
-                volatile uint64_t tx_buffer;
-                volatile uint64_t tx_returned;
-                volatile uint64_t act_out;
-                volatile uint64_t act_tonf;
-                volatile uint64_t act_drop;
-                volatile uint64_t act_next;
-                volatile uint64_t act_buffer;   //Note: this doesn't seem be updated anywhere other than printing in stats.
+		volatile uint64_t tx_buffer;
+		volatile uint64_t tx_returned;
+		volatile uint64_t act_out;
+		volatile uint64_t act_tonf;
+		volatile uint64_t act_drop;
+		volatile uint64_t act_next;
+		volatile uint64_t act_buffer; //Note: this doesn't seem be updated anywhere other than printing in stats.
 #endif
 
 #ifdef ENABLE_NF_WAKE_NOTIFICATION_COUNTER
-                volatile uint64_t wakeup_count; //maintained by wake_mgr
+		volatile uint64_t wakeup_count; //maintained by wake_mgr
 #endif
 #ifdef ENABLE_NF_YIELD_NOTIFICATION_COUNTER
-                volatile uint64_t yield_count;  //maintained by NF
+		volatile uint64_t yield_count;  //maintained by NF
 #endif
 #ifdef INTERRUPT_SEM
-                volatile uint64_t comp_cost;    //maintaned by NF
+		volatile uint64_t comp_cost;    //maintaned by NF
 #endif
 
 #if defined (NF_BACKPRESSURE_APPROACH_1)
-                volatile uint64_t bkpr_drop;
+		volatile uint64_t bkpr_drop;
 #endif //NF_BACKPRESSURE_APPROACH_1
 #if defined (BACKPRESSURE_EXTRA_DEBUG_LOGS)
-                uint16_t max_rx_q_len;
-                uint16_t max_tx_q_len;
-                uint16_t bkpr_count;
+		uint16_t max_rx_q_len;
+		uint16_t max_tx_q_len;
+		uint16_t bkpr_count;
 #endif //defined (BACKPRESSURE_EXTRA_DEBUG_LOGS)
-        } stats;
+	} stats;
 #ifdef ENABLE_NF_BASED_BKPR_MARKING
-        //status: not marked=0/marked for enqueue=1/enqueued as bottleneck=2
-        //BOTTLENECK_NF_STATUS_RESET, BOTTLENECK_NF_STATUS_WAIT_ENQUEUED, BOTTLENECK_NF_STATUS_DROP_MARKED
-        uint16_t is_bottleneck;
+	//status: not marked=0/marked for enqueue=1/enqueued as bottleneck=2
+	//BOTTLENECK_NF_STATUS_RESET, BOTTLENECK_NF_STATUS_WAIT_ENQUEUED, BOTTLENECK_NF_STATUS_DROP_MARKED
+	uint16_t is_bottleneck;
 #ifdef USE_BKPR_V2_IN_TIMER_MODE
-        // store the time when the NF is first marked as bottleneck.
-        onvm_time_t s_time;
+	// store the time when the NF is first marked as bottleneck.
+	onvm_time_t s_time;
 #endif
 #endif
 #ifdef NF_BACKPRESSURE_APPROACH_1
-        bottlenect_ft_info_t bft_list;
+	bottlenect_ft_info_t bft_list;
 #endif //defined (NF_BACKPRESSURE_APPROACH_1)
 
-        /* mutex and semaphore name for NFs to wait on */
+	/* mutex and semaphore name for NFs to wait on */
 #ifdef INTERRUPT_SEM
-        const char *sem_name;
-        key_t shm_key;
-        //0=running; 1=blocked_on_rx (no pkts to process); 2=blocked_on_tx (cannot push packets)
-        rte_atomic16_t *volatile shm_server;
+	const char *sem_name;
+	key_t shm_key;
+	//0=running; 1=blocked_on_rx (no pkts to process); 2=blocked_on_tx (cannot push packets)
+	rte_atomic16_t * volatile shm_server;
 
 #ifdef USE_SEMAPHORE
-        sem_t *mutex;
+	sem_t *mutex;
 #endif
 
 #ifdef NF_BACKPRESSURE_APPROACH_2
-        uint8_t throttle_this_upstream_nf; // Flag to indicate whether this NF needs to be (throttled) blocked from getting scheduled;
+	uint8_t throttle_this_upstream_nf; // Flag to indicate whether this NF needs to be (throttled) blocked from getting scheduled;
 #if 0
-        uint64_t throttle_count;           // Counter keeping track of how many times the NF is marked to be throttled.
+	uint64_t throttle_count; // Counter keeping track of how many times the NF is marked to be throttled.
 #endif
 #endif // NF_BACKPRESSURE_APPROACH_2
 #endif //INTERRUPT_SEM
 
 #ifdef ENABLE_NFV_RESL
-        // shared state exclusively between the active and standby NFs
-        void *nf_state_mempool;
+	// shared state exclusively between the active and standby NFs
+	void *nf_state_mempool;
 #ifdef ENABLE_PER_SERVICE_MEMPOOL
-        // shared state between all the NFs of the same service type; Note: Mostly not required here in client[] structure
-        void *service_state_pool;
+	// shared state between all the NFs of the same service type; Note: Mostly not required here in client[] structure
+	void *service_state_pool;
 #endif
 
 #ifdef ENABLE_PER_FLOW_TS_STORE
-        //Storehouse for each flows last processed packets TS.
-        void *per_flow_ts_info;
+	//Storehouse for each flows last processed packets TS.
+	void *per_flow_ts_info;
 #endif
 
 #ifdef ENABLE_SHADOW_RINGS
-        struct rte_ring *rx_sq;
-        struct rte_ring *tx_sq;
+	struct rte_ring *rx_sq;
+	struct rte_ring *tx_sq;
 #endif
 #endif //#ifdef ENABLE_NFV_RESL
 } __rte_cache_aligned;
@@ -947,143 +938,205 @@ extern void *onvm_socket_id;
 extern void *onvm_socket_ctx;
 #endif
 
-
 #ifdef ONVM_GPU
-#define NUMBER_OF_MODELS 6
-#define MAX_IMAGE 300
+//#define HOLD_PACKETS_TILL_CALLBACK (1)
+#define MAX_IMAGE 50
+typedef enum ml_platform {
+	cntk, pytorch, tensorrt
+} ml_platform;
 /* a message format to get the alternate nf ready */
-struct image_information{
-  //this below should be shared to alternate NF
-  void *image_pending[MAX_IMAGE]; //the list of pending images.. this pointer will be shared to the shadow NF
-  void *ready_images[MAX_IMAGE]; //from about array which mempool contain images
-  int num_of_ready_images; //the number of images that are ready
-  int index_of_ready_image; //the increasing index so we know from where to execute.
+struct image_information {
+	//this below should be shared to alternate NF
+	void *image_pending[MAX_IMAGE]; //the list of pending images.. this pointer will be shared to the shadow NF
+	void *ready_images[MAX_IMAGE]; //from about array which mempool contain images
+	int num_of_ready_images; //the number of images that are ready
+	int index_of_ready_image; //the increasing index so we know from where to execute.
+};
+struct get_alternate_NF_ready {
+	int gpu_percentage;
+	//struct image_information image_info;
 };
 
-struct get_alternate_NF_ready{
-  int gpu_percentage;
-  //struct image_information image_info;
+/* struct to define model's GPU dependency */
+typedef struct model_gpu_handles {
+	int number_of_parameters; //how many parameters does this model have
+	void *cuda_handles; //cuda handles for these models 
+} model_gpu_handles;
+
+/* struct that keeps information about the model files and their relevant historical data */
+typedef struct ml_model_info {
+	ml_platform platform; //cntk, pytorch or tensorrt
+	int file_index; //just plain indexing 0-NUMBER_OF_MODELS
+	char model_file_path[150]; //path to the model's file
+	model_gpu_handles model_handles; //cuda handles and other GPU concerning thing 
+} ml_model_info;
+
+/* struct that defines the model attribute we know from previous off-line execution */
+typedef struct model_profiler_data {
+	char file_path[150]; //path to the runtime data file
+	int number_of_values;
+	int *num_of_sm;
+	int *runtime_percentages;
+	int *runtime_latency;
+} model_profiler_data;
+
+/* attribute for models in platform */
+typedef struct models_attributes {
+	model_profiler_data profile_data; //past runtime data of the model
+} models_attributes;
+
+/* struct to store the file information 
+ * file_index - an int to denote model's number
+ * A CPU function for the model
+ * A gpu function object for the model
+ * attributes: Model attributes.. contains GPU attributes of the model as well as model runtime data
+ */
+struct gpu_file_listing {
+	ml_model_info model_info; //the info containing where in disk the model is and where in disk the runtime data is
+	void *cpu_handle; //CPU side model handle
+	void *gpu_handle; // GPU side model handle
+	models_attributes attributes; //each model's attribute that can be shared with NF
 };
-/* attribute for models in cntk */
-typedef struct models_attributes{
-  int number_of_inputs;
-  int *input_dimensions;
-  int number_of_parameters;
-  void *cuda_handles;
-  int *gpu_percentages;//corresponding gpu_percentage for runtimes
-  float * run_times; //currently 10 runtimes with 10% GPU percentage gap
-  int num_of_runtimes; //how many runtime-percentage pair we have
-}models_attributes;
 
-/* struct to store the file information */
-struct gpu_file_listing{
-  int file_index;
-  char model_name[20];
-  int load_flag; //0 - cpu only, 1-gpu only, 2-both.. we would mostly use 1-gpu only
-  void *cpu_function;
-  void *gpu_function;
-  models_attributes attributes;
-};
+/* a struct to pass message to manager
+ //for now it should be sufficient
 
-/* a struct to pass message to manager */
-//for now it should be sufficient
-typedef struct provide_gpu_model{
-  struct onvm_nf_info *nf;
-  char model_name[20];
-  int model_index;
-}provide_gpu_model;
-
+ typedef struct provide_gpu_model {
+ struct onvm_nf_info *nf;
+ char model_name[20];
+ int model_index;
+ } provide_gpu_model;
+ */
 
 //helper function
-static inline double time_difference_usec(struct timespec *begin, struct timespec *end){
-  double time_difference;
-  time_difference = (end->tv_sec-begin->tv_sec)*1000000.0 + (end->tv_nsec-begin->tv_nsec)/1000.0;
-  if(((int) time_difference) < 0)
-    return time_difference*(-1.0);
-  else
-    return time_difference;
+static inline double time_difference_usec(struct timespec *begin,
+		struct timespec *end) {
+	double time_difference;
+	time_difference = (end->tv_sec - begin->tv_sec) * 1000000.0
+			+ (end->tv_nsec - begin->tv_nsec) / 1000.0;
+	if (((int) time_difference) < 0)
+		return time_difference * (-1.0);
+	else
+		return time_difference;
 }
 
+#endif //onvm_gpu
+
+#ifdef ONVM_GPU
+// GPU Resource allocation and Scheduling Information
+// Bookkeeping structure
+typedef struct onvm_gpu_ra_info_t {
+	uint16_t active_nfs;
+	uint16_t gpu_ra_avail;
+	uint16_t waitlisted_nfs; //need waitlisted_NF_list,
+	uint16_t gpu_ra_wtlst;
+} onvm_gpu_ra_info_t;
+
+typedef enum onvm_gpu_batching_mode_e {
+	ADAPTIVE_BATCHING_DISABLED = 0,		//Disable Adaptive batching
+	ADAPTIVE_BATCHING_OPPORTUNISTIC = 1,	//Basic (No learning/no cap on max)
+	ADAPTIVE_BATCHING_SELF_LEARNING = 2,//Self Learning (SLO based cap max batch size)
+} onvm_gpu_batching_mode_e;
+
 #endif
-
-
 /*
  * Define a structure to describe one NF
  * This structure is available in the NF when processing packets or executing the callback.
  */
 struct onvm_nf_info {
-        uint16_t instance_id;
-        uint16_t service_id;
-        //volatile
-        uint8_t status;    //moved to status to ensure status read is not cached and is updated across different cores; but seeing no major difference in sync refresh time.
-        const char *tag;
-        void *data;        //TODO: figure out what it is added for? 
-        pid_t pid;
+	uint16_t instance_id;
+	uint16_t service_id;
+	//volatile
+	uint8_t status; //moved to status to ensure status read is not cached and is updated across different cores; but seeing no major difference in sync refresh time.
+	const char *tag;
+	void *data;        //TODO: figure out what it is added for? 
+	pid_t pid;
 
 #ifdef ENABLE_NFV_RESL
-        void *nf_state_mempool;     // shared state exclusively between the active and standby NFs (Per Flow State)
+	void *nf_state_mempool; // shared state exclusively between the active and standby NFs (Per Flow State)
 #ifdef ENABLE_PER_SERVICE_MEMPOOL
-        void *service_state_pool;   // shared state between all the NFs of the same service type (Global Coherent Sate)
+	void *service_state_pool; // shared state between all the NFs of the same service type (Global Coherent Sate)
 #endif
 #endif //#ifdef ENABLE_NFV_RESL
 
-        uint32_t comp_cost;     //indicates the computation cost of NF in num_of_cycles
+	uint32_t comp_cost;  //indicates the computation cost of NF in num_of_cycles
 
 #if defined (USE_CGROUPS_PER_NF_INSTANCE)
-        //char cgroup_name[256];
-        uint32_t cpu_share;     //indicates current share of NFs cpu
-        uint32_t core_id;       //indicates the core ID the NF is running on
-        uint32_t load;          //indicates instantaneous load on the NF ( = num_of_packets on the rx_queue + pkts dropped on Rx)
-        uint32_t avg_load;      //indicates the average load on the NF
-        uint32_t svc_rate;      //indicates instantaneous service rate of the NF ( = num_of_packets processed in the sampling period)
+	//char cgroup_name[256];
+	uint32_t cpu_share;     //indicates current share of NFs cpu
+	uint32_t core_id;       //indicates the core ID the NF is running on
+	uint32_t load; //indicates instantaneous load on the NF ( = num_of_packets on the rx_queue + pkts dropped on Rx)
+	uint32_t avg_load;      //indicates the average load on the NF
+	uint32_t svc_rate; //indicates instantaneous service rate of the NF ( = num_of_packets processed in the sampling period)
 
 #ifdef ENABLE_ARBITER_MODE_WAKEUP
-        uint64_t exec_period;   //indicates the number_of_cycles/time period alloted for execution in this epoch == normalized_load*comp_cost -- how to get this metric: (total_cycles_in_epoch)*(total_load_on_core)/(load_of_nf)
+	uint64_t exec_period; //indicates the number_of_cycles/time period alloted for execution in this epoch == normalized_load*comp_cost -- how to get this metric: (total_cycles_in_epoch)*(total_load_on_core)/(load_of_nf)
 #endif
 #if 0   //unused and unimportant parameters: Note::TODO: also need to be cleaned up in other internal structures used in onvm_nf.c/h and stats_snapshot
-        uint32_t avg_svc;       //indicates the average service rate of the NF
-        uint32_t comp_pkts;     //[usage: TBD] indicates the number of pkts processed by NF over specific sampling period (demand (new pkts arrival) = Rx, better? or serviced (new pkts sent out) = Tx better?)
-        uint32_t drop_rate;     //indicates the drops observed within the sampled period.
+	uint32_t avg_svc;       //indicates the average service rate of the NF
+	uint32_t comp_pkts;//[usage: TBD] indicates the number of pkts processed by NF over specific sampling period (demand (new pkts arrival) = Rx, better? or serviced (new pkts sent out) = Tx better?)
+	uint32_t drop_rate;//indicates the drops observed within the sampled period.
 #endif
 #endif
 
 #ifdef STORE_HISTOGRAM_OF_NF_COMPUTATION_COST
-        histogram_v2_t ht2;
+	histogram_v2_t ht2;
 #endif  //STORE_HISTOGRAM_OF_NF_COMPUTATION_COST
 
 #ifdef ENABLE_ECN_CE
-        histogram_v2_t ht2_q;
+	histogram_v2_t ht2_q;
 #endif
 
 #ifdef ENABLE_NF_PAUSE_TILL_OUTSTANDING_NDSYNC_COMMIT
-        volatile uint8_t bNDSycn;
-        uint64_t bLastPktId;
+	volatile uint8_t bNDSycn;
+	uint64_t bLastPktId;
 #ifdef  __DEBUG_NDSYNC_LOGS__
-        int64_t max_nd, min_nd, avg_nd, delta_nd;
+	int64_t max_nd, min_nd, avg_nd, delta_nd;
 #endif
 #endif
 
 #ifdef ONVM_GPU
-  int gpu_model; 
-  int gpu_percentage; //the NF percentage
-  int job_completion_rate; //0-slow 1 -normal 2 -fast
-  int gpu_execution_ready;
-  int candidate_for_restart; //should this NF be restarted 0 - do not restart yet, 1 - restart
-  void * function_ptr; // the ML evaluating function
+	int gpu_model;      //GPU model number
+	uint8_t gpu_percentage; //the NF percentage
+	uint8_t gpu_priority;	// Low=0; High=1
+	uint8_t gpu_monitor_lat; // Monitor latency (when there is no knee data, set arbitrarty GPU\% and monitor latency to make changes)
+							 // when this gpu_monitor_lat flag is set, disable batching and avoid multiple streams to monitor operational latency.
+	//the flag variable for touching the ring
+	int ring_flag; //if 1 then NF can access the ring, otherwise no.
+
+	ml_model_info *model_info; //model information
+	void * ml_model_handle; //the ML function for CPU side.
+	int adaptive_cur_batch_size; //user can define the batch size.
+	int enable_adaptive_batching; //user can choose to use adaptive batching or not {0=Disable Adaptive batching;1=Basic (No learning/no cap on max);2=Self Learning (SLO based cap max batch size)
+	uint32_t fixed_batch_size;		  //user can specify fixed batch size.
+	uint8_t learned_max_batch_size; //NF learns batch size to make sure it operates within SLO.
+	uint8_t aiad_aimd_increase_factor; //Batch size step increment when operating within SLO.
+	uint8_t aiad_aimd_decrease_factor; // Batch size step decrement factor when exceeding SLO.
+	uint16_t inference_slo_ms; //SLO latenency objective for the NF in milliseconds.
+	uint32_t batches_inferred_per_sec; //counter tracking number of batches inferred in a second.
+	uint32_t b_i_exceeding_slo_per_sec;	//counter tracking number of batches inferred exceeding the SLO in a second.
+	uint32_t over_provisioned_for_slo;//counter tracking when NFs GPU is overprovisioned (number of batches inferred has peaked (MAX) the ceiling and more than sufficient to meet SLO.
+	uint32_t under_provisioned_for_slo;	//counter tracking when NFs GPU is underprovisioned (number of batches inferred has floored (1) the current GPU% is not sufficient to meet SLO.
+	void * cpu_side_buffer; //CPU side buffer to copy packets for non netml methods
+	void * cpu_result_buffer; //the CPU side where the data is copied after processing
+	void * gpu_input_buffer; //the buffer where input for images are stored
+	void * gpu_output_buffer; //the buffer where output for images are stored
+
+	enum ml_platform platform; //cntk, pytorch or tensorrt
+
+	image_batched_aggregation_info_t *image_info; //the table where all the image info is handled
+
+	//statistics below this
 #ifdef ONVM_GPU_SAME_SIZE_PKTS
-  unsigned int number_of_pkts_outstanding; //the number of packets~ images not processed yet
-  unsigned int number_of_images_processed; //the number of images processed in the last time SPAN
+	unsigned int number_of_pkts_outstanding; //the number of packets~ images not processed yet
+	unsigned int number_of_images_processed; //the number of images processed in the last time SPAN
 #endif
-  struct image_information *image_info; //image information struct
-  histogram_v2_t image_queueing_rate; //histogram to observe image request rate
-  histogram_v2_t image_processing_rate; //histogram to process image processing throughput
-
-  histogram_v2_t end_to_end_image_processing_time; //the time to have data transfer + image processing
-  histogram_v2_t image_processing_gpu_time; //the time for image processing only
-
-  int user_batch_size; //user can define the batch size.
-
- #endif
+	//throughput data etc...
+	histogram_v2_t cpu_latency; //histogram measuring latency for Inference starting from CPU (first image ready) to CPU inference output send for batch.
+	histogram_v2_t throughput_histogram; //histogram to process image processing throughput (images processed per second)
+	histogram_v2_t gpu_latency; //histogram measuring latency starting from time batch is given to GPU to inference callback from GPU.
+	histogram_v2_t image_aggregation_latency; //the time to have data transfer + image processing
+#endif //ONVM_GPU
 
 };
 
@@ -1091,27 +1144,26 @@ struct onvm_nf_info {
  * Define a structure to describe a service chain entry
  */
 struct onvm_service_chain_entry {
-        uint16_t destination;
-        //denotes a service Id or Instance Id
-        uint8_t action;
-        //denotes forwarding action type.
-        uint8_t service;
-        //backup service id as set by policy in destination, when destination is InstanceID
+	uint16_t destination;
+	//denotes a service Id or Instance Id
+	uint8_t action;
+	//denotes forwarding action type.
+	uint8_t service;
+	//backup service id as set by policy in destination, when destination is InstanceID
 };
 
 struct onvm_service_chain {
-        struct onvm_service_chain_entry sc[ONVM_MAX_CHAIN_LENGTH+1];
-        uint8_t chain_length;
-        uint8_t ref_cnt;
+	struct onvm_service_chain_entry sc[ONVM_MAX_CHAIN_LENGTH + 1];
+	uint8_t chain_length;
+	uint8_t ref_cnt;
 #ifdef ENABLE_NF_BACKPRESSURE
-        volatile uint8_t highest_downstream_nf_index_id;     // bit index of each NF in the chain that is overflowing
+	volatile uint8_t highest_downstream_nf_index_id; // bit index of each NF in the chain that is overflowing
 #if defined(NF_BACKPRESSURE_APPROACH_2) || defined(ENABLE_NF_BASED_BKPR_MARKING)
-        uint8_t nf_instances_mapped; //set when all nf_instances are populated in the below array
-        uint8_t nf_instance_id[ONVM_MAX_CHAIN_LENGTH+1];
+	uint8_t nf_instances_mapped; //set when all nf_instances are populated in the below array
+	uint8_t nf_instance_id[ONVM_MAX_CHAIN_LENGTH+1];
 #endif //NF_BACKPRESSURE_APPROACH_2
 #endif //ENABLE_NF_BACKPRESSURE
 };
-
 
 /* define common names for structures shared between server and NF */
 #define MP_NF_RXQ_NAME "MProc_NF_%u_RX"
@@ -1134,7 +1186,10 @@ struct onvm_service_chain {
 #ifdef ONVM_GPU
 #define _NF_IMAGE_POOL_NAME "NF_IMAGE_POOL_NAME" //mempool for storing images for ML
 #define _IMAGE_STATE_POOL_NAME "NF_%u_STATE_POOL_NAME" //mempool for storing image state for ML
-#endif
+#define _IMAGE_BATCH_AGG_POOL_NAME "NF_%u_BATCH_AGG_POOL_NAME"//mempool name for storing image batch aggregation data
+#define _IMAGE_BATCH_DEV_BUFFER_NAME "NF_%u_DEV_BUFFER" //mempool name for storing image device buffer 
+#define _GPU_MODELS_POOL_NAME "GPU_MODELS_POOL_NAME" //mempool to store ML file path and attributes of a model
+#endif //onvm_gpu
 
 /* interrupt semaphore specific updates */
 #ifdef INTERRUPT_SEM
@@ -1148,13 +1203,11 @@ struct onvm_service_chain {
 #define MP_CLIENT_SEM_NAME "MProc_NF_%u_SEM"
 #endif //USE_POLL_MODE
 
-
 //1000003 1000033 1000037 1000039 1000081 1000099 1000117 1000121 1000133
 //#define SAMPLING_RATE 1000000           // sampling rate to estimate NFs computation cost
 #define SAMPLING_RATE 1000003           // sampling rate to estimate NFs computation cost
 #define ONVM_SPECIAL_NF 0               // special NF for flow table entry management
 #endif
-
 
 #ifdef ENABLE_ARBITER_MODE
 #define ONVM_NUM_WAKEUP_THREADS ((int)0)       //1 ( Must remove this as well)
@@ -1182,16 +1235,17 @@ struct onvm_service_chain {
  */
 static inline const char *
 get_rx_queue_name(unsigned id) {
-        /* buffer for return value. Size calculated by %u being replaced
-         * by maximum 3 digits (plus an extra byte for safety) */
-        static char buffer[sizeof(MP_NF_RXQ_NAME) + 2];
+	/* buffer for return value. Size calculated by %u being replaced
+	 * by maximum 3 digits (plus an extra byte for safety) */
+	static char buffer[sizeof(MP_NF_RXQ_NAME) + 2];
 
 #ifdef ENABLE_NFV_RESL
-        snprintf(buffer, sizeof(buffer) - 1, MP_NF_RXQ_NAME, id&(MAX_ACTIVE_CLIENTS-1));
+	snprintf(buffer, sizeof(buffer) - 1, MP_NF_RXQ_NAME,
+			id & (MAX_ACTIVE_CLIENTS - 1));
 #else
-        snprintf(buffer, sizeof(buffer) - 1, MP_NF_RXQ_NAME, id);
+	snprintf(buffer, sizeof(buffer) - 1, MP_NF_RXQ_NAME, id);
 #endif
-        return buffer;
+	return buffer;
 }
 
 /*
@@ -1199,27 +1253,28 @@ get_rx_queue_name(unsigned id) {
  */
 static inline const char *
 get_tx_queue_name(unsigned id) {
-        /* buffer for return value. Size calculated by %u being replaced
-         * by maximum 3 digits (plus an extra byte for safety) */
-        static char buffer[sizeof(MP_NF_TXQ_NAME) + 2];
+	/* buffer for return value. Size calculated by %u being replaced
+	 * by maximum 3 digits (plus an extra byte for safety) */
+	static char buffer[sizeof(MP_NF_TXQ_NAME) + 2];
 #ifdef ENABLE_NFV_RESL
-        snprintf(buffer, sizeof(buffer) - 1, MP_NF_TXQ_NAME, id&(MAX_ACTIVE_CLIENTS-1));
+	snprintf(buffer, sizeof(buffer) - 1, MP_NF_TXQ_NAME,
+			id & (MAX_ACTIVE_CLIENTS - 1));
 #else
-        snprintf(buffer, sizeof(buffer) - 1, MP_NF_TXQ_NAME, id);
+	snprintf(buffer, sizeof(buffer) - 1, MP_NF_TXQ_NAME, id);
 #endif
-        return buffer;
+	return buffer;
 }
 /*
  * Given the name template above, get the mgr -> NF msg queue name
  */
 static inline const char *
 get_msg_queue_name(unsigned id) {
-        /* buffer for return value. Size calculated by %u being replaced
-         * by maximum 3 digits (plus an extra byte for safety) */
-        static char buffer[sizeof(_NF_MSG_QUEUE_NAME) + 2];
+	/* buffer for return value. Size calculated by %u being replaced
+	 * by maximum 3 digits (plus an extra byte for safety) */
+	static char buffer[sizeof(_NF_MSG_QUEUE_NAME) + 2];
 
-        snprintf(buffer, sizeof(buffer) - 1, _NF_MSG_QUEUE_NAME, id);
-        return buffer;
+	snprintf(buffer, sizeof(buffer) - 1, _NF_MSG_QUEUE_NAME, id);
+	return buffer;
 }
 
 #ifdef ENABLE_NFV_RESL
@@ -1228,192 +1283,194 @@ get_msg_queue_name(unsigned id) {
 #define MP_NF_TXSQ_NAME "MProc_NF_%u_TX_S"
 static inline const char *
 get_rx_squeue_name(unsigned id) {
-        static char buffer[sizeof(MP_NF_RXSQ_NAME) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, MP_NF_RXSQ_NAME, id&(MAX_ACTIVE_CLIENTS-1));
-        return buffer;
+	static char buffer[sizeof(MP_NF_RXSQ_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, MP_NF_RXSQ_NAME, id&(MAX_ACTIVE_CLIENTS-1));
+	return buffer;
 }
 
 static inline const char *
 get_tx_squeue_name(unsigned id) {
-        static char buffer[sizeof(MP_NF_TXSQ_NAME) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, MP_NF_TXSQ_NAME, id&(MAX_ACTIVE_CLIENTS-1));
-        return buffer;
+	static char buffer[sizeof(MP_NF_TXSQ_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, MP_NF_TXSQ_NAME, id&(MAX_ACTIVE_CLIENTS-1));
+	return buffer;
 }
 #endif  //ENABLE_SHADOW_RINGS
 
 #ifdef ENABLE_REMOTE_SYNC_WITH_TX_LATCH
 static inline const char *
 get_rsync_tx_port_ring_name(unsigned id) {
-        static char buffer[sizeof(_TX_RSYNC_TX_PORT_RING_NAME) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_TX_PORT_RING_NAME, id);
-        return buffer;
+	static char buffer[sizeof(_TX_RSYNC_TX_PORT_RING_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_TX_PORT_RING_NAME, id);
+	return buffer;
 }
 static inline const char *
 get_rsync_tx_tx_state_latch_ring_name(unsigned id) {
-        static char buffer[sizeof(_TX_RSYNC_TX_LATCH_RING_NAME) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_TX_LATCH_RING_NAME, id);
-        return buffer;
+	static char buffer[sizeof(_TX_RSYNC_TX_LATCH_RING_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_TX_LATCH_RING_NAME, id);
+	return buffer;
 }
 static inline const char *
 get_rsync_tx_nf_state_latch_ring_name(unsigned id) {
-        static char buffer[sizeof(_TX_RSYNC_NF_LATCH_RING_NAME) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_NF_LATCH_RING_NAME, id);
-        return buffer;
+	static char buffer[sizeof(_TX_RSYNC_NF_LATCH_RING_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_NF_LATCH_RING_NAME, id);
+	return buffer;
 }
 #ifdef ENABLE_RSYNC_WITH_DOUBLE_BUFFERING_MODE
 static inline const char *
 get_rsync_tx_tx_state_latch_db_ring_name(unsigned id) {
-        static char buffer[sizeof(_TX_RSYNC_TX_LATCH_DB_RING_NAME) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_TX_LATCH_DB_RING_NAME, id);
-        return buffer;
+	static char buffer[sizeof(_TX_RSYNC_TX_LATCH_DB_RING_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_TX_LATCH_DB_RING_NAME, id);
+	return buffer;
 }
 static inline const char *
 get_rsync_tx_nf_state_latch_db_ring_name(unsigned id) {
-        static char buffer[sizeof(_TX_RSYNC_NF_LATCH_DB_RING_NAME) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_NF_LATCH_DB_RING_NAME, id);
-        return buffer;
+	static char buffer[sizeof(_TX_RSYNC_NF_LATCH_DB_RING_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, _TX_RSYNC_NF_LATCH_DB_RING_NAME, id);
+	return buffer;
 }
 #endif
 #endif
 
-static inline unsigned
-get_associated_active_or_standby_nf_id(unsigned nf_id) {
-        if(nf_id&MAX_ACTIVE_CLIENTS) {
-                return (nf_id & ACTIVE_NF_MASK);
-        }
-        return (nf_id|MAX_ACTIVE_CLIENTS);
+static inline unsigned get_associated_active_or_standby_nf_id(unsigned nf_id) {
+	if (nf_id & MAX_ACTIVE_CLIENTS) {
+		return (nf_id & ACTIVE_NF_MASK);
+	}
+	return (nf_id | MAX_ACTIVE_CLIENTS);
 }
-static inline unsigned
-is_primary_active_nf_id(unsigned nf_id) {
-        return ((nf_id ^ MAX_ACTIVE_CLIENTS) & MAX_ACTIVE_CLIENTS); //return (!(nf_id & MAX_ACTIVE_CLIENTS)); //return ((nf_id < MAX_ACTIVE_CLIENTS));
+static inline unsigned is_primary_active_nf_id(unsigned nf_id) {
+	return ((nf_id ^ MAX_ACTIVE_CLIENTS) & MAX_ACTIVE_CLIENTS); //return (!(nf_id & MAX_ACTIVE_CLIENTS)); //return ((nf_id < MAX_ACTIVE_CLIENTS));
 }
-static inline unsigned
-is_secondary_active_nf_id(unsigned nf_id) {
-        return ((nf_id & MAX_ACTIVE_CLIENTS));
+static inline unsigned is_secondary_active_nf_id(unsigned nf_id) {
+	return ((nf_id & MAX_ACTIVE_CLIENTS));
 }
-static inline unsigned
-get_associated_active_nf_id(unsigned nf_id) {
-        return (nf_id & ACTIVE_NF_MASK);
+static inline unsigned get_associated_active_nf_id(unsigned nf_id) {
+	return (nf_id & ACTIVE_NF_MASK);
 }
-static inline unsigned
-get_associated_standby_nf_id(unsigned nf_id) {
-        return (nf_id | MAX_ACTIVE_CLIENTS);
+static inline unsigned get_associated_standby_nf_id(unsigned nf_id) {
+	return (nf_id | MAX_ACTIVE_CLIENTS);
 }
 #endif
 #ifdef ONVM_GPU
 //function to get NF state name
- static inline const char *
-   get_nf_image_state_name(unsigned id){
-   static char buffer[sizeof(_IMAGE_STATE_POOL_NAME)+2];
-   snprintf(buffer, sizeof(buffer)-1, _IMAGE_STATE_POOL_NAME, id);
-   return buffer;
- }
+static inline const char *
+get_nf_image_state_name(unsigned id) {
+	static char buffer[sizeof(_IMAGE_STATE_POOL_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, _IMAGE_STATE_POOL_NAME, id);
+	return buffer;
+}
+static inline const char *
+get_image_batch_agg_name(unsigned id) {
+	static char buffer[sizeof(_IMAGE_BATCH_AGG_POOL_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, _IMAGE_BATCH_AGG_POOL_NAME, id);
+	return buffer;
+}
+
+static inline const char *
+get_image_dev_buffer_name(unsigned id) {
+	static char buffer[sizeof(_IMAGE_BATCH_DEV_BUFFER_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, _IMAGE_BATCH_DEV_BUFFER_NAME, id);
+	return buffer;
+}
 #endif
 
 #ifdef INTERRUPT_SEM
 /*
  * Given the rx queue name template above, get the key of the shared memory
  */
-static inline key_t
-get_rx_shmkey(unsigned id)
-{
-        return KEY_PREFIX * 10 + id;
+static inline key_t get_rx_shmkey(unsigned id) {
+	return KEY_PREFIX * 10 + id;
 }
 
 /*
  * Given the sem name template above, get the sem name
  */
 static inline const char *
-get_sem_name(unsigned id)
-{
-        /* buffer for return value. Size calculated by %u being replaced
-         * by maximum 3 digits (plus an extra byte for safety) */
-        static char buffer[sizeof(MP_CLIENT_SEM_NAME) + 2];
+get_sem_name(unsigned id) {
+	/* buffer for return value. Size calculated by %u being replaced
+	 * by maximum 3 digits (plus an extra byte for safety) */
+	static char buffer[sizeof(MP_CLIENT_SEM_NAME) + 2];
 
-        snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_SEM_NAME, id);
-        return buffer;
+	snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_SEM_NAME, id);
+	return buffer;
 }
 #endif
 #ifdef USE_CGROUPS_PER_NF_INSTANCE
 #define MP_CLIENT_CGROUP_NAME "nf_%u"
 static inline const char *
-get_cgroup_name(unsigned id)
-{
-        static char buffer[sizeof(MP_CLIENT_CGROUP_NAME) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_NAME, id);
-        return buffer;
+get_cgroup_name(unsigned id) {
+	static char buffer[sizeof(MP_CLIENT_CGROUP_NAME) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_NAME, id);
+	return buffer;
 }
 #define MP_CLIENT_CGROUP_PATH "/sys/fs/cgroup/cpu/nf_%u/"
 static inline const char *
-get_cgroup_path(unsigned id)
-{
-        static char buffer[sizeof(MP_CLIENT_CGROUP_PATH) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_PATH, id);
-        return buffer;
+get_cgroup_path(unsigned id) {
+	static char buffer[sizeof(MP_CLIENT_CGROUP_PATH) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_PATH, id);
+	return buffer;
 }
 #define MP_CLIENT_CGROUP_CREAT "mkdir /sys/fs/cgroup/cpu/nf_%u"
 static inline const char *
-get_cgroup_create_cgroup_cmd(unsigned id)
-{
-        static char buffer[sizeof(MP_CLIENT_CGROUP_CREAT) + 2];
-        snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_CREAT, id);
-        return buffer;
+get_cgroup_create_cgroup_cmd(unsigned id) {
+	static char buffer[sizeof(MP_CLIENT_CGROUP_CREAT) + 2];
+	snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_CREAT, id);
+	return buffer;
 }
 #define MP_CLIENT_CGROUP_ADD_TASK "echo %u > /sys/fs/cgroup/cpu/nf_%u/tasks"
 static inline const char *
-get_cgroup_add_task_cmd(unsigned id, pid_t pid)
-{
-        static char buffer[sizeof(MP_CLIENT_CGROUP_ADD_TASK) + 10];
-        snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_ADD_TASK, pid, id);
-        return buffer;
+get_cgroup_add_task_cmd(unsigned id, pid_t pid) {
+	static char buffer[sizeof(MP_CLIENT_CGROUP_ADD_TASK) + 10];
+	snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_ADD_TASK, pid, id);
+	return buffer;
 }
 #define MP_CLIENT_CGROUP_SET_CPU_SHARE "echo %u > /sys/fs/cgroup/cpu/nf_%u/cpu.shares"
 static inline const char *
-get_cgroup_set_cpu_share_cmd(unsigned id, unsigned share)
-{
-        static char buffer[sizeof(MP_CLIENT_CGROUP_SET_CPU_SHARE) + 20];
-        snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_SET_CPU_SHARE, share, id);
-        return buffer;
+get_cgroup_set_cpu_share_cmd(unsigned id, unsigned share) {
+	static char buffer[sizeof(MP_CLIENT_CGROUP_SET_CPU_SHARE) + 20];
+	snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_SET_CPU_SHARE, share,
+			id);
+	return buffer;
 }
 #define MP_CLIENT_CGROUP_SET_CPU_SHARE_ONVM_MGR "/sys/fs/cgroup/cpu/nf_%u/cpu.shares"
 static inline const char *
-get_cgroup_set_cpu_share_cmd_onvm_mgr(unsigned id)
-{
-        static char buffer[sizeof(MP_CLIENT_CGROUP_SET_CPU_SHARE) + 20];
-        snprintf(buffer, sizeof(buffer) - 1, MP_CLIENT_CGROUP_SET_CPU_SHARE_ONVM_MGR, id);
-        return buffer;
+get_cgroup_set_cpu_share_cmd_onvm_mgr(unsigned id) {
+	static char buffer[sizeof(MP_CLIENT_CGROUP_SET_CPU_SHARE) + 20];
+	snprintf(buffer, sizeof(buffer) - 1,
+	MP_CLIENT_CGROUP_SET_CPU_SHARE_ONVM_MGR, id);
+	return buffer;
 }
 #include <stdlib.h>
-static inline int
-set_cgroup_nf_cpu_share(uint16_t instance_id, uint32_t share_val) {
-        /*
-        unsigned long shared_bw_val = (share_val== 0) ?(1024):(1024*share_val/100); //when share_val is relative(%)
-        if (share_val >=100) {
-                shared_bw_val = shared_bw_val/100;
-        }*/
+static inline int set_cgroup_nf_cpu_share(uint16_t instance_id,
+		uint32_t share_val) {
+	/*
+	 unsigned long shared_bw_val = (share_val== 0) ?(1024):(1024*share_val/100); //when share_val is relative(%)
+	 if (share_val >=100) {
+	 shared_bw_val = shared_bw_val/100;
+	 }*/
 
-        uint32_t shared_bw_val = (share_val== 0) ?(1024):(share_val);  //when share_val is absolute bandwidth
-        const char* cg_set_cmd = get_cgroup_set_cpu_share_cmd(instance_id, shared_bw_val);
-        //printf("\n CMD_TO_SET_CPU_SHARE: %s \n", cg_set_cmd);
+	uint32_t shared_bw_val = (share_val == 0) ? (1024) : (share_val); //when share_val is absolute bandwidth
+	const char* cg_set_cmd = get_cgroup_set_cpu_share_cmd(instance_id,
+			shared_bw_val);
+	//printf("\n CMD_TO_SET_CPU_SHARE: %s \n", cg_set_cmd);
 
-        int ret = system(cg_set_cmd);
-        return ret;
+	int ret = system(cg_set_cmd);
+	return ret;
 }
-static inline int
-set_cgroup_nf_cpu_share_from_onvm_mgr(uint16_t instance_id, uint32_t share_val) {
+static inline int set_cgroup_nf_cpu_share_from_onvm_mgr(uint16_t instance_id,
+		uint32_t share_val) {
 #ifdef SET_CPU_SHARE_FROM_NF
 #else
-        FILE *fp = NULL;
-        uint32_t shared_bw_val = (share_val== 0) ?(1024):(share_val);  //when share_val is absolute bandwidth
-        const char* cg_set_cmd = get_cgroup_set_cpu_share_cmd_onvm_mgr(instance_id);
+	FILE *fp = NULL;
+	uint32_t shared_bw_val = (share_val == 0) ? (1024) : (share_val); //when share_val is absolute bandwidth
+	const char* cg_set_cmd = get_cgroup_set_cpu_share_cmd_onvm_mgr(instance_id);
 
-        //printf("\n CMD_TO_SET_CPU_SHARE: %s \n", cg_set_cmd);
-        fp = fopen(cg_set_cmd, "w");            //optimize with mmap if that is allowed!!
-        if (fp){
-                fprintf(fp,"%d",shared_bw_val);
-                fclose(fp);
-        }
-        return 0;
+	//printf("\n CMD_TO_SET_CPU_SHARE: %s \n", cg_set_cmd);
+	fp = fopen(cg_set_cmd, "w");       //optimize with mmap if that is allowed!!
+	if (fp) {
+		fprintf(fp, "%d", shared_bw_val);
+		fclose(fp);
+	}
+	return 0;
 #endif
 }
 #endif //USE_CGROUPS_PER_NF_INSTANCE
@@ -1422,33 +1479,32 @@ set_cgroup_nf_cpu_share_from_onvm_mgr(uint16_t instance_id, uint32_t share_val) 
 
 #ifdef ENABLE_NF_BACKPRESSURE
 typedef struct per_core_nf_pool {
-        uint16_t nf_count;
-        uint32_t nf_ids[MAX_NFS];
+	uint16_t nf_count;
+	uint32_t nf_ids[MAX_NFS];
 }per_core_nf_pool_t;
 #endif //ENABLE_NF_BACKPRESSURE
 
-
 typedef struct sc_entries {
-        struct onvm_service_chain *sc;
-        uint16_t sc_count;
-        uint16_t bneck_flag;
-}sc_entries_list;
+	struct onvm_service_chain *sc;
+	uint16_t sc_count;
+	uint16_t bneck_flag;
+} sc_entries_list;
 #ifdef ENABLE_NF_BACKPRESSURE //TODO: Replace this with ENABLE_NF_BASED_BKPR_MARKING flag and subsequent code changes in stats/flow_dir.c
 //#ifdef ENABLE_NF_BASED_BKPR_MARKING
 
 #ifdef USE_BKPR_V2_IN_TIMER_MODE
 /* To store the List of Bottleneck NFs that can be operated upon by the Timer thread */ //TODO: If we add the onvm_time_t to the nfs[], then we can get rid of this entire table
 typedef struct bottleneck_nf_entries {
-        onvm_time_t s_time;
-        uint16_t enqueue_status;        //BOTTLENECK_NF_STATUS_RESET, BOTTLENECK_NF_STATUS_WAIT_ENQUEUED, BOTTLENECK_NF_STATUS_DROP_MARKED
-        uint16_t nf_id;
-        uint16_t enqueued_ctr;
-        uint16_t marked_ctr;
+	onvm_time_t s_time;
+	uint16_t enqueue_status; //BOTTLENECK_NF_STATUS_RESET, BOTTLENECK_NF_STATUS_WAIT_ENQUEUED, BOTTLENECK_NF_STATUS_DROP_MARKED
+	uint16_t nf_id;
+	uint16_t enqueued_ctr;
+	uint16_t marked_ctr;
 }bottleneck_nf_entries_t;
 typedef struct bottlenec_nf_info {
-        uint16_t entires;
-        //struct rte_timer nf_timer[MAX_NFS];   // not worth it, as it would still be called at granularity of invoking the rte_timer_manage()
-        bottleneck_nf_entries_t nf[MAX_NFS];
+	uint16_t entires;
+	//struct rte_timer nf_timer[MAX_NFS];   // not worth it, as it would still be called at granularity of invoking the rte_timer_manage()
+	bottleneck_nf_entries_t nf[MAX_NFS];
 }bottlenec_nf_info_t;
 bottlenec_nf_info_t bottleneck_nf_list;
 #endif //USE_BKPR_V2_IN_TIMER_MODE
@@ -1458,23 +1514,23 @@ bottlenec_nf_info_t bottleneck_nf_list;
 
 #ifdef ENABLE_NF_BACKPRESSURE
 /******************************** DATA STRUCTURES FOR FIPO SUPPORT *********************************
-*     fipo_buf_node_t:      each rte_buf_node (packet) added to the fipo_per_flow_list -- Need basic Queue add/remove
-*     fipo_per_flow_list:   Ordered list of buffers for each flow   -- Need Queue add/remove
-*     nf_flow_list_t:       Priority List of Flows for each NF      -- Need Queue add/remove
-*     Memory sharing Model is tedious to support this..
-*     Rx/Tx should access fipo_buf_node to create a pkt entry, then fipo_per_flow_list to insert into
-*
-******************************** DATA STRUCTURES FOR FIPO SUPPORT *********************************/
+ *     fipo_buf_node_t:      each rte_buf_node (packet) added to the fipo_per_flow_list -- Need basic Queue add/remove
+ *     fipo_per_flow_list:   Ordered list of buffers for each flow   -- Need Queue add/remove
+ *     nf_flow_list_t:       Priority List of Flows for each NF      -- Need Queue add/remove
+ *     Memory sharing Model is tedious to support this..
+ *     Rx/Tx should access fipo_buf_node to create a pkt entry, then fipo_per_flow_list to insert into
+ *
+ ******************************** DATA STRUCTURES FOR FIPO SUPPORT *********************************/
 typedef struct fipo_buf_node {
-        void *pkt;
-        struct fipo_buf_node *next;
-        struct fipo_buf_node *prev;
+	void *pkt;
+	struct fipo_buf_node *next;
+	struct fipo_buf_node *prev;
 }fipo_buf_node_t;
 
 typedef struct fipo_list {
-        uint32_t buf_count;
-        fipo_buf_node_t *head;
-        fipo_buf_node_t *tail;
+	uint32_t buf_count;
+	fipo_buf_node_t *head;
+	fipo_buf_node_t *tail;
 }fipo_list_t;
 typedef fipo_list_t fipo_per_flow_list;
 //Each entry of the list must be shared with the NF, i.e. unique memzone must be created per NF per flow as FIPO_%NFID_%FID
@@ -1482,15 +1538,15 @@ typedef fipo_list_t fipo_per_flow_list;
 #define MAX_NUM_FIPO_FLOWS  (16)
 #define MAX_BUF_PER_FLOW  ((128)/(MAX_NUM_FIPO_FLOWS))//((NF_QUEUE_RINGSIZE)/(MAX_NUM_FIPO_FLOWS))
 typedef struct nf_flow_list {
-        uint32_t flow_count;
-        fipo_per_flow_list *head;
-        fipo_per_flow_list *tail;
+	uint32_t flow_count;
+	fipo_per_flow_list *head;
+	fipo_per_flow_list *tail;
 }nf_flow_list_t;
 #endif //ENABLE_NF_BACKPRESSURE
 
 #define TEST_INLINE_FUNCTION_CALL
 #ifdef TEST_INLINE_FUNCTION_CALL
-typedef int(*nf_pkt_handler)(struct rte_mbuf* pkt, struct onvm_pkt_meta* meta);
+typedef int (*nf_pkt_handler)(struct rte_mbuf* pkt, struct onvm_pkt_meta* meta);
 #endif
 
 #endif  // _COMMON_H_

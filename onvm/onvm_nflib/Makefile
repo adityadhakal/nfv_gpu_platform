@@ -51,6 +51,9 @@ LIB    = libonvm.a
 # all source are stored in SRCS-y
 SRCS-y := onvm_pkt_helper.c onvm_sc_common.c onvm_sc_mgr.c onvm_flow_table.c onvm_flow_dir.c onvm_nflib.c
 #SRCS-y += onvm_pkt_common.c
+SRCS-y += onvm_netml_cuda.o
+SRCS-y += onvm_gpu_buffer_factory.c onvm_stream.c
+SRCS-y += onvm_netml.c
 SRCS-y += onvm_config_common.c
 SRCS-y += histogram.c
 SRCS-y += onvm_sort.c
@@ -58,7 +61,8 @@ SRCS-y += onvm_ringbuf.c
 SRCS-y += onvm_comm_utils.c
 CFLAGS += -DUSE_HISTOGRAM_AS_LIB
 
-CFLAGS += $(WERROR_FLAGS) -O3 -g $(USER_FLAGS)
+
+CFLAGS += $(WERROR_FLAGS) -O3 -lstdc++ -g $(USER_FLAGS)
 CFLAGS += -I$(SRCDIR)/../lib/
 #CFLAGS += -I$(ONVM_HOME)/onvm/lib/
 CFLAGS += -I$(RTE_SDK)/$(RTE_TARGET)/include/
@@ -67,15 +71,21 @@ CFLAGS += -I/usr/local/cuda/include
 LDFLAGS += -L/usr/local/cuda/lib64
 
 LDFLAGS += -L/usr/local/lib
-LDLIBS  += -lzmq -lonvm_cntk -lstdc++ -lm -lcudart
+
+CFLAGS += -I$(SRCDIR)/../../tensorrt_lib/
+LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so 
+LDLIBS += -lzmq -lstdc++ -lm 
+LDLIBS += -lonvm_cntk -lcudart
+
 
 CFLAGS += -I$(SRCDIR)/../../cntk_lib/ #-Wl, #-Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
 LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
+
 
 LDFLAGS += ./libzmq.a
 
 
 include $(RTE_SDK)/mk/rte.extlib.mk
 
-#onvm_netml.o: onvm_netml.cu
-#	nvcc $(SRCDIR)/onvm_netml.cu -o onvm_netml.o -I$(RTE_SDK)/$(RTE_TARGET)/include -L$(RTE_SDK)/$(RTE_TARGET)/lib -ldpdk
+onvm_netml_cuda.o: onvm_netml_cuda.cu
+	nvcc -c $(SRCDIR)/onvm_netml_cuda.cu -lstdc++

@@ -55,13 +55,17 @@
 #include <rte_mbuf.h>
 //#ifdef INTERRUPT_SEM  //move maro to makefile, otherwise uncomemnt or need to include these after including common.h
 #include <rte_cycles.h>
+#include <rte_eal_memconfig.h>
+#include <rte_eal.h>
 //#endif
 #include "onvm_common.h"
 #include "onvm_pkt_common.h"
-#include "onvm_images.h"
-#ifdef ONVM_GPU
 
-#include "onvm_cntk_api.h"
+#ifdef ONVM_GPU
+#include "onvm_ml_libraries.h"
+//#include "tensorrt_api.h"
+//#include "onvm_cntk_api.h"
+#include "onvm_gpu_buffer_factory.h"
 #endif
 //aditya
 
@@ -285,51 +289,61 @@ onvm_nflib_get_default_chain(void);
 
 
 #ifdef ONVM_GPU
+/* a struct with function pointers that each NF will populate while 
+ * Performing INIT. It will be the list of functions that will handle the 
+ * ML library as well as data transfer.
+*/
+
+/* the pointer to the batch aggregation struct */
+image_batched_aggregation_info_t *batch_agg_info;
+
+
+/* declare the structs for the arguments for ml libraries functions */
+nflib_ml_fw_load_params_t ml_load_params; //loading parameters
+nflib_ml_fw_link_params_t ml_link_params; //linking parameters
+nflib_ml_fw_infer_params_t ml_infer_params; //inferring parameters
+
+/* the pointer to the ml framework operations
+ *
+ * the ml framework will be set by the NF in NF body and registered with
+ * nflib
+ */
+ml_framework_operations_t *ml_operations;
+
+/* function to initialize GPU in the NF */
+void initialize_gpu(struct onvm_nf_info *nf_info);
+
+
+
+
+/* =================== below functions need rethinking... all need to be removed or aggregated into more logical functions ========= */
+
+
 //define a function for message resolution Aditya's function
 typedef int (*gpu_message_processing_func)(struct onvm_nf_msg *message_from_manager);
 extern gpu_message_processing_func nf_gpu_func;
 void register_gpu_msg_handling_function(gpu_message_processing_func gmpf);
+/*
 void load_ml_file (char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr, struct onvm_nf_info * nf_info);
-
 void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, float *output);
-
+*/
 //extern histogram_v2_t *image_rate_histogram;
 void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int msg_type);
 void copy_data_to_image(void *packet_data, struct onvm_nf_info *nf_info);
 
-/* copy the data to existing image batch */
-void copy_data_to_image_batch(void *packet_data, struct onvm_nf_info *nf_info, int batch_size);
-//throughput calculations
-float throughputs[105];
-struct timespec batch_fed[105], batch_processed[105];
-int num_throughput_stored;
+//throughput and latency calculations
+int number_of_images_since_last_computation;
+//struct timespec previous_computation;
 
+struct timespec batch_fed[1000], batch_processed[1000];
+int num_throughput_stored;
 
 /* the function to make sure the GPU side work is completed */
 void prepare_to_restart(struct onvm_nf_info *nf_info, struct onvm_nf_msg *message);
 
-/* the timer for the image stats */
-struct rte_timer image_stats_timer;
 
-/* the timer for performing inference */
-struct rte_timer image_inference_timer;
-
-//the GPU "queue".
-/* We have noticed that executing in CNTK is "asynchronous", i.e. we won't know when it ends.
- * So we need to have a GPU queue, that will store the information about the images that has been sent to GPU
- * for processing
-
- * we will keep the time spent to process information till we give back the image mempool. 
- * we need this array as this array should be private to the NF and no need to be shared to alternate NF
- * We will store the time in time_spec.. should suffice for microseconds
- */
-int  gpu_queue_image_id[MAX_IMAGE];
-//TODO: Remove the below array.. and make an array that will rather store the pair of image data and nf_info pointers
-struct gpu_callback gpu_callbacks[MAX_IMAGE];
-int num_elements_in_gpu_queue;
-int gpu_queue_current_index;
-
-
+// a test function to see the throughput histograms are working or not.
+void print_gpu_throughput_data(struct onvm_nf_info *nf_info);
 
 #endif
 

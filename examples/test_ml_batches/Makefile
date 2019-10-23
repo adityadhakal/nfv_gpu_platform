@@ -51,15 +51,25 @@ SRCS-y := bridge.c
 
 ONVM= $(SRCDIR)/../../onvm
 
+
 CFLAGS += $(WERROR_FLAGS) -O3 -g $(USER_FLAGS)
 
 CFLAGS += -I$(ONVM)/onvm_nflib
+
 CFLAGS += -I$(ONVM)/lib
 CFLAGS += -I/usr/local/cuda/include
 LDFLAGS += -L/usr/local/cuda/lib64
+
 LDFLAGS += $(ONVM)/onvm_nflib/$(RTE_TARGET)/libonvm.a
 LDFLAGS += $(ONVM)/lib/$(RTE_TARGET)/lib/libonvmhelper.a
-LDLIBS += -lm -lstdc++ -lonvm_cntk -lcudart
+
+
+#CFLAGS += -I$(SRCDIR)/../../tensorrt_lib/
+#LDFLAGS += -L$(SRCDIR)/../../tensorrt_lib/
+CFLAGS += -I/home/adhak001/dev/openNetVM_sameer/tensorrt_lib
+LDFLAGS += /home/adhak001/dev/openNetVM_sameer/tensorrt_lib/libtensorrt.so
+
+LDLIBS += -lm -lstdc++ -lonvm_cntk -lcudart 
 
 CFLAGS += -I$(SRCDIR)/../../cntk_lib/ 
 LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib

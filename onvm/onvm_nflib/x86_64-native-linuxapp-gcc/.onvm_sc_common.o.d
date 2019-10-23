@@ -185,6 +185,25 @@ dep_onvm_sc_common.o = \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_msg_common.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_config_common.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/../lib/cJSON.h \
+ /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_netml.h \
+ /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_ml_libraries.h \
+ /usr/local/cuda/include/cuda_runtime.h \
+ /usr/local/cuda/include/crt/host_config.h \
+ /usr/local/cuda/include/builtin_types.h \
+ /usr/local/cuda/include/device_types.h \
+ /usr/local/cuda/include/crt/host_defines.h \
+ /usr/local/cuda/include/driver_types.h \
+ /usr/local/cuda/include/vector_types.h \
+ /usr/local/cuda/include/surface_types.h \
+ /usr/local/cuda/include/texture_types.h \
+ /usr/local/cuda/include/library_types.h \
+ /usr/local/cuda/include/channel_descriptor.h \
+ /usr/local/cuda/include/cuda_runtime_api.h \
+ /usr/local/cuda/include/cuda_device_runtime_api.h \
+ /usr/local/cuda/include/driver_functions.h \
+ /usr/local/cuda/include/vector_functions.h \
+ /usr/local/cuda/include/vector_functions.hpp \
+ /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_stream.h \
  /home/skulk901/dev/openNetVM_Mainline/dpdk/x86_64-native-linuxapp-gcc/include/rte_pdump.h \
  /home/skulk901/dev/openNetVM_Mainline/dpdk/x86_64-native-linuxapp-gcc/include/rte_timer.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/histogram.h

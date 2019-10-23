@@ -59,6 +59,8 @@ CFLAGS += -I/usr/local/cuda/include
 LDFLAGS += -L/usr/local/cuda/lib64
 LDFLAGS += $(ONVM)/onvm_nflib/$(RTE_TARGET)/libonvm.a
 LDFLAGS += $(ONVM)/lib/$(RTE_TARGET)/lib/libonvmhelper.a
+CFLAGS += -I/$(SRCDIR)/../../tensorrt_lib/
+LDFLAGS += /home/adhak001/dev/openNetVM_sameer/tensorrt_lib/libtensorrt.so
 LDLIBS += -lm -lstdc++ -lonvm_cntk -lcudart
 
 CFLAGS += -I$(SRCDIR)/../../cntk_lib/ 

@@ -162,11 +162,6 @@ static struct rte_mempool *nf_msg_pool;
 // Shared pool for packets
 static struct rte_mempool *pktmbuf_pool;
 
-#ifdef ONVM_GPU
-// Shared pool for ML Images
-static struct rte_mempool *nf_image_pool;
-#endif
-
 // User-given NF Client ID (defaults to manager assigned)
 static uint16_t initial_instance_id = NF_NO_ID;
 

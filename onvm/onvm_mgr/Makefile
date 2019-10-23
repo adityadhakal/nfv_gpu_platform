@@ -63,22 +63,32 @@ INC += onvm_bfd.h onvm_wakemgr.h onvm_special_nf0.h onvm_ft_install.h onvm_rsync
 INC += onvm_zookeeper.h onvm_zk_watch.h onvm_zk_common.h onvm_vxlan.h zoo_queue.h
 INC += onvm_gpu.h
 
+LDFLAGS += -L/usr/lib
 CFLAGS += $(WERROR_FLAGS) -O3 -g $(USER_FLAGS)
 CFLAGS += -I$(SRCDIR)/../
 CFLAGS += -I$(SRCDIR)/../lib/
 CFLAGS += -I$(SRCDIR)/../onvm_nflib/
 
 LDFLAGS += $(SRCDIR)/../lib/$(RTE_TARGET)/libonvmhelper.a
-LDFLAGS += $(SRCDIR)/../onvm_nflib/$(RTE_TARGET)/libonvm.a
+LDFLAGS += $(SRCDIR)/../onvm_nflib/$(RTE_TARGET)/libonvm.a -lstdc++
 CFLAGS += -I/usr/local/cuda/include
 #LDFLAGS += $(SRCDIR)/../shared/shared/$(RTE_TARGET)/onvm_shared.a
 
 LDFLAGS += -L/usr/local/lib
+LDFLAGS += -L/usr/local/cuda/lib64
 CFLAGS += -I$(SRCDIR)/../../cntk_lib/ #-Wl, #-Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
+#CLFAGS += -I/home/adhak001/microsoft/cntk/Source/CNTKv2LibraryDll/API/
 LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
-LDLIBS+= -lzmq -lonvm_cntk
-LDFLAGS+= -L/usr/lib/x86_64-linux-gnu
-LDLIBS+= -lpcap
+
+CFLAGS += -I$(SRCDIR)/../../tensorrt_lib/
+LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so
+LDLIBS += -lonvm_cntk
+LDLIBS += -lcudart -lstdc++ -lcuda
+
+
+LDLIBS += -lzmq 
+LDFLAGS += -L/usr/lib/x86_64-linux-gnu
+LDLIBS += -lpcap
 #EXTRA_LDLIBS += -lzookeeper_mt -lzooqueue
 
 # for newer gcc, e.g. 4.4, no-strict-aliasing may not be necessary

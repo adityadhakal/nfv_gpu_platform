@@ -232,7 +232,6 @@ dep_bridge.o = /home/adhak001/dev/openNetVM_sameer/examples/ml_nf/bridge.c \
  /home/skulk901/dev/openNetVM_Mainline/dpdk/x86_64-native-linuxapp-gcc/include/rte_cpuflags.h \
  /home/adhak001/dev/openNetVM_sameer/examples/ml_nf/../../onvm/onvm_nflib/onvm_sc_mgr.h \
  /home/adhak001/dev/openNetVM_sameer/examples/ml_nf/../../onvm/onvm_nflib/onvm_images.h \
- /home/adhak001/dev/openNetVM_sameer/examples/ml_nf/../../cntk_lib/onvm_cntk_api.h \
  /usr/local/cuda/include/cuda_runtime.h \
  /usr/local/cuda/include/crt/host_config.h \
  /usr/local/cuda/include/builtin_types.h \
@@ -249,5 +248,7 @@ dep_bridge.o = /home/adhak001/dev/openNetVM_sameer/examples/ml_nf/bridge.c \
  /usr/local/cuda/include/driver_functions.h \
  /usr/local/cuda/include/vector_functions.h \
  /usr/local/cuda/include/vector_functions.hpp \
+ //home/adhak001/dev/openNetVM_sameer/examples/ml_nf/../../tensorrt_lib/tensorrt_api.h \
+ /home/adhak001/dev/openNetVM_sameer/examples/ml_nf/../../cntk_lib/onvm_cntk_api.h \
  /home/adhak001/dev/openNetVM_sameer/examples/ml_nf/../../onvm/onvm_nflib/onvm_pkt_helper.h \
  /home/adhak001/dev/openNetVM_sameer/examples/ml_nf/../../onvm/onvm_nflib/onvm_images.h
