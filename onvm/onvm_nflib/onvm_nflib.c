@@ -968,18 +968,14 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 			 initialize_gpu(nf_info);
 			 }
 			 */
-#endif
+#endif //onvm_gpu
 		nb_pkts = onvm_nflib_fetch_packets(pkts, NF_PKT_BATCH_SIZE);
 		if (likely(nb_pkts)) {
 			/* Give each packet to the user processing function */
 			//nb_pkts = onvm_nflib_process_packets_batch(nf_info, pkts, nb_pkts,handler);
 			nb_pkts = (*current_packet_processing_batch)(nf_info, pkts, nb_pkts,
 					handler);
-#ifdef ONVM_GPU
-			//add the counters to number of packets that are outstanding...
-			/* Since we know how many packets make images for us now.. so we can just determine how many images 
-			 *are left here */
-#endif //onvm_gpu
+
 		}
 #ifdef ONVM_GPU
 	} //if(nf_info->ring_flag == 1)
@@ -1228,9 +1224,22 @@ case MSG_NF_TRIGGER_ECB:
 	printf("The NF didn't process GPU_MODEL message well \n");
 	break;
 	case MSG_GET_GPU_READY:
-	if((*nf_gpu_func)(msg))
-	printf("The NF didn't process GET_GPU_READY message well \n");
-	break;
+	//initialize the GPU for this NF
+		initialize_gpu(nf_info);
+		printf("Initializing the GPU for this NF\n");
+		//Now let the manager know the GPU has been up and it is time to switch the ring flag
+		struct onvm_nf_msg *reply_msg;
+		int ret = rte_mempool_get(nf_msg_pool,(void **)(&reply_msg));
+		if(ret<0){
+			RTE_LOG(INFO,APP,"Problem with getting NF Msg Pool, check ONVM_NFLIB_HANDLE_MSG\n");
+		}
+		reply_msg->msg_type = MSG_NF_GPU_READY;
+		reply_msg->msg_data = nf_info;
+		rte_ring_enqueue(mgr_msg_ring, reply_msg);
+		break;
+		//if((*nf_gpu_func)(msg))
+	//printf("The NF didn't process GET_GPU_READY message well \n");
+	//break;
 	case MSG_RESTART:
 	if((*nf_gpu_func)(msg))
 	printf("The NF didn't process MSG_RESTART message well \n");
@@ -1571,8 +1580,8 @@ static inline int onvm_nflib_notify_ready(struct onvm_nf_info *nf_info) {
 
 		/* this NF should have been registered to manager and have all info
 		 * We can also then give its batch aggregation pointers and dev buffer pointer */
-		nf_info->gpu_percentage = 70;
-		printf("GPU Percentage now %d \n", nf_info->gpu_percentage);
+		//nf_info->gpu_percentage = 70;
+		printf("GPU Percentage set by the manager now %d \n", nf_info->gpu_percentage);
 
 		if(nf_info->gpu_percentage > 0) {
 
@@ -1608,6 +1617,7 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	//0. fix the link parameters and infer parameters
 	void * status = NULL;
 	//nflib_ml_fw_link_params_t ml_link_params;
+
 	//these things don't change once set so we can just set it here
 	ml_link_params.file_path = nf_info->model_info->model_file_path;
 	ml_link_params.model_handle = nf_info->ml_model_handle;
@@ -1619,10 +1629,12 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	printf("pointer to gpu agg buffer %p\n",nf_info->image_info);
 	int retval;
 
-	// 1. set the GPU percentage
+	// 1. set the user defined GPU percentage
+
 	char gpu_percent[4];
 	sprintf(gpu_percent,"%d", nf_info->gpu_percentage);
-	setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);//overwrite cuda_mps_active_thread_precentage
+	printf("User defined GPU percent was %s\n",gpu_percent);
+	//setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);//overwrite cuda_mps_active_thread_precentage
 
 	// 2. Create all streams
 	retval = init_streams();
@@ -1649,6 +1661,12 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 
 	if(retval != 0)
 	printf("ERROR! while setting up the model in GPU \n");
+
+	//have to check the retval and see if all the GPU steps went well
+	//if everything went alright, send a message to manager.
+	printf("GPU initialization is complete..\n");
+
+
 }
 
 #endif //onvm_gpu

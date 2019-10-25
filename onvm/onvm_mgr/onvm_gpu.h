@@ -93,7 +93,7 @@ void restart_nf(struct onvm_nf_info *nf);
 void inform_NF_of_pending_restart(struct onvm_nf_info *nf);
 
 /*get the shadow NF ready */
-void get_shadow_NF_ready(struct onvm_nf_info *nf, int recommended_gpu_percentage);
+void get_shadow_NF_ready(struct onvm_nf_info *nf);
 
 /* we know the shadow NF is ready for GPU execution, can restart the original NF if it is restart ready */
 void nf_is_gpu_ready(struct onvm_nf_info *nf);

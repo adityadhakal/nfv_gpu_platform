@@ -618,6 +618,8 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 
 	return 0;
 }
+
+
 /****************************************************************************************
  * 						NF Orchestrator specific functions
  ****************************************************************************************/
@@ -627,19 +629,17 @@ void inform_NF_of_pending_restart(struct onvm_nf_info *nf) {
 }
 
 /* the function to send message to shadow NF */
-void get_shadow_NF_ready(struct onvm_nf_info *shadow, int gpu_percentage) {
-	struct get_alternate_NF_ready* alternate_message = (void *)rte_malloc(NULL, sizeof(int)+sizeof(void*), 0);
-	alternate_message->gpu_percentage = gpu_percentage;
-
+void get_shadow_NF_ready(struct onvm_nf_info *shadow) {
+	//no need to send the GPU percentage with the message as the GPU percentage will be written by the manager.
 	struct onvm_nf_info * alternate_nf = shadow_nf(shadow->instance_id);
 
 	if(onvm_nf_is_valid(&nfs[alternate_nf->instance_id])) {
 		//alternate_message->image_info = alternate_nf->image_info;
-		onvm_nf_send_msg((shadow_nf(shadow->instance_id))->instance_id, MSG_GET_GPU_READY, 0, alternate_message);
+		onvm_nf_send_msg((shadow_nf(shadow->instance_id))->instance_id, MSG_GET_GPU_READY, 0, NULL);
 	}
 	else
 	{
-		printf("Alternate NF not ready so No \"ready\" message passed \n");
+		printf("Alternate NF not running so No \"ready\" message passed \n");
 	}
 
 }
@@ -653,7 +653,7 @@ void voluntary_restart_the_nf(struct onvm_nf_info *nf) {
 	}
 	else
 	{
-		get_shadow_NF_ready(nf, 50);
+		get_shadow_NF_ready(nfs->info);
 	}
 
 }

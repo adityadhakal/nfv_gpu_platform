@@ -266,7 +266,8 @@ int main(int argc, char *argv[]) {
 		rte_exit(EXIT_FAILURE, "Invalid command-line arguments\n");
 	}
 	if(gpu_percent != NULL){
-	  nf_info->gpu_percentage = atoi(gpu_percent);
+	  //nf_info->gpu_percentage = atoi(gpu_percent);
+		nf_info->gpu_percentage = 0;
 	}
 	nf_info->enable_adaptive_batching = adaptive_batching_flag;
 
@@ -278,7 +279,7 @@ int main(int argc, char *argv[]) {
 	setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);
 
 	int num_sms = 0;
-	cudaDeviceGetAttribute(&num_sms, cudaDevAttrMultiProcessorCount, 0);
+	//cudaDeviceGetAttribute(&num_sms, cudaDevAttrMultiProcessorCount, 0);
 	printf("Number of sms %d\n", num_sms);
 
 	
@@ -336,8 +337,7 @@ int main(int argc, char *argv[]) {
 	*/
 
 	int answer2;
-	cudaDeviceGetAttribute(&answer2,
-			cudaDevAttrCanUseHostPointerForRegisteredMem, 0);
+	//cudaDeviceGetAttribute(&answer2,cudaDevAttrCanUseHostPointerForRegisteredMem, 0);
 	printf("Can use host pointer for registered mem %d\n", answer2);
 	onvm_nflib_run(nf_info, &packet_handler);
 	printf("If we reach here, program is ending\n");
