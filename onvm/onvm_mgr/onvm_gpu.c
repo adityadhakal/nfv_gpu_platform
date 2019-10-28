@@ -80,7 +80,7 @@ void init_ml_models(void) {
 	/* platform type */
 	ml_platform platforms[NUMBER_OF_MODELS];
 	//platforms[0] = cntk;
-	platforms[0] = tensorrt;
+	platforms[0] = cntk;
 	platforms[1] = cntk;
 	platforms[2] = cntk;
 	platforms[3] = cntk;
