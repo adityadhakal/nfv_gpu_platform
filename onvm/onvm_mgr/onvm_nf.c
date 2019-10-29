@@ -534,48 +534,14 @@ void onvm_nf_recv_and_process_msgs(void) {
 			num_nfs--;
 			break;
 #ifdef ONVM_GPU
-			/*
-			 *  //Aditya : for removal.
-			 void * returnable_msg = NULL;
-			 case MSG_GIVE_GPU_MODEL:
-			 nf = ((provide_gpu_model*)(msg->msg_data))->nf;
-			 //aditya's edit
-			 //returnable_msg = provide_nf_with_model(nf); //this message has a struct  provide_gpu_model defined in onvm_common
-			 returnable_msg = NULL;
-			 if(returnable_msg != NULL)
-			 {
-			 //send it to the NF
-			 //onvm_nf_send_msg(uint16_t dest, uint8_t msg_type, __attribute__((unused)) uint8_t msg_mode, void *msg_data);
-			 if(onvm_nf_is_valid(&nfs[get_associated_active_or_standby_nf_id(nf->instance_id)])) {
-			 //if the alternate NF is running then send the model pointer in message destined for secondary NF
-			 onvm_nf_send_msg(nf->instance_id,MSG_GPU_MODEL_SEC,0,returnable_msg);
-			 }
-			 else
-			 {
-			 onvm_nf_send_msg(nf->instance_id, MSG_GPU_MODEL_PRI,0,returnable_msg);
-			 }
-			 }
-			 else
-			 {
-			 printf("Cannot find the model \n");
-			 }
-			 break;
-			 case MSG_NF_GPU_READY:
-			 nf = (struct onvm_nf_info*)msg->msg_data;
-			 //nf->gpu_execution_ready = 1; //NF is ready for GPU execution
-			 //do we need to let mgr know? //maybe because manager might take action based on this message
-			 nf_is_gpu_ready(nf);
-			 break;
-			 case MSG_NF_RESTART_OK:
-			 nf = (struct onvm_nf_info*) msg->msg_data;
-			 restart_nf(nf);
-			 break;
-			 #ifdef ONVM_GPU_TEST
-			 case MSG_NF_VOLUNTARY_RE:
-			 nf = (struct onvm_nf_info *) msg->msg_data;
-			 voluntary_restart_the_nf(nf);
-			 #endif //onvm_gpu_test
-			 */
+			case MSG_NF_GPU_READY:
+			//NF's GPU is ready. We can take the ring access off the current ring processing NF and give it to this.
+			nf = (struct onvm_nf_info *)msg->msg_data;
+			uint16_t standby_nf_id = get_associated_active_or_standby_nf_id(nf);
+			struct onvm_nf_info *standby_nf_info = (&nfs[standby_nf_id])->info;
+			nf->ring_flag = 0;
+			standby_nf_info->ring_flag = 1;
+			break;
 #endif//onvm_gpu
 			default:
 			break;

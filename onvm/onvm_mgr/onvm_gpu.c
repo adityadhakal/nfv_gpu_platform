@@ -80,7 +80,7 @@ void init_ml_models(void) {
 	/* platform type */
 	ml_platform platforms[NUMBER_OF_MODELS];
 	//platforms[0] = cntk;
-	platforms[0] = cntk;
+	platforms[0] = tensorrt;
 	platforms[1] = cntk;
 	platforms[2] = cntk;
 	platforms[3] = cntk;
@@ -634,7 +634,8 @@ void get_shadow_NF_ready(struct onvm_nf_info *shadow) {
 	struct onvm_nf_info * alternate_nf = shadow_nf(shadow->instance_id);
 
 	if(onvm_nf_is_valid(&nfs[alternate_nf->instance_id])) {
-		//alternate_message->image_info = alternate_nf->image_info;
+		//get the NF to running and send the message to the NF to get GPU Ready... Till now the NF's ring access flag should be 0.
+		alternate_nf->status = NF_RUNNING;
 		onvm_nf_send_msg((shadow_nf(shadow->instance_id))->instance_id, MSG_GET_GPU_READY, 0, NULL);
 	}
 	else

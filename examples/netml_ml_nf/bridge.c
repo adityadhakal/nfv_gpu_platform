@@ -298,43 +298,8 @@ int main(int argc, char *argv[]) {
 
 	printf("User Flags Set:\n Adaptive_Batching: %"PRIu32"\n Fixed_Batch_size: %"PRIu32"\n ML OPS SLO: %"PRIu32"(ms)\n",adaptive_batching_flag, fixed_batch_size, inference_slo_ms);
 	
-	/*
-	pid_t pid = getpid();
-
-	char huge_page_addr[128];
-	char answer[128];
-	//a better method came along.. to use environ and put it in the file
-	sprintf(huge_page_addr,
-			"grep \"kernelpagesize_kB=1048576\" /proc/%d/numa_maps | awk '{print $1;}'",
-			pid);
-
-	FILE* fp;
-	fp = popen(huge_page_addr, "r");
-	if (fp == NULL) {
-		printf("Failed to run command\n");
-		exit(1);
-	}
-	
-	
-
-	// now load the output in the path 
-	while (fgets(answer, sizeof(answer) - 1, fp) != NULL) {
-		//printf("%s", path);
-	}
-
-	// close the file 
-	pclose(fp);
-
-	unsigned long ul;
-	sscanf(answer, "%lx", &ul);
-
-	printf("huge_pages address %s pointer %p \n", answer, (void *) ul);
-	//cudaError_t cudaerror;
-	//cudaerror = cudaHostRegister((void *) ul, (1024*1024*1024), cudaHostRegisterDefault);
-	//if(cudaerror == cudaSuccess)
-	//printf("memory pinned-------\n");
-	//receive packets.
-	*/
+	//initializing GPU for test
+	initialize_gpu(nf_info);
 
 	int answer2;
 	//cudaDeviceGetAttribute(&answer2,cudaDevAttrCanUseHostPointerForRegisteredMem, 0);
