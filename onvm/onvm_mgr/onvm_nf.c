@@ -537,7 +537,7 @@ void onvm_nf_recv_and_process_msgs(void) {
 			case MSG_NF_GPU_READY:
 			//NF's GPU is ready. We can take the ring access off the current ring processing NF and give it to this.
 			nf = (struct onvm_nf_info *)msg->msg_data;
-			uint16_t standby_nf_id = get_associated_active_or_standby_nf_id(nf);
+			uint16_t standby_nf_id = get_associated_active_or_standby_nf_id(nf->instance_id);
 			struct onvm_nf_info *standby_nf_info = (&nfs[standby_nf_id])->info;
 			nf->ring_flag = 0;
 			standby_nf_info->ring_flag = 1;
