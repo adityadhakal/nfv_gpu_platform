@@ -11,6 +11,8 @@
 //puts the data into 
 #include "onvm_nflib.h"
 
+//#define NO_IMAGE_ID
+
 uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t *image_agg, uint32_t *ready_images_index) {
 	uint32_t ready_images=0;
 	//static placeholder variable for a single image
@@ -25,6 +27,12 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 
 	uint32_t image_id = (chunk_header->image_id);//*2;//TODO: hack to fix odd numbered image. DONE: Buffer overwriting incorrect index!
 
+	#ifdef NO_IMAGE_ID
+		static uint current_image = 0;
+		image_id = current_image;
+	#endif
+
+
 	image_aggregation_info_t *image = &(image_agg->images[image_id]);//(image_agg->images[chunk_header->image_id]);
 	//image_aggregation_info_t *image2 = &(image_agg->images[image_id+1]);//(image_agg->images[chunk_header->image_id]);
 
@@ -33,9 +41,7 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 		image->usage_status = 1;
 		clock_gettime(CLOCK_MONOTONIC, &image->first_packet_time);
 	}
-	//printf("Image %"PRIu32" pointer image %d %p status %d bytes_count %d packets count %d bitmask %d size of struct %ld\n", chunk_header->image_id, image_id,image,(int)image->usage_status,(int)image->bytes_count,image->packets_count, image->usage_status, sizeof(image_batched_aggregation_info_t));
-	//printf("Image %"PRIu32" pointer image %d %p status %d bytes_count %d packets count %d bitmask %d size of struct %ld\n", chunk_header->image_id, image_id+1,image2,(int)image2->usage_status,(int)image2->bytes_count,image2->packets_count, image2->usage_status, sizeof(image_batched_aggregation_info_t));
-
+	
 	if(1 == image->usage_status) {
 
 		//first put the rte_mbuf address in the proper place and update the packet counter
@@ -71,6 +77,9 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 			//printf("Image mask : %"PRIu32"\n",image_agg->ready_mask);
 			//image_id++;
 			//image_id = (image_id%MAX_IMAGES_BATCH_SIZE);
+		#ifdef NO_IMAGE_ID
+			current_image = (current_image+1)%MAX_IMAGES_BATCH_SIZE;
+		#endif
 		}
 		//if(ready_images_index) (*ready_images_index) |= ready_images;
 		if(ready_images) {*ready_images_index=ready_images;}
