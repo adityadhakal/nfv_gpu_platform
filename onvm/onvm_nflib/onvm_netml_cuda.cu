@@ -74,9 +74,11 @@ __global__ void transfer_data_light(void * data_ptrs, void *destination){
   //printf("Size of data %d \n",size2);
 
   uint32_t size = data_chunk.image_chunk.size_in_bytes;
-  
   uint32_t offset = data_chunk.image_chunk.start_offset;
   
+  #ifdef NO_IMAGE_ID
+  offset = size*bid;
+  #endif
   //where the data should be written
   char *empty_buffer = ((char *) destination)+offset;
   char * data = (char *) (data_chunk.src_cpy_ptr);

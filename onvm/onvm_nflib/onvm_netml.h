@@ -6,7 +6,9 @@
 //#ifdef ONVM_GPU
 #include "onvm_ml_libraries.h"
 #include "onvm_stream.h"
+
 //#define ENABLE_GPU_NETML
+#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 #define MAX_CHUNKS_PER_IMAGE 2352
 #define MAX_IMAGES_BATCH_SIZE 32

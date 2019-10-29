@@ -11,7 +11,7 @@
 //puts the data into 
 #include "onvm_nflib.h"
 
-//#define NO_IMAGE_ID
+
 
 uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t *image_agg, uint32_t *ready_images_index) {
 	uint32_t ready_images=0;
