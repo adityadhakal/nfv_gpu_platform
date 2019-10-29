@@ -299,7 +299,7 @@ int main(int argc, char *argv[]) {
 	printf("User Flags Set:\n Adaptive_Batching: %"PRIu32"\n Fixed_Batch_size: %"PRIu32"\n ML OPS SLO: %"PRIu32"(ms)\n",adaptive_batching_flag, fixed_batch_size, inference_slo_ms);
 	
 	//initializing GPU for test
-	initialize_gpu(nf_info);
+	//initialize_gpu(nf_info);
 
 	int answer2;
 	//cudaDeviceGetAttribute(&answer2,cudaDevAttrCanUseHostPointerForRegisteredMem, 0);
