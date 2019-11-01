@@ -130,7 +130,7 @@ void register_gpu_msg_handling_function(gpu_message_processing_func gmpf) {
 
 //old code
 //timer threads...
-#define NF_INFERENCE_PERIOD_MS 50
+#define NF_INFERENCE_PERIOD_MS 1000
 
 void initialize_ml_timers(struct onvm_nf_info *nf_info);
 static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_timer,
