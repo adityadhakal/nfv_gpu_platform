@@ -17,7 +17,7 @@
 #include "tensorrt_api.h"
 #include "onvm_ml_libraries.h"
 
-#define ONVM_MAX_GPU_ML_MODELS (NUMBER_OF_MODELS) 	//Note: Get rid of NUMBER_OF_MODELS
+
 onvm_gpu_model_operational_range_t onvm_gpu_ml_model_profiler_data[ONVM_MAX_GPU_ML_MODELS];
 onvm_gpu_ra_info_t gpu_ra_info = {.active_nfs=0, .gpu_ra_avail=MAX_GPU_OVERPRIVISION_VALUE, .gpu_ra_wtlst=0, .waitlisted_nfs=0};
 gpu_ra_mgt_t gpu_ra_mgt = {.gpu_ra_info=&gpu_ra_info, .ra_status= {0,}};

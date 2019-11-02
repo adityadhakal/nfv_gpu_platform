@@ -10,7 +10,7 @@
 
 //GPU Resource allocation flags and data structure 
 #define GPU_MAX_RA_PER_NF	(100)			// indictes max % that can be allocated to an NF
-#define MAX_GPU_OVERPRIVISION_VALUE	(100)	// indicates max % at which GPU can be over provisioned or oversubscribed.
+#define MAX_GPU_OVERPRIVISION_VALUE	(120)	// indicates max % at which GPU can be over provisioned or oversubscribed.
 #define DEFAULT_GPU_RA_VALUE	(30)		// indicates the default value to use \% for models that do not have profiled data. When set, also set nf->gpu_monitor_lat to TRUE.
 typedef struct onvm_gpu_range_t {
 	uint16_t min;
@@ -41,6 +41,9 @@ typedef struct gpu_ra_mgt_t {
 /****************************************************************************************
  * 						MODEL LOADING FROM DISK AND RETRIEVAL
  ****************************************************************************************/
+
+#define ONVM_MAX_GPU_ML_MODELS 11 	//Note: Get rid of NUMBER_OF_MODELS
+
 /* a function to initialize and load all the existing models */
 //void load_model(struct gpu_file_listing *ml_file);
 void init_ml_models(void);
@@ -49,7 +52,7 @@ void init_ml_models(void);
 void load_old_data(model_profiler_data *runtime_data);
 
 //variable for storing all models information //this struct is in onvm_common.h
-struct gpu_file_listing * ml_files[NUMBER_OF_MODELS];
+struct gpu_file_listing * ml_files[ONVM_MAX_GPU_ML_MODELS];
 
 //cuda malloc pointers
 void * gpu_side_input_buffer[MAX_NFS/2];
