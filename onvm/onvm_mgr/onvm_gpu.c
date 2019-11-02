@@ -227,6 +227,7 @@ void load_old_profiler_data(char * file_path,int model_index ) {//model_profiler
 		printf("Couldn't open %s\n", file_path);
 		return;
 	}
+	printf("Opened file %s for model historical data\n",file_path);
 	/* this file should be organized in following way */
 	// optimal percentage, step, percentage_range...
 	/* first count number of lines in the file */
