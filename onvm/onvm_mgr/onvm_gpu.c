@@ -338,7 +338,9 @@ inline int onvm_gpu_check_any_readjustment(void) {
 	int i = 0;
 
 	for(i=0; i<MAX_NFS; i++) {
-		if(nfs[i].info->over_provisioned_for_slo || nfs[i].info->under_provisioned_for_slo) return 1;
+		if(nfs[i].info){
+			if(nfs[i].info->over_provisioned_for_slo || nfs[i].info->under_provisioned_for_slo) return 1;
+		}
 	}
 	return 0;
 }
@@ -525,6 +527,8 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 	//set the GPU Resource Mgt state update
 	gpu_ra_mgt.ra_status[nf->instance_id] = GPU_RA_NOT_SET;
 
+	printf("This current NF's GPU resource status is %d\n",gpu_ra_mgt.ra_status[nf->instance_id]);
+
 	/*
 	 if(nf->gpu_percentage) {
 	 //increment or decrement based on the run-time profiling results. TODO: handle this!
@@ -541,7 +545,7 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 	//Check current GPU status, whether it is underutilized (make sure to always allocate 100%+ of GPU resource)
 	if(gpu_ra_info.gpu_ra_avail >= GPU_MAX_RA_PER_NF) {
 		onvm_gpu_set_gpu_percentage(nf, GPU_MAX_RA_PER_NF);
-	}
+		}
 	// Check if request can be sufficiently met, with a step overprovision for NF?
 	else if (/*(0 == nf->gpu_monitor_lat) && */gpu_ra_info.gpu_ra_avail > nf->gpu_percentage) {
 		//Space to over-provision the NFs GPU percentage.
@@ -589,15 +593,26 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	uint8_t act_nfs;
 	uint16_t gpu_ra_available;
 
-	//check if any NFs are waiting for RA
-	if((0 == gpu_ra_mgt.gpu_ra_info->gpu_ra_wtlst)||(0 == onvm_gpu_check_any_readjustment())) return 0;
 
+	//check if any NFs are waiting for RA
+	if((0 == gpu_ra_mgt.gpu_ra_info->gpu_ra_wtlst)||(0 == onvm_gpu_check_any_readjustment())){
+		//do not return... we need to check if we the waitlisted GPU can get the GPU
+		//return 0;
+	}
+
+	//check the current GPU statistcs
 	compute_current_gpu_ra_stats(&act_nfs, &gpu_ra_available);
-	if((0==act_nfs)|| (gpu_ra_available == MAX_GPU_OVERPRIVISION_VALUE)) return 0;
+
+	printf("GPU RA Still available %d \n",gpu_ra_available);
+
+	if((0==act_nfs)|| (gpu_ra_available == MAX_GPU_OVERPRIVISION_VALUE)){
+		printf("Either no NFs using GPU or GPU is over-provisioned\n");
+		return 0;
+	}
 
 	int i = 0;
-	uint8_t needs_ra=0, readj_ra=0;
-	uint8_t nfs_need_ra_list[MAX_NFS], nfs_readj_ra_list[MAX_NFS];
+	uint8_t needs_ra=0, readj_ra=0, set_ra=0;
+	uint8_t nfs_need_ra_list[MAX_NFS], nfs_readj_ra_list[MAX_NFS], nfs_set_ra_list[MAX_NFS];
 	//count the num of NFs that need GPU RA
 	for(i=0; i<MAX_NFS; i++) {
 		if((GPU_RA_NEEDS_ALLOCATION == gpu_ra_mgt.ra_status[i]) || (GPU_RA_IS_WAITLISTED == gpu_ra_mgt.ra_status[i])) {
@@ -608,13 +623,32 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 			nfs_readj_ra_list[readj_ra] = i;
 			readj_ra+=1;
 		}
+		else if ((GPU_RA_IS_SET  == gpu_ra_mgt.ra_status[i])){
+			nfs_set_ra_list[set_ra] = i;
+			set_ra+=1;
+		}
 	}
+	printf("--------- Number of NFs that need allocation %"PRIu8" AND that needs readjustment %"PRIu8"\n",needs_ra, readj_ra);
 	//TODO: Must have logic to track, find optimal Rate-cost proportional share for each NF and then trigger restart NFs for all that have changed GPU RA Profile.
+	//the function to do simple max-min utilization.
+	/**
+	 * Let N be the number of NFs running
+	 * Divide the total GPU with N. Getting share of each NF
+	 * Check what GPU %  each NF has..  if that NF is "set" and has not requested for more GPU, we should only give it the lower value
+	 * populate the value to the NF's secondary
+	 * Recompute the remaining GPU.. perform the same water falling exercise again.
+	 * i.e. provide the value for lowest wanting NF
+	 * then, for all the NFs that has optimum value more than what our algorithm have, provide it to the NFs.
+	 *
+	 * Be careful, this is still phase 1, committing to phase 2 comes with additional checking.
+	 */
+
+
 	for(i=0; i<needs_ra; i++) {
-		printf("Needs GPU Allocation: %d, %d, %d", i, nfs_need_ra_list[i], nfs_need_ra_list[i]);
+		printf("Needs GPU Allocation: %d, %d, %d\n", i, nfs_need_ra_list[i], nfs_need_ra_list[i]);
 	}
 	for(i=0; i<readj_ra; i++) {
-		printf("Needs GPU Allocation: %d, %d, %d", i, nfs_readj_ra_list[i], nfs_readj_ra_list[i]);
+		printf("Needs GPU Allocation: %d, %d, %d\n", i, nfs_readj_ra_list[i], nfs_readj_ra_list[i]);
 	}
 
 	return 0;
