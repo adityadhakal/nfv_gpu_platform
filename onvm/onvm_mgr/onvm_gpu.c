@@ -611,24 +611,33 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	}
 
 	int i = 0;
-	uint8_t needs_ra=0, readj_ra=0, set_ra=0;
-	uint8_t nfs_need_ra_list[MAX_NFS], nfs_readj_ra_list[MAX_NFS], nfs_set_ra_list[MAX_NFS];
+	uint8_t needs_ra=0, readj_ra=0, set_ra=0, gpu_using_nfs;
+	uint8_t nfs_need_ra_list[MAX_NFS], nfs_readj_ra_list[MAX_NFS], nfs_set_ra_list[MAX_NFS], all_nfs_using_gpu[MAX_NFS];
 	//count the num of NFs that need GPU RA
 	for(i=0; i<MAX_NFS; i++) {
 		if((GPU_RA_NEEDS_ALLOCATION == gpu_ra_mgt.ra_status[i]) || (GPU_RA_IS_WAITLISTED == gpu_ra_mgt.ra_status[i])) {
 			nfs_need_ra_list[needs_ra] = i;
 			needs_ra+=1;
+			all_nfs_using_gpu[gpu_using_nfs] = i;
+			gpu_using_nfs++;
+
 		}
 		else if ((GPU_RA_NEEDS_READJUSTMENT == gpu_ra_mgt.ra_status[i])) {
 			nfs_readj_ra_list[readj_ra] = i;
 			readj_ra+=1;
+			all_nfs_using_gpu[gpu_using_nfs] = i;
+			gpu_using_nfs++;
 		}
 		else if ((GPU_RA_IS_SET  == gpu_ra_mgt.ra_status[i])){
 			nfs_set_ra_list[set_ra] = i;
 			set_ra+=1;
+			all_nfs_using_gpu[gpu_using_nfs] = i;
+			gpu_using_nfs++;
 		}
 	}
+	
 	printf("--------- Number of NFs that need allocation %"PRIu8" AND that needs readjustment %"PRIu8"\n",needs_ra, readj_ra);
+
 	//TODO: Must have logic to track, find optimal Rate-cost proportional share for each NF and then trigger restart NFs for all that have changed GPU RA Profile.
 	//the function to do simple max-min utilization.
 	/**
@@ -643,6 +652,42 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	 * Be careful, this is still phase 1, committing to phase 2 comes with additional checking.
 	 */
 
+	uint8_t final_percentages[MAX_NFS];
+	
+	uint8_t gpu_percentage_in_play = MAX_GPU_OVERPRIVISION_VALUE;
+	
+	uint8_t per_nf_ra = gpu_percentage_in_play/gpu_using_nfs;
+	for(i = 0; i<set_ra;i++){
+		if(nfs[nfs_set_ra_list[i]].info->gpu_percentage < per_nf_ra ){
+			//keep these NFs as it is.
+			gpu_percentage_in_play -= nfs[nfs_set_ra_lis[i]].info->gpu_percentage;
+			gpu_using_nfs--;
+			final_percentages[nfs_set_ra_list[i]] = nfs[nfs_set_ra_list[i]].info->gpu_percentage;
+		}
+	}
+	//recompute the percentages for other NFs
+	 per_nf_ra = gpu_percentage_in_play/gpu_using_nfs;
+	for(i=0; i<MAX_NFS; i++) {
+		if((GPU_RA_NEEDS_ALLOCATION == gpu_ra_mgt.ra_status[i]) || (GPU_RA_IS_WAITLISTED == gpu_ra_mgt.ra_status[i])) {
+			if(final_percentages[nfs_need_ra_list[needs_ra]]){
+			final_percentages[nfs_need_ra_list[needs_ra]] = per_nf_ra;
+			}
+		}
+	else if ((GPU_RA_NEEDS_READJUSTMENT == gpu_ra_mgt.ra_status[i])) {
+		if(final_percentages[nfs_readj_ra_list[readj_ra]){
+			final_percentages[nfs_readj_ra_list[readj_ra]] = per_nf_ra;
+			}
+	}
+	else if ((GPU_RA_IS_SET  == gpu_ra_mgt.ra_status[i])){
+			if(final_percentages[nfs_set_ra_list[set_ra]){
+			final_percentages[nfs_set_ra_list[set_ra]] = per_nf_ra;
+			}
+	}
+	}
+
+	for( i = 0; i<MAX_NFS;i++){
+		printf("New percentages for NF %d is %d",i,final_percentages[i]);
+	}
 
 	for(i=0; i<needs_ra; i++) {
 		printf("Needs GPU Allocation: %d, %d, %d\n", i, nfs_need_ra_list[i], nfs_need_ra_list[i]);
