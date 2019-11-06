@@ -541,6 +541,8 @@ void onvm_nf_recv_and_process_msgs(void) {
 			struct onvm_nf_info *standby_nf_info = (&nfs[standby_nf_id])->info;
 			nf->ring_flag = 0;
 			standby_nf_info->ring_flag = 1;
+			//now we need to change the GPU RA status of its shadow NF.
+
 			break;
 #endif//onvm_gpu
 			default:

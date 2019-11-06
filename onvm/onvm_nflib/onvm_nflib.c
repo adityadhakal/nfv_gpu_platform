@@ -1225,8 +1225,8 @@ case MSG_NF_TRIGGER_ECB:
 	break;
 	case MSG_GET_GPU_READY:
 	//initialize the GPU for this NF
-		initialize_gpu(nf_info);
 		printf("Initializing the GPU for this NF\n");
+		initialize_gpu(nf_info);
 		//Now let the manager know the GPU has been up and it is time to switch the ring flag
 		struct onvm_nf_msg *reply_msg;
 		int ret = rte_mempool_get(nf_msg_pool,(void **)(&reply_msg));

@@ -607,7 +607,7 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	//check the current GPU statistcs //TODO: Check how to make
 	compute_current_gpu_ra_stats(&act_nfs, &gpu_ra_available);
 
-	printf("GPU RA Still available %d Number of NFs currently using GPU %"PRIu8"\n",gpu_ra_available, acts_nfs);
+	printf("GPU RA Still available %d Number of NFs currently using GPU %"PRIu8"\n",gpu_ra_available, act_nfs);
 
 	if((0==act_nfs)|| (gpu_ra_available == MAX_GPU_OVERPRIVISION_VALUE)){
 		printf("Either no NFs using GPU or all GPU resource available\n");
@@ -617,14 +617,15 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	int i = 0;
 	uint8_t needs_ra=0, readj_ra=0, set_ra=0, gpu_using_nfs=0;
 	uint8_t nfs_need_ra_list[MAX_NFS], nfs_readj_ra_list[MAX_NFS], nfs_set_ra_list[MAX_NFS];
-	uint16_t final_percentages[MAX_NFS];
+	//uint16_t final_percentages[MAX_NFS];
 
 	//intialize the values of the variables to zero 
 	for(i = 0; i<MAX_NFS; i++){
 		nfs_need_ra_list[i] = 0;
 		nfs_readj_ra_list[i] = 0;
 		nfs_set_ra_list[i] = 0;
-		final_percentages[i] = 0;
+		//final_percentages[i] = 0;
+		gpu_ra_mgt.nf_gpu_ra_list[i] = 0;
 	}
 
 
@@ -678,7 +679,8 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 			//keep these NFs as it is.
 			gpu_percentage_in_play = gpu_percentage_in_play - nfs[nfs_set_ra_list[i]].info->gpu_percentage;
 			gpu_using_nfs--;
-			final_percentages[(nfs_set_ra_list[i])] = (uint16_t)(nfs[(nfs_set_ra_list[i])].info->gpu_percentage);
+			//final_percentages[(nfs_set_ra_list[i])] = (uint16_t)(nfs[(nfs_set_ra_list[i])].info->gpu_percentage);
+			//gpu_ra_mgt.nf_gpu_ra_list[(nfs_set_ra_list[i])] = (uint16_t)(nfs[(nfs_set_ra_list[i])].info->gpu_percentage);
 		}
 	}
 	//recompute the percentages for other NFs
@@ -690,21 +692,24 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	for(i=0; i<MAX_NFS; i++) {
 		if((GPU_RA_NEEDS_ALLOCATION == gpu_ra_mgt.ra_status[i]) || (GPU_RA_IS_WAITLISTED == gpu_ra_mgt.ra_status[i])) {
 			//if(!final_percentages[nfs_need_ra_list[needs_ra]]){
-			final_percentages[i] = per_nf_ra;
+			//final_percentages[i] = per_nf_ra;
+			gpu_ra_mgt.nf_gpu_ra_list[i] = per_nf_ra;
 			//}
 		}
 	else if ((GPU_RA_NEEDS_READJUSTMENT == gpu_ra_mgt.ra_status[i])) {
 		//if(!final_percentages[nfs_readj_ra_list[readj_ra]]){
-			final_percentages[i] = per_nf_ra;
+		//	final_percentages[i] = per_nf_ra;
 		//	}
+		gpu_ra_mgt.nf_gpu_ra_list[i] = per_nf_ra;
 	}
-	else if ((GPU_RA_IS_SET  == gpu_ra_mgt.ra_status[i]) && (final_percentages[nfs_set_ra_list[set_ra]] == 0)){
-			final_percentages[i] = per_nf_ra;
+	else if ((GPU_RA_IS_SET  == gpu_ra_mgt.ra_status[i]) && (gpu_ra_mgt.nf_gpu_ra_list[i] == 0)){
+			//final_percentages[i] = per_nf_ra;
+		gpu_ra_mgt.nf_gpu_ra_list[i] = per_nf_ra;
 	}
 	}
 
 	for( i = 0; i<MAX_NFS;i++){
-		printf("NF %d is %d \%, ",i,final_percentages[i]);
+		printf("NF %d is %d ",i,gpu_ra_mgt.nf_gpu_ra_list[i]);
 	}
 	printf("\n");
 
@@ -715,9 +720,28 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 		printf("Needs GPU Allocation: %d, %d, %d\n", i, nfs_readj_ra_list[i], nfs_readj_ra_list[i]);
 	}
 
+
+	//get the shadow NF of NFs that we decide to change "ready", i.e. send the messages.
+	for(i=0; i<MAX_NFS; i++){
+		if(gpu_ra_mgt.nf_gpu_ra_list[i]){
+			//change the alternate's GPU percentage, and then send the messages... also put the NFs that are being messaged into "READJUSTING" state
+			if(gpu_ra_mgt.ra_status[i]==GPU_RA_NEEDS_ALLOCATION)
+			{
+				nfs[i].info->gpu_percentage = gpu_ra_mgt.nf_gpu_ra_list[i];
+			}
+			else{
+			nfs[i+8].info->gpu_percentage = gpu_ra_mgt.nf_gpu_ra_list[i];
+			get_shadow_NF_ready(nfs[i].info);
+			}
+		}
+	}
+
 	return 0;
 }
 
+int update_gpu_ra_status(struct onvm_nf_info *nf){
+
+}
 
 /****************************************************************************************
  * 						NF Orchestrator specific functions
