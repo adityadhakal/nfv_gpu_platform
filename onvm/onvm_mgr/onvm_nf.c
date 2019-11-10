@@ -535,14 +535,14 @@ void onvm_nf_recv_and_process_msgs(void) {
 			break;
 #ifdef ONVM_GPU
 			case MSG_NF_GPU_READY:
-			//NF's GPU is ready. We can take the ring access off the current ring processing NF and give it to this.
+			//NF's GPU is ready. We can take the ring access off the current ring processing NF and give it to the NF that just sent the message
 			nf = (struct onvm_nf_info *)msg->msg_data;
-			uint16_t standby_nf_id = get_associated_active_or_standby_nf_id(nf->instance_id);
-			struct onvm_nf_info *standby_nf_info = (&nfs[standby_nf_id])->info;
-			nf->ring_flag = 0;
-			standby_nf_info->ring_flag = 1;
-			//now we need to change the GPU RA status of its shadow NF.
-
+			uint16_t alternate_nf_id = get_associated_active_or_standby_nf_id(nf->instance_id);
+			struct onvm_nf_info *alternate_nf_info = (&nfs[alternate_nf_id])->info;
+			alternate_nf_info->ring_flag = 0;
+			nf->ring_flag = 1;
+			//now we need to change the GPU RA status of newly up Shadow NF
+			update_gpu_ra_status(nf);
 			break;
 #endif//onvm_gpu
 			default:
@@ -722,40 +722,16 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 	//if the alternate of this NF is running... we should just let it run...
 	uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_info->instance_id);//here we just need instance ID Of other NF
 
-	//provide both NFs with same cuda IPC handles for GPU buffers
-	if(is_primary_active_nf_id(nf_info->instance_id)) {
-		nf_info->gpu_input_buffer = provide_nf_with_input_gpu_buffer(nf_info->instance_id);
-		nf_info->gpu_output_buffer = provide_nf_with_output_gpu_buffer(nf_info->instance_id);
-	}
-	else
-	{
-		nf_info->gpu_input_buffer = provide_nf_with_input_gpu_buffer(stdby_nfid);
-		nf_info->gpu_output_buffer = provide_nf_with_output_gpu_buffer(stdby_nfid);
-	}
 
 	//if we have alternate running then do not do anything.. put the original in pause
 	if(likely(onvm_nf_is_valid(&nfs[stdby_nfid]))) {
 		printf("###____-----#### OtherNF instance %d is up so we pause__+++++ Service count: %d\n", stdby_nfid,service_count);
 		//here we should just pause the new NF if the alternate is running
 		nf_info->status = NF_PAUSED;
-
-		nf_info->model_info = (ml_model_info*) provide_nf_with_model(nf_info->gpu_model);//however, provide the GPU model
-		//onvm_nf_send_msg(stdby_nfid, MSG_RESUME, MSG_MODE_ASYNCHRONOUS,NULL);
-
-		nf_info->ring_flag = 0;//set the ring flag to 0 so the secondary NF doesn't touch the ring
-		nf_info->gpu_percentage = 0;//give 0 as gpu percentage
 	}
 	else {
 		printf("###____-----#### Primary NF is up service count %d \n",service_count);
-		nf_info->model_info = (ml_model_info*)provide_nf_with_model(nf_info->gpu_model);
-
-		nf_info->ring_flag = 1; //let this NF have the access to ring
-
 		nf_info->status = NF_RUNNING;
-
-		// provide a GPU percentage.. let's start with 80%
-		onvm_gpu_get_gpu_percentage_for_nf(nf_info);//nf_info->gpu_percentage = 100;
-
 	}
 	// Register this NF running within its service
 	services[nf_info->service_id][service_count] = nf_info->instance_id;
@@ -881,12 +857,40 @@ int onvm_nf_start(struct onvm_nf_info *nf_info) {
 	nf_info->status = NF_STARTING;
 
 #ifdef ONVM_GPU
-	//aditya's message
+	// Check everything that NFs requires... for initializing GPU
+	//it requires GPU buffer, if it is primary it requires the GPU model and
+	// GPU percentage..
+	//if the alternate of this NF is running... we should just let it run...
+	uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_info->instance_id);//here we just need instance ID Of other NF
+	nf_info->model_info = (ml_model_info*) provide_nf_with_model(nf_info->gpu_model);//however, provide the GPU model
+	//provide both NFs with same cuda IPC handles for GPU buffers
+	if(is_primary_active_nf_id(nf_info->instance_id)) {
+		nf_info->gpu_input_buffer = provide_nf_with_input_gpu_buffer(nf_info->instance_id);
+		nf_info->gpu_output_buffer = provide_nf_with_output_gpu_buffer(nf_info->instance_id);
+	}
+	else
+	{
+		nf_info->gpu_input_buffer = provide_nf_with_input_gpu_buffer(stdby_nfid);
+		nf_info->gpu_output_buffer = provide_nf_with_output_gpu_buffer(stdby_nfid);
+	}
+
+	//if we have alternate running then do not do anything.. put the original in pause
+	if(likely(onvm_nf_is_valid(&nfs[stdby_nfid]))) {
+
+		nf_info->ring_flag = 0;//set the ring flag to 0 so the secondary NF doesn't touch the ring
+		nf_info->gpu_percentage = 0;//give 0 as gpu percentage
+	}
+	else
+	{
+		nf_info->ring_flag = 1; //let this NF have the access to ring
+		// provide a GPU percentage.. let's start with 80%
+		onvm_gpu_get_gpu_percentage_for_nf(nf_info);//nf_info->gpu_percentage = 100;
+	}
 	//let's send the message to orchestrator
 
 	printf("*****##### Sending the NF info to Orchestrator ****#####\n");
 	send_message_to_orchestrator(create_zmsg(&(nf_info->pid),1, zstart));
-#endif
+#endif //onvm_gpu
 
 	return 0;
 }

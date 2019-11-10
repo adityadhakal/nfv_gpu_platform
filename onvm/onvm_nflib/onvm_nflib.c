@@ -460,9 +460,9 @@ onvm_nflib_wait_till_notification(struct onvm_nf_info *nf_info) {
 #endif //ENABLE_NFV_RESL
 
 static inline void onvm_nflib_check_and_wait_if_interrupted(
-		__attribute__((unused))                                                                                                            struct onvm_nf_info *nf_info);
+		__attribute__((unused))                                                                                                             struct onvm_nf_info *nf_info);
 static inline void onvm_nflib_check_and_wait_if_interrupted(
-		__attribute__((unused))                                                                                                            struct onvm_nf_info *nf_info) {
+		__attribute__((unused))                                                                                                             struct onvm_nf_info *nf_info) {
 #if defined (INTERRUPT_SEM) && ((defined(NF_BACKPRESSURE_APPROACH_2) || defined(USE_ARBITER_NF_EXEC_PERIOD)) || defined(ENABLE_NFV_RESL))
 	if(unlikely(NF_PAUSED == (nf_info->status & NF_PAUSED))) {
 		//printf("\n Explicit Pause request from ONVM_MGR\n ");
@@ -617,12 +617,12 @@ static
 inline int onvm_nflib_post_process_packets_batch(struct onvm_nf_info *nf_info,
 		void **pktsTX, unsigned tx_batch_size,
 		__attribute__((unused)) unsigned non_det_evt,
-		__attribute__((unused))                                                                                                            uint64_t ts_info);
+		__attribute__((unused))                                                                                                             uint64_t ts_info);
 static
 inline int onvm_nflib_post_process_packets_batch(struct onvm_nf_info *nf_info,
 		void **pktsTX, unsigned tx_batch_size,
 		__attribute__((unused)) unsigned non_det_evt,
-		__attribute__((unused))                                                                                                            uint64_t ts_info) {
+		__attribute__((unused))                                                                                                             uint64_t ts_info) {
 	int ret = 0;
 	/* Perform Post batch processing actions */
 	/** Atomic Operations:
@@ -959,15 +959,6 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 		rte_timer_manage();
 		//block the access to ring unless the NF have ring flag set
 		if(nf_info->ring_flag) {
-			/*
-			 if(!nf_info->gpu_model){
-			 //only to be used for testing overlap
-			 nf_info->gpu_model = 6;
-			 //our function to process the batch of packets
-			 current_packet_processing_batch = onvm_nflib_process_packets_batch_gpu;
-			 initialize_gpu(nf_info);
-			 }
-			 */
 #endif //onvm_gpu
 		nb_pkts = onvm_nflib_fetch_packets(pkts, NF_PKT_BATCH_SIZE);
 		if (likely(nb_pkts)) {
@@ -1036,7 +1027,7 @@ int onvm_nflib_return_pkt_bulk(struct onvm_nf_info *nf_info,
 	return 0;
 }
 
-void onvm_nflib_stop(__attribute__((unused))                                                                                                            struct onvm_nf_info* nf_info) {
+void onvm_nflib_stop(__attribute__((unused))                                                                                                             struct onvm_nf_info* nf_info) {
 	rte_exit(EXIT_SUCCESS, "Done.");
 }
 
@@ -1196,7 +1187,7 @@ void notify_for_ecb(void) {
 }
 
 int onvm_nflib_handle_msg(struct onvm_nf_msg *msg,
-		__attribute__((unused))                                                                                                            struct onvm_nf_info *nf_info) {
+		__attribute__((unused))                                                                                                             struct onvm_nf_info *nf_info) {
 	switch (msg->msg_type) {
 	printf("\n Received MESSAGE [%d]\n!!", msg->msg_type);
 case MSG_STOP:
@@ -1225,19 +1216,20 @@ case MSG_NF_TRIGGER_ECB:
 	break;
 	case MSG_GET_GPU_READY:
 	//initialize the GPU for this NF
-		printf("Initializing the GPU for this NF\n");
-		initialize_gpu(nf_info);
-		//Now let the manager know the GPU has been up and it is time to switch the ring flag
-		struct onvm_nf_msg *reply_msg;
-		int ret = rte_mempool_get(nf_msg_pool,(void **)(&reply_msg));
-		if(ret<0){
-			RTE_LOG(INFO,APP,"Problem with getting NF Msg Pool, check ONVM_NFLIB_HANDLE_MSG\n");
-		}
-		reply_msg->msg_type = MSG_NF_GPU_READY;
-		reply_msg->msg_data = nf_info;
-		rte_ring_enqueue(mgr_msg_ring, reply_msg);
-		break;
-		//if((*nf_gpu_func)(msg))
+	printf("Initializing the GPU for this NF\n");
+	initialize_gpu(nf_info);
+	//Now let the manager know the GPU has been up and it is time to switch the ring flag
+	struct onvm_nf_msg *reply_msg;
+	int ret = rte_mempool_get(nf_msg_pool,(void **)(&reply_msg));
+	if(ret<0) {
+		RTE_LOG(INFO,APP,"Problem with getting NF Msg Pool, check ONVM_NFLIB_HANDLE_MSG\n");
+	}
+	reply_msg->msg_type = MSG_NF_GPU_READY;
+	reply_msg->msg_data = nf_info;
+	printf("Sending the GPU initialization completion message to Manager \n");
+	rte_ring_enqueue(mgr_msg_ring, reply_msg);
+	break;
+	//if((*nf_gpu_func)(msg))
 	//printf("The NF didn't process GET_GPU_READY message well \n");
 	//break;
 	case MSG_RESTART:
@@ -1475,7 +1467,7 @@ static void onvm_nflib_handle_signal(int sig) {
 }
 
 static inline void onvm_nflib_cleanup(
-		__attribute__((unused))                                                                                                            struct onvm_nf_info *nf_info) {
+		__attribute__((unused))                                                                                                             struct onvm_nf_info *nf_info) {
 	struct onvm_nf_msg *shutdown_msg;
 	nf_info->status = NF_STOPPED;
 
@@ -1550,46 +1542,7 @@ static inline int onvm_nflib_notify_ready(struct onvm_nf_info *nf_info) {
 		nanosleep(&req, &res); //sleep(1); //better poll for some time and exit if failed within that time.?
 	}
 
-#ifdef ONVM_GPU
 
-	printf("GPU model is %d\n",nf_info->gpu_model);
-	if(!nf_info->gpu_model) {
-		//in this case there will be no GPU loaded
-		//we have to provide different data path
-		current_packet_processing_batch = onvm_nflib_process_packets_batch;
-
-	}
-	else
-	{
-		printf("NF using GPU\n");
-		//our function to process the batch of packets
-		current_packet_processing_batch = onvm_nflib_process_packets_batch_gpu;
-
-		int retval;
-		void * status = NULL;
-		/* create the argument list for loading the ml model */
-		ml_load_params.file_path = nf_info->model_info->model_file_path;
-		ml_load_params.load_options = 0; //For CPU side loading = 0, for gpu = 1
-
-		/* in both NF running and pause case, we might need to load the ML model from disk to CPU */
-		//ml_functions.load_model(nf_info->model_info.model_file_path, 0 /*load in CPU */, &(nf_info->ml_model_handle), &(nf_info->ml_model_handle), nf_info->model_info.model_handles.number_of_parameters);
-		retval = (*(ml_operations->load_model_fptr))(&ml_load_params,status);
-		nf_info->ml_model_handle = ml_load_params.model_handle;
-		if(retval != 0)
-		printf("Error while loading the model \n");
-
-		/* this NF should have been registered to manager and have all info
-		 * We can also then give its batch aggregation pointers and dev buffer pointer */
-		//nf_info->gpu_percentage = 70;
-		printf("GPU Percentage set by the manager now %d \n", nf_info->gpu_percentage);
-
-		if(nf_info->gpu_percentage > 0) {
-
-			//call a function to initialize GPU
-			initialize_gpu(nf_info);
-		}
-	}
-#endif //onvm_gpu
 #ifdef ENABLE_LOCAL_LATENCY_PROFILER
 	int64_t ttl_elapsed = onvm_util_get_elapsed_time(&ts);
 	printf("WAIT_TIME(START-->RUN): %li ns\n", ttl_elapsed);
@@ -1665,7 +1618,6 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	//have to check the retval and see if all the GPU steps went well
 	//if everything went alright, send a message to manager.
 	printf("GPU initialization is complete..\n");
-
 
 }
 
@@ -2546,7 +2498,7 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 	RTE_LOG(INFO, APP, "Using Instance ID %d\n", nf_info->instance_id);
 	RTE_LOG(INFO, APP, "Using Service ID %d\n", nf_info->service_id);
 
-	/* Firt update this client structure pointer */
+	/* First update this client structure pointer */
 	this_nf = &nfs[nf_info->instance_id];
 
 	/* Now, map rx and tx rings into client space */
@@ -2577,6 +2529,51 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 #ifdef ENABLE_REPLICA_STATE_UPDATE
 	pReplicaStateMempool = nfs[get_associated_active_or_standby_nf_id(nf_info->instance_id)].nf_state_mempool;
 #endif
+
+// Initialize GPU here if we have a primary NF... otherwise we have to leave GPU initialization to later date
+
+#ifdef ONVM_GPU
+
+	printf("GPU model is %d\n",nf_info->gpu_model);
+	if(!nf_info->gpu_model) {
+		//in this case there will be no GPU loaded
+		//we have to provide different data path
+		current_packet_processing_batch = onvm_nflib_process_packets_batch;
+
+	}
+	else
+	{
+		printf("NF using GPU\n");
+		//our function to process the batch of packets
+		current_packet_processing_batch = onvm_nflib_process_packets_batch_gpu;
+
+		int retval;
+		void * status = NULL;
+		/* create the argument list for loading the ml model */
+		ml_load_params.file_path = nf_info->model_info->model_file_path;
+		ml_load_params.load_options = 0; //For CPU side loading = 0, for gpu = 1
+
+		/* in both NF running and pause case, we might need to load the ML model from disk to CPU */
+		//ml_functions.load_model(nf_info->model_info.model_file_path, 0 /*load in CPU */, &(nf_info->ml_model_handle), &(nf_info->ml_model_handle), nf_info->model_info.model_handles.number_of_parameters);
+		retval = (*(ml_operations->load_model_fptr))(&ml_load_params,status);
+		nf_info->ml_model_handle = ml_load_params.model_handle;
+		if(retval != 0)
+		printf("Error while loading the model \n");
+
+		/* this NF should have been registered to manager and have all info
+		 * We can also then give its batch aggregation pointers and dev buffer pointer */
+		//nf_info->gpu_percentage = 70;
+		printf("GPU Percentage set by the manager now %d \n", nf_info->gpu_percentage);
+
+		if(nf_info->gpu_percentage > 0) {
+
+			//call a function to initialize GPU
+			initialize_gpu(nf_info);
+		}
+	}
+#endif //onvm_gpu
+
+
 }
 
 #ifdef INTERRUPT_SEM

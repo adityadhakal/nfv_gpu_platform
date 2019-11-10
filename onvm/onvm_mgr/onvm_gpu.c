@@ -371,10 +371,10 @@ inline int compute_current_gpu_ra_stats(uint8_t *num_act_nfs, uint16_t *gpu_ra_a
 	uint16_t gpu_ra_used=0;
 
 	for(;i<MAX_NFS;i++) {
-		if ((onvm_nf_is_valid(&nfs[i])) && (nfs[i].info->gpu_percentage)) {
-			act_nfs_count++;
-			gpu_ra_used+=nfs[i].info->gpu_percentage;
-		}
+			if (((onvm_nf_is_valid(&nfs[i])))&& (nfs[i].info->gpu_percentage)) {
+				act_nfs_count++;
+				gpu_ra_used+=nfs[i].info->gpu_percentage;
+			}
 	}
 	if(num_act_nfs) {
 		*num_act_nfs=act_nfs_count;
@@ -596,7 +596,15 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 int onvm_gpu_check_gpu_ra_mgt(void) {
 	uint8_t act_nfs;
 	uint16_t gpu_ra_available;
+	int i = 0;
 
+	//print out the current states for all NFs
+	for (i=0;i<MAX_NFS;i++){
+		if(nfs[i].info != NULL){
+		printf("NF %d GPU Status: %d, NF status: %d, GPU percentage: %d \n",i,gpu_ra_mgt.ra_status[i],nfs[i].info->status, nfs[i].info->gpu_percentage);
+		}
+	}
+	printf("\n");
 
 	//check if any NFs are waiting for RA
 	if((0 == gpu_ra_mgt.gpu_ra_info->gpu_ra_wtlst)||(0 == onvm_gpu_check_any_readjustment())){
@@ -609,15 +617,23 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 
 	printf("GPU RA Still available %d Number of NFs currently using GPU %"PRIu8"\n",gpu_ra_available, act_nfs);
 
+	//TODO: find an appropriate condition to stop re-allocating
+	/*
 	if((0==act_nfs)|| (gpu_ra_available == MAX_GPU_OVERPRIVISION_VALUE)){
 		printf("Either no NFs using GPU or all GPU resource available\n");
 		return 0;
 	}
+*/
+	//Check the Phase, if phase 1, i.e. no NFs are currently changing gpu %, proceed, if NFs are changing GPU % then return.
+	for (i=0; i<MAX_NFS;i++)
+	{
+		if(gpu_ra_mgt.nf_gpu_ra_list[i]>MAX_GPU_OVERPRIVISION_VALUE){
+			return 0;
+		}
+	}
 
-	int i = 0;
 	uint8_t needs_ra=0, readj_ra=0, set_ra=0, gpu_using_nfs=0;
 	uint8_t nfs_need_ra_list[MAX_NFS], nfs_readj_ra_list[MAX_NFS], nfs_set_ra_list[MAX_NFS];
-	//uint16_t final_percentages[MAX_NFS];
 
 	//intialize the values of the variables to zero 
 	for(i = 0; i<MAX_NFS; i++){
@@ -674,13 +690,13 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 
 	//now we find that all the set NFs that are quite happy with their GPU percentage and do not want it changed.
 	for(i = 0; i<set_ra;i++){
-		printf("Current set percentage of NF %d is %d \n",i,nfs[nfs_set_ra_list[i]].info->gpu_percentage);
+		printf("Current set percentage of NF %d is %d \n",nfs_set_ra_list[i],(nfs[nfs_set_ra_list[i]]).info->gpu_percentage);
 		if(nfs[nfs_set_ra_list[i]].info->gpu_percentage < per_nf_ra ){
 			//keep these NFs as it is.
 			gpu_percentage_in_play = gpu_percentage_in_play - nfs[nfs_set_ra_list[i]].info->gpu_percentage;
 			gpu_using_nfs--;
 			//final_percentages[(nfs_set_ra_list[i])] = (uint16_t)(nfs[(nfs_set_ra_list[i])].info->gpu_percentage);
-			//gpu_ra_mgt.nf_gpu_ra_list[(nfs_set_ra_list[i])] = (uint16_t)(nfs[(nfs_set_ra_list[i])].info->gpu_percentage);
+			gpu_ra_mgt.nf_gpu_ra_list[(nfs_set_ra_list[i])] = (uint16_t)(nfs[(nfs_set_ra_list[i])].info->gpu_percentage);
 		}
 	}
 	//recompute the percentages for other NFs
@@ -725,13 +741,24 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	for(i=0; i<MAX_NFS; i++){
 		if(gpu_ra_mgt.nf_gpu_ra_list[i]){
 			//change the alternate's GPU percentage, and then send the messages... also put the NFs that are being messaged into "READJUSTING" state
+			printf("GPU RA List %d\n", i);
 			if(gpu_ra_mgt.ra_status[i]==GPU_RA_NEEDS_ALLOCATION)
 			{
-				nfs[i].info->gpu_percentage = gpu_ra_mgt.nf_gpu_ra_list[i];
+				onvm_gpu_set_gpu_percentage(nfs[i].info,gpu_ra_mgt.nf_gpu_ra_list[i] );
+				gpu_ra_mgt.nf_gpu_ra_list[i] = MAX_GPU_OVERPRIVISION_VALUE+1;
+				nfs[i].info->status = NF_RUNNING; //start the NF running
 			}
-			else{
-			nfs[i+8].info->gpu_percentage = gpu_ra_mgt.nf_gpu_ra_list[i];
-			get_shadow_NF_ready(nfs[i].info);
+			//condition for waking up the shadow NF
+			else if(gpu_ra_mgt.ra_status[i] == GPU_RA_IS_SET && gpu_ra_mgt.ra_status[get_associated_active_or_standby_nf_id(i)]==GPU_RA_NOT_SET){
+				printf("888888 ---------------- Marker to send message to %d NF", get_associated_active_or_standby_nf_id(i));
+				//check if the percentage is same.
+				//gpu_ra_mgt.ra_status[i] = GPU_RA_IS_READJUSTING;
+				//nfs[get_associated_active_or_standby_nf_id(i)].info->gpu_percentage = gpu_ra_mgt.nf_gpu_ra_list[i];
+				uint8_t shadow_nf_id = get_associated_active_or_standby_nf_id(i);
+				nfs[shadow_nf_id].info->status = NF_RUNNING;
+				onvm_gpu_set_gpu_percentage(nfs[shadow_nf_id].info,gpu_ra_mgt.nf_gpu_ra_list[i]);
+				gpu_ra_mgt.nf_gpu_ra_list[i] = MAX_GPU_OVERPRIVISION_VALUE+1;
+				get_shadow_NF_ready(nfs[i].info);
 			}
 		}
 	}
@@ -740,7 +767,30 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 }
 
 int update_gpu_ra_status(struct onvm_nf_info *nf){
+	uint8_t nf_id = nf->instance_id;
+	uint8_t alt_nf_id = get_associated_active_or_standby_nf_id(nf_id);
 
+	if(gpu_ra_mgt.ra_status[alt_nf_id] == GPU_RA_IS_SET){
+		//set the new NF GPU RA to set
+		gpu_ra_mgt.ra_status[nf_id] = GPU_RA_IS_SET;
+
+		//set the previous primary NF to relinquish
+		gpu_ra_mgt.ra_status[alt_nf_id] = GPU_RA_NEED_TO_RELINQUISH;
+		gpu_ra_mgt.nf_gpu_ra_list[alt_nf_id] = 0; //clearing the lock on Phase 2
+	}
+
+	//start procedure to restart the other NF
+
+	//we need to check if the phase two is over. Phase 2 is the time when some NFs are still getting new percentages.
+	uint8_t i = 0, num_readjusting_nfs = 0;
+	for(i = 0; i<MAX_NFS; i++){
+		//check every NF to make sure non of them are in readjusting state
+		if(gpu_ra_mgt.ra_status[i]==GPU_RA_IS_READJUSTING){
+			num_readjusting_nfs++;
+		}
+	}
+	gpu_ra_mgt.current_phase = num_readjusting_nfs;
+	return 0;
 }
 
 /****************************************************************************************
@@ -754,16 +804,16 @@ void inform_NF_of_pending_restart(struct onvm_nf_info *nf) {
 /* the function to send message to shadow NF */
 void get_shadow_NF_ready(struct onvm_nf_info *shadow) {
 	//no need to send the GPU percentage with the message as the GPU percentage will be written by the manager.
-	struct onvm_nf_info * alternate_nf = shadow_nf(shadow->instance_id);
+	uint8_t shadow_nf_id = get_associated_active_or_standby_nf_id(shadow->instance_id);
 
-	if(onvm_nf_is_valid(&nfs[alternate_nf->instance_id])) {
+	if(&nfs[shadow_nf_id].info->gpu_percentage) {
 		//get the NF to running and send the message to the NF to get GPU Ready... Till now the NF's ring access flag should be 0.
-		alternate_nf->status = NF_RUNNING;
-		onvm_nf_send_msg((shadow_nf(shadow->instance_id))->instance_id, MSG_GET_GPU_READY, 0, NULL);
+		nfs[shadow_nf_id].info->status = NF_RUNNING;
+		onvm_nf_send_msg(shadow_nf_id, MSG_GET_GPU_READY, 0, NULL);
 	}
 	else
 	{
-		printf("Alternate NF not running so No \"ready\" message passed \n");
+		printf("Alternate NF does not have GPU percentage set so \"ready\" message not passed \n");
 	}
 
 }

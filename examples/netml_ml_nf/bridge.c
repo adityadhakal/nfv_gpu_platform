@@ -254,6 +254,14 @@ ml_framework_operations_t ml_functions;
 int main(int argc, char *argv[]) {
 	int arg_offset;
 
+	//create a struct of functions from the library to register with NFlib.
+	ml_fw_load_model load_mdl = tensorrt_load_model;
+	ml_functions.load_model_fptr = load_mdl;
+	ml_functions.link_model_fptr = tensorrt_link_model;
+	ml_functions.infer_batch_fptr = tensorrt_infer_batch;
+	nflib_register_ml_fw_operations(&ml_functions);
+
+
 	const char *progname = argv[0];
 
 	if ((arg_offset = onvm_nflib_init(argc, argv, NF_TAG, &nf_info)) < 0)
@@ -265,30 +273,26 @@ int main(int argc, char *argv[]) {
 		onvm_nflib_stop(nf_info);
 		rte_exit(EXIT_FAILURE, "Invalid command-line arguments\n");
 	}
-	if(gpu_percent != NULL){
+	//if(gpu_percent != NULL){
 	  //nf_info->gpu_percentage = atoi(gpu_percent);
-		nf_info->gpu_percentage = 0;
-	}
+
+		//nf_info->gpu_percentage = 0;
+	//}
 	nf_info->enable_adaptive_batching = adaptive_batching_flag;
 
 	nf_info->inference_slo_ms = inference_slo_ms;
 	//just for netml experiments
 
-	printf("gpu percent %s\n",gpu_percent);
+	printf("gpu percent from command line %s\n",gpu_percent);
 
-	setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);
+	//setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);
 
 	int num_sms = 0;
 	//cudaDeviceGetAttribute(&num_sms, cudaDevAttrMultiProcessorCount, 0);
 	printf("Number of sms %d\n", num_sms);
 
 	
-	//create a struct of functions from the library to register with NFlib.
-	ml_fw_load_model load_mdl = tensorrt_load_model;
-	ml_functions.load_model_fptr = load_mdl;
-	ml_functions.link_model_fptr = tensorrt_link_model;
-	ml_functions.infer_batch_fptr = tensorrt_infer_batch;
-	nflib_register_ml_fw_operations(&ml_functions);
+
 
 	//put in the batch size
 	//nf_info->user_batch_size = atoi(batchsize);
