@@ -31,7 +31,6 @@ typedef enum nf_gpu_ra_status {
 	GPU_RA_NEEDS_READJUSTMENT=3,//When NF is marked for readjussment due to other NFs entry -- these NFs need to switch on peer/back.
 	GPU_RA_NEED_TO_RELINQUISH=4,//When NF is marked to restart. (active-replica switch, active goes down while replica needs RA)
 	GPU_RA_IS_WAITLISTED=5,//When NF requests and fails to get GPU allocation, (not sure, if we need this or use GPU_RA_NEEDS_ALLOCATION)
-	GPU_RA_IS_READJUSTING=6,//A state where shadow NF is being started with new percentage.
 }nf_gpu_ra_status_e;
 typedef struct gpu_ra_mgt_t {
 	onvm_gpu_ra_info_t *gpu_ra_info;
@@ -57,8 +56,8 @@ void load_old_data(model_profiler_data *runtime_data);
 struct gpu_file_listing * ml_files[ONVM_MAX_GPU_ML_MODELS];
 
 //cuda malloc pointers
-void * gpu_side_input_buffer[MAX_NFS/2];
-void * gpu_side_output_buffer[MAX_NFS/2];
+void * gpu_side_input_buffer[MAX_NFS];
+void * gpu_side_output_buffer[MAX_NFS];
 
 #define NUM_OF_RUNTIME_DATAPOINTS 10
 
@@ -85,9 +84,14 @@ int onvm_gpu_release_gpu_percentage_for_nf(struct onvm_nf_info *nf);
 int onvm_gpu_check_gpu_ra_mgt(void);
 
 /* When an NF is restarted with new GPU percentage, we need to push the old NF to "relinquish mode" and put new NFs to "Set Mode"
+ * also update the ring flag together with it.
  *
  */
-int update_gpu_ra_status(struct onvm_nf_info *nf);
+int update_gpu_ra_status_ring_flag(struct onvm_nf_info *nf);
+
+//function to check if a NF should be paused before going into NF_RUNNING state
+int gpu_state_and_percentage_check(struct onvm_nf_info *nf);
+
 
 /* find the throughput for certain model at certain percentage */
 //float find_max_throughput(int gpu_model, int gpu_percentage);
@@ -108,7 +112,6 @@ void get_shadow_NF_ready(struct onvm_nf_info *nf);
 
 /* we know the shadow NF is ready for GPU execution, can restart the original NF if it is restart ready */
 void nf_is_gpu_ready(struct onvm_nf_info *nf);
-
 
 
 //these two functions should check the nf_info struct so they only send the restart once.

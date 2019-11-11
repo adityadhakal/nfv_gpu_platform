@@ -537,12 +537,8 @@ void onvm_nf_recv_and_process_msgs(void) {
 			case MSG_NF_GPU_READY:
 			//NF's GPU is ready. We can take the ring access off the current ring processing NF and give it to the NF that just sent the message
 			nf = (struct onvm_nf_info *)msg->msg_data;
-			uint16_t alternate_nf_id = get_associated_active_or_standby_nf_id(nf->instance_id);
-			struct onvm_nf_info *alternate_nf_info = (&nfs[alternate_nf_id])->info;
-			alternate_nf_info->ring_flag = 0;
-			nf->ring_flag = 1;
-			//now we need to change the GPU RA status of newly up Shadow NF
-			update_gpu_ra_status(nf);
+			//now we need to change the GPU RA status of newly up Shadow NF also allow it to access the NF Ring
+			update_gpu_ra_status_ring_flag(nf);
 			break;
 #endif//onvm_gpu
 			default:
@@ -731,7 +727,9 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 	}
 	else {
 		printf("###____-----#### Primary NF is up service count %d \n",service_count);
-		nf_info->status = NF_RUNNING;
+
+			nf_info->status = NF_RUNNING;
+
 	}
 	// Register this NF running within its service
 	services[nf_info->service_id][service_count] = nf_info->instance_id;
@@ -885,6 +883,11 @@ int onvm_nf_start(struct onvm_nf_info *nf_info) {
 		nf_info->ring_flag = 1; //let this NF have the access to ring
 		// provide a GPU percentage.. let's start with 80%
 		onvm_gpu_get_gpu_percentage_for_nf(nf_info);//nf_info->gpu_percentage = 100;
+		if(nf_info->gpu_model && nf_info->gpu_percentage==0)
+		{
+			//this NF did not get GPU percentage, so we will just put it in suspended state..
+			gpu_state_and_percentage_check(nf_info);
+		}
 	}
 	//let's send the message to orchestrator
 
@@ -986,7 +989,7 @@ int onvm_nf_stop(struct onvm_nf_info *nf_info) {
 				//overlap scenario.. just provide ring access to secondary NF
 				//get the alternate ID
 				//static uint16_t alt_nf_id = get_associated_active_or_standby_nf_id(nf_id);
-	                        uint16_t alt_nf_id = get_associated_active_or_standby_nf_id(nf_id);
+				uint16_t alt_nf_id = get_associated_active_or_standby_nf_id(nf_id);
 				if(onvm_nf_is_valid(&nfs[alt_nf_id])){
 					//if the other NF is alive
 				  printf("+======__Another nf is valid \n");

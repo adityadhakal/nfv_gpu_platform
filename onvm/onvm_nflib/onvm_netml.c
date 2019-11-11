@@ -201,11 +201,12 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		void * start_output_buffer = out_buffers[0];
 		
 		//printf("Actual_images in batch %d\n",actual_images_in_batch);
-
+		printf("Image index: ");
 		for(i = 0; i< actual_images_in_batch; i++) { //for(i = 0; i<num_of_images; i++) {
 			//find which image is ready
 			int image_index = ffs(actual_images_in_batch_bitmask);// ffs(new_images);
 			image_index -= 1;
+			printf("%d ",image_index);
 			//printf("images ready %d index %d \n",num_of_images, image_index);
 			if(batch_agg_info->images[image_index].usage_status == 2) {
 
@@ -225,6 +226,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 					//change the status
 					batch_agg_info->images[image_index].usage_status = 3;
 
+					if(nf_info->gpu_percentage){
 
 #ifdef ENABLE_GPU_NETML
 					//NetML transfer
@@ -237,7 +239,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 					CLEAR_BIT(actual_images_in_batch_bitmask, (image_index+1));	//CLEAR_BIT(new_images, (image_index+1));
 					CLEAR_BIT(batch_agg_info->ready_mask, (image_index+1));
 					CLEAR_BIT(last_processed_index, (image_index+1));
-
+					} //checking GPU percentage
 					//printf("After posting image ready mask %"PRIu32",final_batch size %d \n", batch_agg_info->ready_mask, final_batch_size);
 				}
 				else
@@ -257,6 +259,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 				}
 			}
 		}
+		printf("\n");
 
 		//time to execute the im`age
 		//prepare execution arguments;

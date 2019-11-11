@@ -931,6 +931,25 @@ static inline int onvm_nflib_process_packets_batch_gpu(struct onvm_nf_info *nf_i
 
 int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 		pkt_handler_func handler, callback_handler_func callback) {
+
+	//if we have no GPU % by now, we should yeild the NF at this point.
+	//manager will wake up the NF eventually and proceed from here
+	if(!nf_info->gpu_percentage){
+		printf("Stopping to receive GPU percentage\n");
+		onvm_nflib_wait_till_notification(nf_info);
+	}
+	/* this NF should have been registered to manager and have all info
+	 * We can also then give its batch aggregation pointers and dev buffer pointer */
+	//nf_info->gpu_percentage = 70;
+	printf("GPU Percentage set by the manager now %d \n", nf_info->gpu_percentage);
+
+	if(nf_info->gpu_percentage > 0) {
+
+		//call a function to initialize GPU
+		initialize_gpu(nf_info);
+	}
+
+
 	void *pkts[NF_PKT_BATCH_SIZE]; //better to use (NF_PKT_BATCH_SIZE*2)
 	uint16_t nb_pkts;
 
@@ -977,6 +996,7 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 #endif  //ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
 
 		/* Finally Check for any Messages/Notifications */
+		//printf("Are we dequeuing messages?\n");
 		onvm_nflib_dequeue_messages(nf_info);
 		//printf("------ ***** ------- ##### We got after nflib_dequeue if interrupted ----- ***** ------\n");
 
@@ -1310,14 +1330,15 @@ onvm_nflib_info_init(const char *tag) {
 
 #ifdef ONVM_GPU
 
-	int original_instance_id = initial_instance_id;
-	if(is_secondary_active_nf_id(info->instance_id)) {
+	//int original_instance_id = initial_instance_id;
+	/*
+	if(get_associated_active_or_standby_nf_id(info->instance_id)) {
 		original_instance_id = get_associated_active_or_standby_nf_id(info->instance_id);
-		printf("DEBUG... this is a secondary NF ---+++_---+++___ We get associated NF id %d \n",original_instance_id);
+		printf("There is a counterpart NF running ---+++_---+++___ We get counterpart NF id %d \n",original_instance_id);
 	}
 	//info->image_info = &(all_images_information[original_instance_id]);
 	printf("original instance id %d \n", original_instance_id);
-
+*/
 	//initialize the histograms
 	hist_init_v2(&(info->cpu_latency));
 	hist_init_v2(&(info->gpu_latency));
@@ -1328,7 +1349,7 @@ onvm_nflib_info_init(const char *tag) {
 
 	//also initialize the gpu models and the model number before sending it to the manager
 	info->gpu_model = ml_model_number;
-	info->ring_flag = 0;//by default there will be a ring guard.
+	info->ring_flag = 0;//by default there will be a ring guard. Only manager will be able to remove it
 
 	//put the batch aggregation buffer in the NF
 	struct rte_mempool * image_batch_aggregation_info;
@@ -1341,7 +1362,7 @@ onvm_nflib_info_init(const char *tag) {
 	}
 	else
 	{
-		//just give the same
+		//just give the same mempools even if we are alternate NF
 		uint16_t alternate_nf = get_associated_active_or_standby_nf_id(nf_id);
 		image_batch_aggregation_info = rte_mempool_lookup(get_image_batch_agg_name(alternate_nf));
 		image_batch_dev_buffer = rte_mempool_lookup(get_image_dev_buffer_name(alternate_nf));
@@ -1350,21 +1371,7 @@ onvm_nflib_info_init(const char *tag) {
 	int retval;
 	retval = rte_mempool_get(image_batch_aggregation_info,(void **)&(info->image_info));
 
-	/*
-	 int i;
-	 for(i = 0; i<MAX_IMAGES_BATCH_SIZE;i++){
-	 printf("bytes count %ld i %d \n",info->image_info->images[i].bytes_count ,i);
-	 info->image_info->images[i].packets_count = 0;
-	 info->image_info->images[i].usage_status = 0;
-	 }
-	 */
-	//memset(info->image_info,0,sizeof(image_batched_aggregation_info_t));
-	/*
-	 cudaError_t cudaerr;
-	 cudaerr = cudaHostRegister(info->image_info,sizeof(image_batched_aggregation_info_t), cudaHostRegisterMapped);
-	 if(cudaerr != cudaSuccess)
-	 printf("Could not register image batch agg info %d\n", cudaerr);
-	 */
+
 	printf("mempool get retval %d \n", retval);
 	//if(rte_mempool_get(image_batch_aggregation_info,(void **)(&info->image_info)) !=0){
 	//		rte_exit(EXIT_FAILURE, "Failed to get batch aggregation info");
@@ -1377,14 +1384,14 @@ onvm_nflib_info_init(const char *tag) {
 		rte_exit(EXIT_FAILURE, "Failed to get CPU side buffer");
 	}
 
-	//now put it back
+	//now put the mempool back
 	rte_mempool_put(image_batch_dev_buffer, info->cpu_side_buffer);
 
 	info->cpu_result_buffer = rte_malloc(NULL, SIZE_OF_AN_IMAGE_BYTES*MAX_IMAGES_BATCH_SIZE,0);
 	//for the NF requesting CPU side buffer to copy packets into
 	resolve_cpu_side_buffer(info->cpu_side_buffer, info->cpu_result_buffer);
 
-#endif
+#endif //ONVM_GPU
 	return info;
 }
 
@@ -2558,18 +2565,10 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 		retval = (*(ml_operations->load_model_fptr))(&ml_load_params,status);
 		nf_info->ml_model_handle = ml_load_params.model_handle;
 		if(retval != 0)
-		printf("Error while loading the model \n");
+			printf("Error while loading the model \n");
 
-		/* this NF should have been registered to manager and have all info
-		 * We can also then give its batch aggregation pointers and dev buffer pointer */
-		//nf_info->gpu_percentage = 70;
-		printf("GPU Percentage set by the manager now %d \n", nf_info->gpu_percentage);
 
-		if(nf_info->gpu_percentage > 0) {
 
-			//call a function to initialize GPU
-			initialize_gpu(nf_info);
-		}
 	}
 #endif //onvm_gpu
 
