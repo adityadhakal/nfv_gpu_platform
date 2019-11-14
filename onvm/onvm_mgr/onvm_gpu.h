@@ -9,7 +9,7 @@
 #include "onvm_cntk_api.h"
 
 //GPU Resource allocation flags and data structure 
-#define GPU_MAX_RA_PER_NF	(95)			// indictes max % that can be allocated to an NF
+#define GPU_MAX_RA_PER_NF	(100)			// indictes max % that can be allocated to an NF
 #define MAX_GPU_OVERPRIVISION_VALUE	(100)	// indicates max % at which GPU can be over provisioned or oversubscribed.
 #define DEFAULT_GPU_RA_VALUE	(30)		// indicates the default value to use \% for models that do not have profiled data. When set, also set nf->gpu_monitor_lat to TRUE.
 typedef struct onvm_gpu_range_t {
@@ -39,6 +39,8 @@ typedef struct gpu_ra_mgt_t {
 	uint8_t current_phase; //0- Phase where the NFs's GPU percentage new percentages can be compute, 1- where they cannot be computed as a NF is changing GPU percentage.
 }gpu_ra_mgt_t;
 
+
+extern gpu_ra_mgt_t gpu_ra_mgt;
 /****************************************************************************************
  * 						MODEL LOADING FROM DISK AND RETRIEVAL
  ****************************************************************************************/

@@ -857,10 +857,10 @@ for (i = 0; i < MAX_NFS; i++) {
 	if(i < MAX_ACTIVE_CLIENTS) { //if(is_primary_active_nf_id(i)) {
 		nfs[i].rx_q = rte_ring_create(rq_name,
 				ringsize, socket_id,
-				RING_F_SC_DEQ); /* multi prod, single cons (Enqueue can be by either Rx/Tx Threads, but dequeue only by NF thread)*/
+				0); /* RING_F_SC_DEQ multi prod, single cons (Enqueue can be by either Rx/Tx Threads, but dequeue only by NF thread)*/
 		nfs[i].tx_q = rte_ring_create(tq_name,
 				ringsize, socket_id,
-				RING_F_SP_ENQ|RING_F_SC_DEQ); /* single prod, single cons (Enqueue only by NF Thread, and dequeue only by dedicated Tx thread) */
+				0); /* RING_F_SP_ENQ|RING_F_SC_DEQ single prod, single cons (Enqueue only by NF Thread, and dequeue only by dedicated Tx thread) */
 		nfs[i].msg_q = rte_ring_create(msg_q_name,
 				msgringsize, socket_id,
 				RING_F_SC_DEQ); /* multi prod, single cons */

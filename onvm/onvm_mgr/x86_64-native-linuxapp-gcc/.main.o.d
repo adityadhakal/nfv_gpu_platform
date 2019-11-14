@@ -270,5 +270,4 @@ dep_main.o = /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/main.c \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_rsync.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_gpu.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../../cntk_lib/onvm_cntk_api.h \
- /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_ml_libraries.h \
- /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_bfd.h
+ /home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_ml_libraries.h

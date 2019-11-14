@@ -11,7 +11,85 @@
 //puts the data into 
 #include "onvm_nflib.h"
 
+uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_aggregation_info_t *image_agg, void** drop_pkts, unsigned *db_pkts) {
+	//static placeholder variable for a single image
+	void *payload;
+	image_chunk_header_t *chunk_header;
+	unsigned i = 0;
+	struct rte_mbuf* pkt = NULL;
+	uint32_t image_id = 0;
+	for (i = 0; i < nb_pkts; i++) {
+		pkt = (struct rte_mbuf*) pkts[i];
+		//we shall copy the packets here itself.. why should we give it to the handler
+		if(onvm_pkt_ipv4_hdr(pkt) != NULL) {
+			onvm_get_pkt_meta(pkt)->action = ONVM_NF_ACTION_NEXT;
+			//first find which image this packet belongs to
+			payload = (void *)rte_pktmbuf_mtod_offset(pkt, void *, (sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr)));
+			chunk_header =(image_chunk_header_t *)( (char * )payload + 2);// 2bytes offset to make it 4byte aligned address.
+			//printf("  ID %d start offset %"PRIu32" bytes length %"PRIu32" \n",  chunk_header->image_id, chunk_header->image_chunk.start_offset, chunk_header->image_chunk.size_in_bytes);
+			image_id = (chunk_header->image_id);//*2;//TODO: hack to fix odd numbered image. DONE: Buffer overwriting incorrect index!
 
+#ifdef NO_IMAGE_ID
+			static uint current_image = 0;
+			image_id = current_image;
+#endif
+
+			image_aggregation_info_t *image = &(image_agg->images[image_id]); //(image_agg->images[chunk_header->image_id]);
+			if(image->usage_status==0 || image->bytes_count==0) {
+				image->packets_count=0;
+				image->usage_status = 1;
+				clock_gettime(CLOCK_MONOTONIC, &image->first_packet_time);
+			}
+
+			if(1 == image->usage_status) {
+
+				//now put the chunk in right place
+				image->image_info.image_id = chunk_header->image_id;
+				image->image_info.copy_info[image->packets_count].src_cpy_ptr = (void *)((char *)chunk_header+sizeof(image_chunk_header_t));
+				image->image_info.copy_info[image->packets_count].image_chunk = chunk_header->image_chunk;
+
+				//first put the rte_mbuf address in the proper place and update the packet counter
+				image->image_packets[image->packets_count] = pkt;
+				image->packets_count += 1;
+				//*baggregated= 1;
+				//now put the number of bytes
+				image->bytes_count += chunk_header->image_chunk.size_in_bytes;
+
+				//if we have a right amount of bytes for an image, we should make it a ready image and then update the readymask
+				//if((image->packets_count == MAX_CHUNKS_PER_IMAGE)||(image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
+				if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
+					image->usage_status = 2;
+					//printf("Image %d is complete \n", image->image_info.image_id);
+					SET_BIT(image_agg->ready_mask,(image_id+1));
+
+					clock_gettime(CLOCK_MONOTONIC, &image->last_packet_time);
+
+#ifdef NO_IMAGE_ID
+					current_image = (current_image+1)%MAX_IMAGES_BATCH_SIZE;
+#endif
+				}
+			} else {
+				/*duplicate pkt for image that is already aggregated */
+				onvm_get_pkt_meta(pkt)->action = ONVM_NF_ACTION_DROP;
+				drop_pkts[(*db_pkts)++] = pkt;
+			}
+		} //end of if (ipv4 pkt)
+		else {
+			/*Non IPV4 Pkt: Just Drop */
+			onvm_get_pkt_meta(pkt)->action = ONVM_NF_ACTION_DROP;
+			drop_pkts[(*db_pkts)++] = pkt;
+		}
+	} //end of for
+
+	//if(image_agg->ready_mask) {*ready_images_index=image_agg->ready_mask;} //if(ready_images) {*ready_images_index=ready_images;}
+
+#ifdef HOLD_PACKETS_TILL_CALLBACK
+	return 1;
+#else
+	return 0;
+#endif
+	return 0;
+}
 
 uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t *image_agg, uint32_t *ready_images_index) {
 	uint32_t ready_images=0;
@@ -27,13 +105,12 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 
 	uint32_t image_id = (chunk_header->image_id);//*2;//TODO: hack to fix odd numbered image. DONE: Buffer overwriting incorrect index!
 
-	#ifdef NO_IMAGE_ID
-		static uint current_image = 0;
-		image_id = current_image;
-	#endif
+#ifdef NO_IMAGE_ID
+	static uint current_image = 0;
+	image_id = current_image;
+#endif
 
-
-	image_aggregation_info_t *image = &(image_agg->images[image_id]);//(image_agg->images[chunk_header->image_id]);
+	image_aggregation_info_t *image = &(image_agg->images[image_id]); //(image_agg->images[chunk_header->image_id]);
 	//image_aggregation_info_t *image2 = &(image_agg->images[image_id+1]);//(image_agg->images[chunk_header->image_id]);
 
 	if(image->usage_status==0 || image->bytes_count==0) {
@@ -41,17 +118,18 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 		image->usage_status = 1;
 		clock_gettime(CLOCK_MONOTONIC, &image->first_packet_time);
 	}
-	
-	if(1 == image->usage_status) {
 
-		//first put the rte_mbuf address in the proper place and update the packet counter
-		image->image_packets[image->packets_count] = pkt;
+	if(1 == image->usage_status) {
 
 		//now put the chunk in right place
 		image->image_info.image_id = chunk_header->image_id;
 		image->image_info.copy_info[image->packets_count].src_cpy_ptr = (void *)((char *)chunk_header+sizeof(image_chunk_header_t));
 		image->image_info.copy_info[image->packets_count].image_chunk = chunk_header->image_chunk;
 
+		//first put the rte_mbuf address in the proper place and update the packet counter
+		image->image_packets[image->packets_count] = pkt;
+		image->packets_count += 1;
+		//*baggregated= 1;
 		//now put the number of bytes
 		image->bytes_count += chunk_header->image_chunk.size_in_bytes;
 
@@ -61,11 +139,9 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 		//printf("Image chunk contents image id start offset %"PRIu32" and size is %"PRIu32"\n",image->copy_info.copy_info[image->packets_count].image_chunk.start_offset,image->copy_info.copy_info[image->packets_count].image_chunk.size_in_bytes);
 		//printf("A value from packet %f \n",((float*)(image->copy_info.copy_info[image->packets_count].src_cpy_ptr))[0]);
 
-		image->packets_count += 1;
-
 		//if we have a right amount of bytes for an image, we should make it a ready image and then update the readymask
 		//if((image->packets_count == MAX_CHUNKS_PER_IMAGE)||(image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
-		  if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
+		if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
 			image->usage_status = 2;
 			//printf("Image %d is complete \n", image->image_info.image_id);
 			SET_BIT(image_agg->ready_mask,(image_id+1));
@@ -77,9 +153,10 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 			//printf("Image mask : %"PRIu32"\n",image_agg->ready_mask);
 			//image_id++;
 			//image_id = (image_id%MAX_IMAGES_BATCH_SIZE);
-		#ifdef NO_IMAGE_ID
+#ifdef NO_IMAGE_ID
 			current_image = (current_image+1)%MAX_IMAGES_BATCH_SIZE;
-		#endif
+#endif
+			//printf("The address of the bitmask %p \n", &ready_images);
 		}
 		//if(ready_images_index) (*ready_images_index) |= ready_images;
 		if(ready_images) {*ready_images_index=ready_images;}
@@ -89,6 +166,11 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 		return 0; //1;	//when 0 disable calbback release
 #endif
 	}
+	//else {
+	//what to do with this packet? < Duplicate for ready image cannot be handled.. so release it
+	//*baggregated = 0;
+	//return 0;
+	//}
 	//onvm_nflib_return_pkt(nf_info, pkt);
 	//return ready_images;
 	return 0;
@@ -108,7 +190,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 	 printf("This function is called %d many times --------\n",how_many_times_called);
 	 */
-	__attribute__((unused)) static uint32_t last_processed_index = 0; //Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
+	__attribute__((unused)) static uint32_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
 //	__attribute__((unused)) static onvm_interval_timer_t start_tsc = 0;
 //	__attribute__((unused)) static onvm_interval_timer_t end_tsc = 0;
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
@@ -199,14 +281,14 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		void * start_dev_buffer = in_buffers[0];
 		void * start_output_buffer = out_buffers[0];
-		
+
 		//printf("Actual_images in batch %d\n",actual_images_in_batch);
-		printf("Image index: ");
+		//printf("Image data structure %p Image index: ", nf_info->image_info);
 		for(i = 0; i< actual_images_in_batch; i++) { //for(i = 0; i<num_of_images; i++) {
 			//find which image is ready
 			int image_index = ffs(actual_images_in_batch_bitmask);// ffs(new_images);
 			image_index -= 1;
-			printf("%d ",image_index);
+			//printf("%d ",image_index);
 			//printf("images ready %d index %d \n",num_of_images, image_index);
 			if(batch_agg_info->images[image_index].usage_status == 2) {
 
@@ -226,40 +308,40 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 					//change the status
 					batch_agg_info->images[image_index].usage_status = 3;
 
-					if(nf_info->gpu_percentage){
+					if(nf_info->gpu_percentage) {
 
 #ifdef ENABLE_GPU_NETML
-					//NetML transfer
-					transfer_to_gpu((void *)(batch_agg_info->images[image_index].image_info.copy_info),batch_agg_info->images[image_index].packets_count,in_buffers[i],&(cuda_stream->stream));
+						//NetML transfer
+						transfer_to_gpu((void *)(batch_agg_info->images[image_index].image_info.copy_info),batch_agg_info->images[image_index].packets_count,in_buffers[i],&(cuda_stream->stream));
 #else
-					//Copy Transfer
-					transfer_to_gpu_copy((void *)(batch_agg_info->images[image_index].image_info.copy_info),batch_agg_info->images[image_index].packets_count,cpu_side_buffer,in_buffers[i],&(cuda_stream->stream));
+						//Copy Transfer
+						transfer_to_gpu_copy((void *)(batch_agg_info->images[image_index].image_info.copy_info),batch_agg_info->images[image_index].packets_count,cpu_side_buffer,in_buffers[i],&(cuda_stream->stream));
 #endif
 
-					CLEAR_BIT(actual_images_in_batch_bitmask, (image_index+1));	//CLEAR_BIT(new_images, (image_index+1));
-					CLEAR_BIT(batch_agg_info->ready_mask, (image_index+1));
-					CLEAR_BIT(last_processed_index, (image_index+1));
+						CLEAR_BIT(actual_images_in_batch_bitmask, (image_index+1));	//CLEAR_BIT(new_images, (image_index+1));
+						CLEAR_BIT(batch_agg_info->ready_mask, (image_index+1));
+						CLEAR_BIT(last_processed_index, (image_index+1));
 					} //checking GPU percentage
-					//printf("After posting image ready mask %"PRIu32",final_batch size %d \n", batch_agg_info->ready_mask, final_batch_size);
+					  //printf("After posting image ready mask %"PRIu32",final_batch size %d \n", batch_agg_info->ready_mask, actual_images_in_batch);
 				}
 				else
 				{
-				  //batch_agg_info->images[image_index].usage_status = 0;
-				  //printf("we could not get the GPU buffer\n");
-				  //break;
+					//batch_agg_info->images[image_index].usage_status = 0;
+					printf("we could not get the GPU buffer\n");
+					//break;
 
-				  //if we fail to secure a buffer, we need to clear the image and just proceed with next one
-				  //CLEAR_BIT(actual_images_in_batch_bitmask, (image_index+1));	//CLEAR_BIT(new_images, (image_index+1));
-				  //CLEAR_BIT(batch_agg_info->ready_mask, (image_index+1));
-				  //CLEAR_BIT(last_processed_index, (image_index+1));
+					//if we fail to secure a buffer, we need to clear the image and just proceed with next one
+					//CLEAR_BIT(actual_images_in_batch_bitmask, (image_index+1));	//CLEAR_BIT(new_images, (image_index+1));
+					//CLEAR_BIT(batch_agg_info->ready_mask, (image_index+1));
+					//CLEAR_BIT(last_processed_index, (image_index+1));
 
 					//return;
 					break;
-					
+
 				}
 			}
 		}
-		printf("\n");
+		//printf("\n");
 
 		//time to execute the im`age
 		//prepare execution arguments;
@@ -278,7 +360,6 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		infer_params.input_size = SIZE_OF_AN_IMAGE_BYTES*infer_params.batch_size;
 		infer_params.output = start_output_buffer;
 
-
 		//struct timespec time_image_ready;
 		//clock_gettime(CLOCK_MONOTONIC, &time_image_ready);
 		//uint64_t image_ready_time = (time_image_ready.tv_sec)*1000000+(time_image_ready.tv_nsec)/1000;
@@ -290,8 +371,11 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		//struct timespec begin_infer, end_infer;
 		//clock_gettime(CLOCK_MONOTONIC, &begin_infer);
+		//printf("Before infering the images \n");
 		ml_operations->infer_batch_fptr(&infer_params,aio );
 		cudaEventRecord(cuda_stream->event,cuda_stream->stream);
+
+		//printf("After calling TRT infer\n");
 		//clock_gettime(CLOCK_MONOTONIC, &end_infer);
 
 		//uint64_t infer_time = (end_infer.tv_sec-begin_infer.tv_sec)*1000000+(end_infer.tv_nsec-begin_infer.tv_nsec)/1000;

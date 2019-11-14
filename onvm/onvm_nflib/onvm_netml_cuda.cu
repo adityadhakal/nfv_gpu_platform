@@ -175,6 +175,9 @@ void transfer_to_gpu_copy(void * data_ptrs, int num_of_payload_data, void *cpu_d
   //float cudamemcpy_time = (end_cudamemcpy.tv_sec-begin_cudamemcpy.tv_sec)*1000.0+(end_cudamemcpy.tv_nsec-begin_cudamemcpy.tv_nsec)/1000000.0;
   //printf("CPU copy time (ms),%f, CUDA memcpyasync(ms),%f,",cpu_copy_time, cudamemcpy_time);
   //printf("CPU copy time (ms), %f\n",cpu_copy_time);
+  
+  //cudaError_t error = cudaGetLastError();
+  //printf("Last error %d \n",error);
 }
 
 

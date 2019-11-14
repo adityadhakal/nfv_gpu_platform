@@ -264,5 +264,4 @@ dep_onvm_stats.o = \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../onvm_nflib/onvm_flow_table.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/../onvm_nflib/onvm_netml.h \
  /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_stats.h \
- /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_nf.h \
- /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_bfd.h
+ /home/adhak001/dev/openNetVM_sameer/onvm/onvm_mgr/onvm_nf.h

@@ -531,6 +531,22 @@ void onvm_nf_recv_and_process_msgs(void) {
 			case MSG_NF_STOPPING:
 			nf = (struct onvm_nf_info*)msg->msg_data;
 			onvm_nf_stop(nf);
+			//Aditya's code, move it somewhere else
+			{
+				uint8_t nf_id = nf->instance_id;
+				uint8_t alt_nf_id = get_associated_active_or_standby_nf_id(nf_id);
+				if(gpu_ra_mgt.ra_status[nf_id] == GPU_RA_NEED_TO_RELINQUISH){
+					nfs[alt_nf_id].info->gpu_percentage = 0;
+					//set the new NF GPU RA to set
+					if(	gpu_ra_mgt.ra_status[alt_nf_id] == GPU_RA_IS_SET){
+
+						nfs[alt_nf_id].info->ring_flag = 1;
+						gpu_ra_mgt.nf_gpu_ra_list[nf_id] = 0; //clearing the lock on Phase 2
+					}
+
+				nf->ring_flag = 0;
+				}
+			}
 			num_nfs--;
 			break;
 #ifdef ONVM_GPU

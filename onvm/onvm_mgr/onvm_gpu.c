@@ -309,6 +309,7 @@ void restart_nf(struct onvm_nf_info *nf) {
 
 //this function should be only called if the NF has been ordered to get ready, i.e. called by not active NF only
 //in case of first NF, this will never get called...
+/*
 void nf_is_gpu_ready(struct onvm_nf_info *nf) {
 	//TODO just print for now
 	printf("NF instance %d is now ready to process packets \n", nf->instance_id);
@@ -325,6 +326,7 @@ void nf_is_gpu_ready(struct onvm_nf_info *nf) {
 	onvm_nf_send_msg(alt_nf->instance_id, MSG_STOP, 0, NULL);
 	printf("DEBUG, Sent message to both NFs to stop/wakeup etc.. \n");
 }
+*/
 
 /****************************************************************************************
  * 						GPU Resource Allocation Management and Scheduling
@@ -740,6 +742,7 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 			if(gpu_ra_mgt.ra_status[i]==GPU_RA_NEEDS_ALLOCATION)
 			{
 				onvm_gpu_set_gpu_percentage(nfs[i].info,gpu_ra_mgt.nf_gpu_ra_list[i] );
+				//onvm_gpu_set_gpu_percentage(nfs[i].info,100 );
 				gpu_ra_mgt.nf_gpu_ra_list[i] = MAX_GPU_OVERPRIVISION_VALUE+1;
 				nfs[i].info->ring_flag = 1;
 				check_and_wakeup_nf(i);
@@ -775,13 +778,18 @@ int update_gpu_ra_status_ring_flag(struct onvm_nf_info *nf){
 		//set the previous primary NF to relinquish
 		gpu_ra_mgt.ra_status[alt_nf_id] = GPU_RA_NEED_TO_RELINQUISH;
 
-		//Now change the ring flags.
+		//change the ring flags.
+		struct timespec current_time;
+		clock_gettime(CLOCK_MONOTONIC, &current_time);
+		long curr_time = current_time.tv_sec*1000000000+ current_time.tv_nsec;
+		printf("Changing the ring flags from NFs Time now: %ld\n", curr_time);
 		nfs[alt_nf_id].info->ring_flag = 0;
 		nfs[alt_nf_id].info->gpu_percentage = 0;
-		nfs[nf_id].info->ring_flag = 1;
+		//sleep(5);//checking if sleep helps
+		//nfs[nf_id].info->ring_flag = 1;
+		onvm_nf_send_msg(alt_nf_id,MSG_STOP,0,NULL);
 
-
-		gpu_ra_mgt.nf_gpu_ra_list[alt_nf_id] = 0; //clearing the lock on Phase 2
+		//gpu_ra_mgt.nf_gpu_ra_list[alt_nf_id] = 0; //clearing the lock on Phase 2
 	}
 
 	//start procedure to restart the other NF

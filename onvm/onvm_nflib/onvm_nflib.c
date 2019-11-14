@@ -71,7 +71,6 @@
 
 /**********************************Macros*************************************/
 //HOld packets during execution
-//#define HOLD_PACKETS_TILL_CALLBACK
 // Possible NF packet consuming modes
 #define NF_MODE_UNKNOWN 0
 #define NF_MODE_SINGLE 1
@@ -460,9 +459,9 @@ onvm_nflib_wait_till_notification(struct onvm_nf_info *nf_info) {
 #endif //ENABLE_NFV_RESL
 
 static inline void onvm_nflib_check_and_wait_if_interrupted(
-		__attribute__((unused))                                                                                                             struct onvm_nf_info *nf_info);
+		__attribute__((unused))                                                                                                                                    struct onvm_nf_info *nf_info);
 static inline void onvm_nflib_check_and_wait_if_interrupted(
-		__attribute__((unused))                                                                                                             struct onvm_nf_info *nf_info) {
+		__attribute__((unused))                                                                                                                                    struct onvm_nf_info *nf_info) {
 #if defined (INTERRUPT_SEM) && ((defined(NF_BACKPRESSURE_APPROACH_2) || defined(USE_ARBITER_NF_EXEC_PERIOD)) || defined(ENABLE_NFV_RESL))
 	if(unlikely(NF_PAUSED == (nf_info->status & NF_PAUSED))) {
 		//printf("\n Explicit Pause request from ONVM_MGR\n ");
@@ -617,12 +616,12 @@ static
 inline int onvm_nflib_post_process_packets_batch(struct onvm_nf_info *nf_info,
 		void **pktsTX, unsigned tx_batch_size,
 		__attribute__((unused)) unsigned non_det_evt,
-		__attribute__((unused))                                                                                                             uint64_t ts_info);
+		__attribute__((unused))                                                                                                                                    uint64_t ts_info);
 static
 inline int onvm_nflib_post_process_packets_batch(struct onvm_nf_info *nf_info,
 		void **pktsTX, unsigned tx_batch_size,
 		__attribute__((unused)) unsigned non_det_evt,
-		__attribute__((unused))                                                                                                             uint64_t ts_info) {
+		__attribute__((unused))                                                                                                                                    uint64_t ts_info) {
 	int ret = 0;
 	/* Perform Post batch processing actions */
 	/** Atomic Operations:
@@ -866,6 +865,48 @@ static inline int onvm_nflib_process_packets_batch(struct onvm_nf_info *nf_info,
 }
 
 #ifdef ONVM_GPU
+static inline int onvm_nflib_process_packets_batch_gpu_v2(struct onvm_nf_info *nf_info,
+		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
+		__attribute__ ((unused)) pkt_handler_func handler);
+static inline int onvm_nflib_process_packets_batch_gpu_v2(struct onvm_nf_info *nf_info,
+		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
+		__attribute__ ((unused)) pkt_handler_func handler) {
+
+	int ret = 0;
+	__attribute__ ((unused)) unsigned tx_batch_size = 0;
+	__attribute__ ((unused)) void *pktsTX[NF_PKT_BATCH_SIZE];
+	unsigned i = 0;
+
+
+	data_aggregation_bulk_v2(pkts,nb_pkts, nf_info->image_info, pktsTX, &tx_batch_size);
+	if(nf_info->image_info->ready_mask) {
+		load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, nf_info->image_info->ready_mask);
+	}
+
+#ifdef HOLD_PACKETS_TILL_CALLBACK
+	//Forward/Drop only the packets that have been explicity marked to do so
+	if (likely(tx_batch_size)) {
+		if( unlikely(0 == rte_ring_enqueue_bulk(tx_ring, pktsTX, tx_batch_size, NULL)))
+		{
+			nfs[nf_info->instance_id].stats.tx_drop += tx_batch_size;
+			for (i = 0; i < tx_batch_size; i++) {
+				rte_pktmbuf_free(pktsTX[i]);
+			}
+		}
+	}
+#else
+	//Forward/Drop all the packets!
+	if( unlikely(0 == rte_ring_enqueue_bulk(tx_ring, pkts, nb_pkts, NULL)))
+	{
+		nfs[nf_info->instance_id].stats.tx_drop += nb_pkts;
+		for (i = 0; i < nb_pkts; i++) {
+			rte_pktmbuf_free(pkts[i]);
+		}
+	}
+#endif
+	return ret;
+}
+#if 0
 static inline int onvm_nflib_process_packets_batch_gpu(struct onvm_nf_info *nf_info,
 		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
 		__attribute__ ((unused)) pkt_handler_func handler);
@@ -874,14 +915,18 @@ static inline int onvm_nflib_process_packets_batch_gpu(struct onvm_nf_info *nf_i
 		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
 		__attribute__ ((unused)) pkt_handler_func handler) {
 	int ret = 0;
+	return onvm_nflib_process_packets_batch_gpu_v2(nf_info, pkts, nb_pkts, handler);
+
+	//int ret2 = 0;
 	uint16_t i = 0;
+	//static int retry_count =0;
 	__attribute__ ((unused)) uint16_t tx_batch_size = 0;
 
 	__attribute__ ((unused)) void *pktsTX[NF_PKT_BATCH_SIZE];
 
 	uint32_t imgs_aggregated=0;
 	uint32_t ttl_imgs_aggregated=0;
-
+	//uint8_t pkt_aggregated=0;
 	for (i = 0; i < nb_pkts; i++) {
 
 		//we shall copy the packets here itself.. why should we give it to the handler
@@ -891,8 +936,8 @@ static inline int onvm_nflib_process_packets_batch_gpu(struct onvm_nf_info *nf_i
 			imgs_aggregated=0;
 		}
 
-		/* NF returns 0 to return packets or 1 to buffer */
-		if (likely(ret == 0)) {
+		/* NF returns 0 to return packets or 1 if it has been buffered and not be released */
+		if (likely(ret == 0)) { //|| pkt_aggregated == 0
 			pktsTX[tx_batch_size++] = pkts[i];
 		} else {
 #ifdef ENABLE_NF_TX_STAT_LOGS
@@ -905,10 +950,18 @@ static inline int onvm_nflib_process_packets_batch_gpu(struct onvm_nf_info *nf_i
 	if(nf_info->image_info->ready_mask) { //ttl_imgs_aggregated) { 
 		ttl_imgs_aggregated=nf_info->image_info->ready_mask;
 		load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, ttl_imgs_aggregated);
+		/*do {
+		 if((ret2 = load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, ttl_imgs_aggregated)))
+		 retry_count++;
+		 onvm_nf_yeild(nf_info, YIELD_DUE_TO_GPU_BUSY);
+		 if(retry_count > 10) break;
+		 }while(0);
+		 retry_count = 0;
+		 */
 	}
 
 	//when we hold the pacets let's not send it out
-#ifndef HOLD_PACKETS_TILL_CALLBACK
+//#ifndef HOLD_PACKETS_TILL_CALLBACK
 	if (likely(tx_batch_size)) {
 		if( unlikely(0 == rte_ring_enqueue_bulk(tx_ring, pktsTX, tx_batch_size, NULL)))
 		{
@@ -918,15 +971,10 @@ static inline int onvm_nflib_process_packets_batch_gpu(struct onvm_nf_info *nf_i
 			}
 		}
 	}
-#endif
-//	rte_ring_enqueue_bulk(tx_ring, pkts, nb_pkts, NULL);
-//	for (i = 0; i < tx_batch_size; i++) {
-//				rte_pktmbuf_free(pktsTX[i]);
-//	}
+//#endif
 	return ret;
-
 }
-
+#endif //#if 0
 #endif
 
 int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
@@ -934,21 +982,21 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 
 	//if we have no GPU % by now, we should yeild the NF at this point.
 	//manager will wake up the NF eventually and proceed from here
-	if(!nf_info->gpu_percentage){
+	if (!nf_info->gpu_percentage) {
 		printf("Stopping to receive GPU percentage\n");
 		onvm_nflib_wait_till_notification(nf_info);
 	}
 	/* this NF should have been registered to manager and have all info
 	 * We can also then give its batch aggregation pointers and dev buffer pointer */
 	//nf_info->gpu_percentage = 70;
-	printf("GPU Percentage set by the manager now %d \n", nf_info->gpu_percentage);
+	printf("GPU Percentage set by the manager now %d \n",
+			nf_info->gpu_percentage);
 
-	if(nf_info->gpu_percentage > 0) {
+	if (nf_info->gpu_percentage > 0) {
 
 		//call a function to initialize GPU
 		initialize_gpu(nf_info);
 	}
-
 
 	void *pkts[NF_PKT_BATCH_SIZE]; //better to use (NF_PKT_BATCH_SIZE*2)
 	uint16_t nb_pkts;
@@ -983,12 +1031,23 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 		if (likely(nb_pkts)) {
 			/* Give each packet to the user processing function */
 			//nb_pkts = onvm_nflib_process_packets_batch(nf_info, pkts, nb_pkts,handler);
+			//struct timespec current_time;
+			//clock_gettime(CLOCK_MONOTONIC, &current_time);
+			//long curr_time = current_time.tv_sec*1000000000+current_time.tv_nsec;
+			//printf("packet access at %ld \n", curr_time);
 			nb_pkts = (*current_packet_processing_batch)(nf_info, pkts, nb_pkts,
 					handler);
 
 		}
 #ifdef ONVM_GPU
 	} //if(nf_info->ring_flag == 1)
+		else
+			{
+				//struct timespec current_time;
+				//clock_gettime(CLOCK_MONOTONIC, &current_time);
+				//long curr_time = current_time.tv_sec*1000000000+current_time.tv_nsec;
+				//printf("No ring access at %ld \n", curr_time);
+			}
 #endif//onvm_gpu
 
 #ifdef ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
@@ -1047,7 +1106,7 @@ int onvm_nflib_return_pkt_bulk(struct onvm_nf_info *nf_info,
 	return 0;
 }
 
-void onvm_nflib_stop(__attribute__((unused))                                                                                                             struct onvm_nf_info* nf_info) {
+void onvm_nflib_stop(__attribute__((unused))                                                                                                                                    struct onvm_nf_info* nf_info) {
 	rte_exit(EXIT_SUCCESS, "Done.");
 }
 
@@ -1207,7 +1266,7 @@ void notify_for_ecb(void) {
 }
 
 int onvm_nflib_handle_msg(struct onvm_nf_msg *msg,
-		__attribute__((unused))                                                                                                             struct onvm_nf_info *nf_info) {
+		__attribute__((unused))                                                                                                                                    struct onvm_nf_info *nf_info) {
 	switch (msg->msg_type) {
 	printf("\n Received MESSAGE [%d]\n!!", msg->msg_type);
 case MSG_STOP:
@@ -1248,6 +1307,7 @@ case MSG_NF_TRIGGER_ECB:
 	reply_msg->msg_data = nf_info;
 	printf("Sending the GPU initialization completion message to Manager \n");
 	rte_ring_enqueue(mgr_msg_ring, reply_msg);
+	//sleep(1);
 	break;
 	//if((*nf_gpu_func)(msg))
 	//printf("The NF didn't process GET_GPU_READY message well \n");
@@ -1332,13 +1392,13 @@ onvm_nflib_info_init(const char *tag) {
 
 	//int original_instance_id = initial_instance_id;
 	/*
-	if(get_associated_active_or_standby_nf_id(info->instance_id)) {
-		original_instance_id = get_associated_active_or_standby_nf_id(info->instance_id);
-		printf("There is a counterpart NF running ---+++_---+++___ We get counterpart NF id %d \n",original_instance_id);
-	}
-	//info->image_info = &(all_images_information[original_instance_id]);
-	printf("original instance id %d \n", original_instance_id);
-*/
+	 if(get_associated_active_or_standby_nf_id(info->instance_id)) {
+	 original_instance_id = get_associated_active_or_standby_nf_id(info->instance_id);
+	 printf("There is a counterpart NF running ---+++_---+++___ We get counterpart NF id %d \n",original_instance_id);
+	 }
+	 //info->image_info = &(all_images_information[original_instance_id]);
+	 printf("original instance id %d \n", original_instance_id);
+	 */
 	//initialize the histograms
 	hist_init_v2(&(info->cpu_latency));
 	hist_init_v2(&(info->gpu_latency));
@@ -1370,7 +1430,6 @@ onvm_nflib_info_init(const char *tag) {
 	}
 	int retval;
 	retval = rte_mempool_get(image_batch_aggregation_info,(void **)&(info->image_info));
-
 
 	printf("mempool get retval %d \n", retval);
 	//if(rte_mempool_get(image_batch_aggregation_info,(void **)(&info->image_info)) !=0){
@@ -1474,7 +1533,7 @@ static void onvm_nflib_handle_signal(int sig) {
 }
 
 static inline void onvm_nflib_cleanup(
-		__attribute__((unused))                                                                                                             struct onvm_nf_info *nf_info) {
+		__attribute__((unused))                                                                                                                                    struct onvm_nf_info *nf_info) {
 	struct onvm_nf_msg *shutdown_msg;
 	nf_info->status = NF_STOPPED;
 
@@ -1549,7 +1608,6 @@ static inline int onvm_nflib_notify_ready(struct onvm_nf_info *nf_info) {
 		nanosleep(&req, &res); //sleep(1); //better poll for some time and exit if failed within that time.?
 	}
 
-
 #ifdef ENABLE_LOCAL_LATENCY_PROFILER
 	int64_t ttl_elapsed = onvm_util_get_elapsed_time(&ts);
 	printf("WAIT_TIME(START-->RUN): %li ns\n", ttl_elapsed);
@@ -1594,7 +1652,7 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	char gpu_percent[4];
 	sprintf(gpu_percent,"%d", nf_info->gpu_percentage);
 	printf("User defined GPU percent was %s\n",gpu_percent);
-	//setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);//overwrite cuda_mps_active_thread_precentage
+	setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);//overwrite cuda_mps_active_thread_precentage
 
 	// 2. Create all streams
 	retval = init_streams();
@@ -1615,7 +1673,7 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 		resolve_gpu_dev_buffer_pointer(ml_link_params.gpu_side_input_pointer, ml_link_params.gpu_side_output_pointer);
 	}
 	else {
-		//convert all the gpu side buffers...
+		//convert all the gpu side buffers from cudaIPC handles to cuda pointers..
 		resolve_gpu_dev_buffer(nf_info->gpu_input_buffer, nf_info->gpu_output_buffer);
 	}
 
@@ -2042,6 +2100,7 @@ inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_in
 #endif //NEW_LEARNING_BATCH_APPROACH
 void gpu_image_callback_function(void *data) {
 
+	//printf("GPU Image Callback Called ------ \n");
 	//just update the stats here for now...
 	struct timespec call_back_time, image_start_aggr_timestamp, image_ready_timestamp;
 	clock_gettime(CLOCK_MONOTONIC, &call_back_time);
@@ -2063,8 +2122,8 @@ void gpu_image_callback_function(void *data) {
 	for( i = 0; i<num_of_images_inferred; i++) {
 		//printf("Image ID %d \n", i);
 		bit_position = ffs(callback_data->bitmask_images);
-		CLEAR_BIT(callback_data->batch_aggregation->ready_mask,(bit_position));
-		CLEAR_BIT(callback_data->bitmask_images,bit_position);
+		//CLEAR_BIT(callback_data->batch_aggregation->ready_mask,(bit_position));
+		//CLEAR_BIT(callback_data->bitmask_images,bit_position);
 		bit_position--;//as it reports bit position 0 as 1.
 		//printf("status[%d], The number of packets in the callback %d the bitmask is %x\n",callback_data->batch_aggregation->images[bit_position].usage_status, callback_data->batch_aggregation->images[bit_position].packets_count,callback_data->bitmask_images);
 
@@ -2086,24 +2145,28 @@ void gpu_image_callback_function(void *data) {
 
 		for(j = 0; j<callback_data->batch_aggregation->images[bit_position].packets_count; j++) {
 			struct onvm_pkt_meta *meta = onvm_get_pkt_meta(callback_data->batch_aggregation->images[bit_position].image_packets[j]);
-			meta->action=ONVM_NF_ACTION_OUT;
+			meta->action=ONVM_NF_ACTION_DROP;
 			//printf("\n Action:%d, Destination:%d", meta->action, meta->destination);
 
 			//((struct onvm_pkt_meta*)callback_data->batch_aggregation->images[bit_position].image_packets[j]->udata64)->action = ONVM_NF_ACTION_OUT; //ONVM_NF_ACTION_NEXT;
 			//onvm_nflib_drop_pkt(callback_data->batch_aggregation->images[bit_position].image_packets[j]);
 		}/**/
+//		retry:;
 		int ret = rte_ring_enqueue_bulk(tx_ring,(void**)(callback_data->batch_aggregation->images[bit_position].image_packets),callback_data->batch_aggregation->images[bit_position].packets_count,NULL);
-		printf("ret of ring enqueue = %d \n", ret);
-		printf("Releasing %d packets\n",callback_data->batch_aggregation->images[bit_position].packets_count);
+		//printf("ret of ring enqueue = %d \n", ret);
+		//printf("Releasing %d packets\n",callback_data->batch_aggregation->images[bit_position].packets_count);
 		if(!ret) {
-			printf("Can't release packet with enqueue, dropping the packets \n");
+			onvm_nf_yeild(nf_info, YIELD_DUE_TO_FULL_TX_RING);
+//			goto retry;
+			//printf("Can't release packet with enqueue, dropping the packets for image %d which has %d packets with %zu bytes of data \n",bit_position,callback_data->batch_aggregation->images[bit_position].packets_count, callback_data->batch_aggregation->images[bit_position].bytes_count);
+			//printf("Address of the individual packet \n");
 			nfs[nf_info->instance_id].stats.tx_drop += callback_data->batch_aggregation->images[bit_position].packets_count;
 			for(j = 0; j<callback_data->batch_aggregation->images[bit_position].packets_count; j++) {
-
 				rte_pktmbuf_free((struct rte_mbuf *)callback_data->batch_aggregation->images[bit_position].image_packets[j]);
-
+				//printf("%p\n",callback_data->batch_aggregation->images[bit_position].image_packets[j]);
 				//	onvm_nflib_drop_pkt(callback_data->batch_aggregation->images[bit_position].image_packets[j]);
 			}
+			//printf("\n\n\n");
 		}
 #endif
 		//onvm_nflib_return_pkt_bulk(callback_data->nf_info, callback_data->batch_aggregation->images[bit_position].image_packets, callback_data->batch_aggregation->images[bit_position].packets_count);
@@ -2111,6 +2174,9 @@ void gpu_image_callback_function(void *data) {
 		callback_data->batch_aggregation->images[bit_position].bytes_count = 0;
 		callback_data->batch_aggregation->images[bit_position].packets_count = 0;
 		callback_data->batch_aggregation->images[bit_position].usage_status = 0;
+
+		CLEAR_BIT(callback_data->batch_aggregation->ready_mask,((bit_position+1)));
+		CLEAR_BIT(callback_data->bitmask_images,(bit_position+1));
 		//printf("Clearing image %d \n",bit_position);
 		//now clear the bit so we can get another bit position
 		//bit_position &= (0<<bit_position);
@@ -2122,9 +2188,9 @@ void gpu_image_callback_function(void *data) {
 		hist_store_v2(&(callback_data->nf_info->cpu_latency),cpu_latency);
 
 		//uint32_t latency = (call_back_time.tv_sec-callback_data->start_time.tv_sec)*1000000+(call_back_time.tv_nsec - callback_data->start_time.tv_nsec)/1000;
-		uint64_t per_batch_timestamp = (call_back_time.tv_sec)*1000000+(call_back_time.tv_nsec)/1000;
 
 		number_of_images_since_last_computation += num_of_images_inferred;
+		uint64_t per_batch_timestamp = (call_back_time.tv_sec)*1000000+(call_back_time.tv_nsec)/1000;
 		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency);
 
 		/** Adapt batch size to meet the SLO latency objective **/
@@ -2546,13 +2612,13 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 		//in this case there will be no GPU loaded
 		//we have to provide different data path
 		current_packet_processing_batch = onvm_nflib_process_packets_batch;
-
+		printf("NF is NOT using GPU\n");
 	}
 	else
 	{
-		printf("NF using GPU\n");
+		printf("NF is using GPU\n");
 		//our function to process the batch of packets
-		current_packet_processing_batch = onvm_nflib_process_packets_batch_gpu;
+		current_packet_processing_batch = onvm_nflib_process_packets_batch_gpu_v2;//onvm_nflib_process_packets_batch_gpu;
 
 		int retval;
 		void * status = NULL;
@@ -2565,13 +2631,10 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 		retval = (*(ml_operations->load_model_fptr))(&ml_load_params,status);
 		nf_info->ml_model_handle = ml_load_params.model_handle;
 		if(retval != 0)
-			printf("Error while loading the model \n");
-
-
+		printf("Error while loading the model \n");
 
 	}
 #endif //onvm_gpu
-
 
 }
 

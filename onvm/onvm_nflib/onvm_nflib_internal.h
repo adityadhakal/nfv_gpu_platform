@@ -37,24 +37,20 @@
  *
  ********************************************************************/
 
-
 /******************************************************************************
 
-                            onvm_nflib_internal.h
+ onvm_nflib_internal.h
 
 
-          Header file for all internal functions used within the API
+ Header file for all internal functions used within the API
 
 
-******************************************************************************/
-
+ ******************************************************************************/
 
 #ifndef _ONVM_NFLIB_INTERNAL_H_
 #define _ONVM_NFLIB_INTERNAL_H_
 
-
 /***************************Standard C library********************************/
-
 
 #include <getopt.h>
 #include <signal.h>
@@ -72,7 +68,6 @@
 //#endif //INTERRUPT_SEM
 
 /*****************************Internal headers********************************/
-
 
 #include "onvm_includes.h"
 #include "onvm_sc_common.h"
@@ -92,7 +87,6 @@
 
 /* Feature to enable computation of NF computation cost periodically using the timer */
 //enable: ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
-
 #define ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
 
 /* Feature to enable static ID assignment/request to the NF */
@@ -104,13 +98,11 @@
 /* Test feature to profile the memcopy overhead in NFLIB */
 //#define TEST_MEMCPY_OVERHEAD          // Profile memcpy overhead on NF performance
 
-
 #if defined(ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION)
 #include <rte_timer.h>
 // Periodicity for Stats extraction in NFLIB for NFs computation cost
 #define NF_STATS_PERIOD_IN_MS 1       //(use 1 or 10 or 100ms)
 #endif //ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
-
 
 #ifdef TEST_MEMCPY_OVERHEAD
 #define MEMCPY_SIZE (0.125*1024)
@@ -165,19 +157,15 @@ static struct rte_mempool *pktmbuf_pool;
 // User-given NF Client ID (defaults to manager assigned)
 static uint16_t initial_instance_id = NF_NO_ID;
 
-
 // User supplied service ID
 static uint16_t service_id = -1;
-
 
 // True as long as the NF should keep processing packets
 static uint8_t keep_running = 1;
 
-
 // Shared data for default service chain
 //static 
 struct onvm_service_chain *default_chain;
-
 
 #ifdef INTERRUPT_SEM
 // to track packets per NF <used for sampling computation cost>
@@ -214,7 +202,6 @@ callback_handler_func cb_func = NULL;
 #define ONVM_NO_CALLBACK NULL
 /******************************Internal functions*****************************/
 
-
 /*
  * Function that initialize a nf info data structure.
  *
@@ -225,7 +212,6 @@ callback_handler_func cb_func = NULL;
 static struct onvm_nf_info *
 onvm_nflib_info_init(const char *tag);
 
-
 /*
  * Function printing an explanation of command line instruction for a NF.
  *
@@ -234,7 +220,6 @@ onvm_nflib_info_init(const char *tag);
  */
 static void
 onvm_nflib_usage(const char *progname);
-
 
 /*
  * Function that parses the global arguments common to all NFs.
@@ -247,7 +232,6 @@ onvm_nflib_usage(const char *progname);
 static int
 onvm_nflib_parse_args(int argc, char *argv[]);
 
-
 /*
  * Signal handler to catch SIGINT.
  *
@@ -258,7 +242,7 @@ static void
 onvm_nflib_handle_signal(int sig);
 
 static inline void
-onvm_nflib_cleanup(__attribute__((unused)) struct onvm_nf_info *nf_info);
+onvm_nflib_cleanup(__attribute__((unused))  struct onvm_nf_info *nf_info);
 
 static inline void
 onvm_nflib_start_nf(struct onvm_nf_info *nf_info);
@@ -274,13 +258,14 @@ onvm_nflib_dequeue_messages(struct onvm_nf_info *nf_info);
  * Function to initalize the shared cpu support
  *
  * Input  : Number of NF instances
- */ 
+ */
 static inline void
 init_shared_cpu_info(uint16_t instance_id);
 
 #define YEILD_DUE_TO_EXPLICIT_REQ   (0)
 #define YIELD_DUE_TO_EMPTY_RX_RING  (1)
 #define YIELD_DUE_TO_FULL_TX_RING   (1)
+#define YIELD_DUE_TO_GPU_BUSY		(2)
 void onvm_nf_yeild(__attribute__((unused))struct onvm_nf_info* info, uint8_t reason_rxtx);
 
 #endif  //INTERRUPT_SEM
@@ -292,7 +277,7 @@ init_nflib_timers(void);
 
 #ifdef ENABLE_NFV_RESL
 static inline void
-        onvm_nflib_wait_till_notification(__attribute__((unused))struct onvm_nf_info* info);
+onvm_nflib_wait_till_notification(__attribute__((unused))struct onvm_nf_info* info);
 
 #ifdef ENABLE_REPLICA_STATE_UPDATE
 void *pReplicaStateMempool = NULL;
@@ -304,7 +289,7 @@ void *pReplicaStateMempool = NULL;
 #endif
 
 #endif //ENABLE_NFV_RESL
-dirty_mon_state_map_tbl_t *dirty_state_map = NULL;  //reson to keep it ouside is that NFs can still make  use of it regardless of resiliency
+dirty_mon_state_map_tbl_t *dirty_state_map = NULL; //reson to keep it ouside is that NFs can still make  use of it regardless of resiliency
 
 #ifdef MIMIC_FTMB
 //shared variable for FTMB mode

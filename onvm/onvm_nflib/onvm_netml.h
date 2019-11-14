@@ -7,8 +7,8 @@
 #include "onvm_ml_libraries.h"
 #include "onvm_stream.h"
 
-//#define ENABLE_GPU_NETML
-#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
+#define ENABLE_GPU_NETML
+//#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 #define MAX_CHUNKS_PER_IMAGE 2352
 #define MAX_IMAGES_BATCH_SIZE 128
@@ -118,6 +118,9 @@ void return_stream(stream_tracker *stream);
 uint32_t data_aggregation(struct rte_mbuf *pkt,
 		image_batched_aggregation_info_t *image_aggregation_info,
 		uint32_t *ready_images_index);
+uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts,
+		image_batched_aggregation_info_t *image_agg, void** drop_pkts,
+		unsigned *db_pkts);
 
 void transfer_to_gpu(void *data_ptrs, int number_of_data_pts, void *destination,
 		cudaStream_t *stream);

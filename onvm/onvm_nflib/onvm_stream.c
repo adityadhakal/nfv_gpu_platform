@@ -2,8 +2,9 @@
 #include <cuda_runtime.h>
 #include "onvm_stream.h"
 #include <inttypes.h>
-#include <cuda_runtime.h>
 #include "onvm_common.h"
+#include <cuda_runtime_api.h>
+#include <driver_types.h>//cuda error
 
 //Remove the below array.. and make an array that will rather store the pair of image data and nf_info pointers
 struct gpu_callback gpu_callbacks[MAX_STREAMS * PARALLEL_EXECUTION];
@@ -45,6 +46,9 @@ stream_tracker *give_stream_v2(void) {
 				//we can run callback here.
 				gpu_image_callback_function(&streams_track[i].callback_info);
 			}
+			//else{
+			//	printf("CUDA error at give_stream_v2 error: %d \n",cuda_ret);
+			//}
 		}
 		st = give_stream();
 	}

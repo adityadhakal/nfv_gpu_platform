@@ -38,17 +38,15 @@
  *
  ********************************************************************/
 
-
 /******************************************************************************
 
-                                onvm_nflib.h
+ onvm_nflib.h
 
 
-                           Header file for the API
+ Header file for the API
 
 
-******************************************************************************/
-
+ ******************************************************************************/
 
 #ifndef _ONVM_NFLIB_H_
 #define _ONVM_NFLIB_H_
@@ -66,6 +64,7 @@
 //#include "tensorrt_api.h"
 //#include "onvm_cntk_api.h"
 #include "onvm_gpu_buffer_factory.h"
+#define HOLD_PACKETS_TILL_CALLBACK
 #endif
 //aditya
 
@@ -93,8 +92,8 @@
  *   On error, a negative value .
  */
 int
-onvm_nflib_init(int argc, char *argv[], const char *nf_tag, struct onvm_nf_info **nf_info_p);
-
+onvm_nflib_init(int argc, char *argv[], const char *nf_tag,
+		struct onvm_nf_info **nf_info_p);
 
 /**
  * Run the OpenNetVM container Library.
@@ -111,8 +110,8 @@ onvm_nflib_init(int argc, char *argv[], const char *nf_tag, struct onvm_nf_info 
  *   0 on success, or a negative value on error.
  */
 int
-onvm_nflib_run_callback(struct onvm_nf_info* info, pkt_handler_func pkt_handler, callback_handler_func callback_handler);
-
+onvm_nflib_run_callback(struct onvm_nf_info* info, pkt_handler_func pkt_handler,
+		callback_handler_func callback_handler);
 
 /**
  * Runs the OpenNetVM container library, without using the callback function.
@@ -142,7 +141,6 @@ onvm_nflib_run(struct onvm_nf_info* info, pkt_handler_func pkt_handler);
 int
 onvm_nflib_return_pkt(struct onvm_nf_info *nf_info, struct rte_mbuf* pkt);
 
-
 /**
  * Return a group of packets that were created by the NF or have previously had the
  * ONVM_NF_ACTION_BUFFER action called on it.
@@ -155,8 +153,8 @@ onvm_nflib_return_pkt(struct onvm_nf_info *nf_info, struct rte_mbuf* pkt);
  *    0 on success, or a negative value on error (-1 if bad arguments, -ENOBUFS if enqueue fails).
  */
 int
-onvm_nflib_return_pkt_bulk(struct onvm_nf_info *nf_info, struct rte_mbuf** pkts, uint16_t count);
-
+onvm_nflib_return_pkt_bulk(struct onvm_nf_info *nf_info, struct rte_mbuf** pkts,
+		uint16_t count);
 
 /**
  * Inform the manager that the NF is ready to receive packets.
@@ -180,7 +178,8 @@ onvm_nflib_nf_ready(struct onvm_nf_info *info);
  *    0 on success, or a negative value on error
  */
 int
-onvm_nflib_handle_msg(struct onvm_nf_msg *msg, __attribute__((unused)) struct onvm_nf_info *nf_info);
+onvm_nflib_handle_msg(struct onvm_nf_msg *msg,
+		__attribute__((unused))   struct onvm_nf_info *nf_info);
 
 /**
  * Stop this NF and clean up its memory
@@ -203,7 +202,6 @@ onvm_nflib_stop(struct onvm_nf_info *nf_info);
 struct rte_ring *
 onvm_nflib_get_tx_ring(struct onvm_nf_info* info);
 
-
 /**
  * Return the rx_ring associated with this NF.
  *
@@ -214,7 +212,6 @@ onvm_nflib_get_tx_ring(struct onvm_nf_info* info);
  */
 struct rte_ring *
 onvm_nflib_get_rx_ring(struct onvm_nf_info* info);
-
 
 /**
  * Return the nf details associated with this NF.
@@ -258,7 +255,6 @@ onvm_nflib_set_setup_function(struct onvm_nf_info* info, setup_func setup);
 struct onvm_nf_scale_info *
 onvm_nflib_get_empty_scaling_config(struct onvm_nf_info *parent_info);
 
-
 /**
  * Fill the onvm_nflib_scale_info with the infromation of the parent, inherits
  * service id, pkt functions(setup, pkt_handler, callback, advanced rings).
@@ -283,25 +279,22 @@ onvm_nflib_inherit_parent_config(struct onvm_nf_info *parent_info, void *data);
 int
 onvm_nflib_scale(struct onvm_nf_scale_info *scale_info);
 
-
 struct onvm_service_chain *
 onvm_nflib_get_default_chain(void);
-
 
 #ifdef ONVM_GPU
 /* a struct with function pointers that each NF will populate while 
  * Performing INIT. It will be the list of functions that will handle the 
  * ML library as well as data transfer.
-*/
+ */
 
 /* the pointer to the batch aggregation struct */
 image_batched_aggregation_info_t *batch_agg_info;
 
-
 /* declare the structs for the arguments for ml libraries functions */
 nflib_ml_fw_load_params_t ml_load_params; //loading parameters
-nflib_ml_fw_link_params_t ml_link_params; //linking parameters
-nflib_ml_fw_infer_params_t ml_infer_params; //inferring parameters
+nflib_ml_fw_link_params_t ml_link_params;//linking parameters
+nflib_ml_fw_infer_params_t ml_infer_params;//inferring parameters
 
 /* the pointer to the ml framework operations
  *
@@ -313,20 +306,16 @@ ml_framework_operations_t *ml_operations;
 /* function to initialize GPU in the NF */
 void initialize_gpu(struct onvm_nf_info *nf_info);
 
-
-
-
 /* =================== below functions need rethinking... all need to be removed or aggregated into more logical functions ========= */
-
 
 //define a function for message resolution Aditya's function
 typedef int (*gpu_message_processing_func)(struct onvm_nf_msg *message_from_manager);
 extern gpu_message_processing_func nf_gpu_func;
 void register_gpu_msg_handling_function(gpu_message_processing_func gmpf);
 /*
-void load_ml_file (char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr, struct onvm_nf_info * nf_info);
-void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, float *output);
-*/
+ void load_ml_file (char * file_path, int cpu_gpu_flag, void ** cpu_func_ptr, void ** gpu_func_ptr, struct onvm_nf_info * nf_info);
+ void evaluate_the_image(void *function_ptr, void * input_buffer, float *stats, float *output);
+ */
 //extern histogram_v2_t *image_rate_histogram;
 void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int msg_type);
 void copy_data_to_image(void *packet_data, struct onvm_nf_info *nf_info);
@@ -341,12 +330,10 @@ int num_throughput_stored;
 /* the function to make sure the GPU side work is completed */
 void prepare_to_restart(struct onvm_nf_info *nf_info, struct onvm_nf_msg *message);
 
-
 // a test function to see the throughput histograms are working or not.
 void print_gpu_throughput_data(struct onvm_nf_info *nf_info);
 
 #endif
-
 
 /* Function to perform Packet drop */
 int
@@ -357,56 +344,58 @@ extern nf_explicit_callback_function nf_ecb;
 void register_explicit_callback_function(nf_explicit_callback_function ecb);
 void notify_for_ecb(void);
 
- 
 /* Interface for AIO abstraction from NF Lib: */
 #define MAX_FILE_PATH_SIZE  PATH_MAX //(255)
 #define AIO_OPTION_SYNC_MODE_RW   (0x01)    // Enable Synchronous Read/Writes
 #define AIO_OPTION_BATCH_PROCESS  (0x02)    //applicable to aio_write
 #define AIO_OPTION_PER_FLOW_QUEUE (0x04)    //applicable to both read/write
 typedef struct nflib_aio_info {
-        uint8_t file_path[MAX_FILE_PATH_SIZE];
-        int mode;                       //read, read_write;
-        uint32_t num_of_buffers;        //number of buffers to be setup for read/write
-        uint32_t max_buffer_size;       //size of each buffer for read/writes
-        uint32_t aio_options;           //Bitwise OR of AIO_OPTION_XXX*
-        uint32_t wait_pkt_queue_len;    //Max size of pkts that can be put to wait for aio completion
-}nflib_aio_info_t;
+	uint8_t file_path[MAX_FILE_PATH_SIZE];
+	int mode;                       //read, read_write;
+	uint32_t num_of_buffers;      //number of buffers to be setup for read/write
+	uint32_t max_buffer_size;       //size of each buffer for read/writes
+	uint32_t aio_options;           //Bitwise OR of AIO_OPTION_XXX*
+	uint32_t wait_pkt_queue_len; //Max size of pkts that can be put to wait for aio completion
+} nflib_aio_info_t;
 typedef struct onvm_nflib_aio_init_info {
-        nflib_aio_info_t aio_read;      //read information
-        nflib_aio_info_t aio_write;     //write information
-        uint32_t max_worker_threads;    //number_of_worker_threads for r/w
-        uint8_t aio_service_type;       //0=None; 1=Read_only; 2=Write_only; 3=Read_write;
-}onvm_nflib_aio_init_info_t;
+	nflib_aio_info_t aio_read;      //read information
+	nflib_aio_info_t aio_write;     //write information
+	uint32_t max_worker_threads;    //number_of_worker_threads for r/w
+	uint8_t aio_service_type; //0=None; 1=Read_only; 2=Write_only; 3=Read_write;
+} onvm_nflib_aio_init_info_t;
 typedef struct nflib_aio_status {
-        int32_t rw_status;      //completion status of read/write callback operation
-        void *rw_buffer;        //buffer data read back, or to be written;  //can use rte_mbuf as well
-        uint8_t rw_buf_len;     //len of buffer
-        off_t rw_offset;        //File offset for read/write operation
-}nflib_aio_status_t;
+	int32_t rw_status;      //completion status of read/write callback operation
+	void *rw_buffer; //buffer data read back, or to be written;  //can use rte_mbuf as well
+	uint8_t rw_buf_len;     //len of buffer
+	off_t rw_offset;        //File offset for read/write operation
+} nflib_aio_status_t;
 
 /* Callback handler for NF AIO EVENT COMPLETION NOTIFICATION *
  * Return Status: 0: NF processing is Success; -ve: Failure in NF to assert ??
  */
-typedef int (*aio_notify_handler_cb)(struct rte_mbuf** pkt,  nflib_aio_status_t *status);
+typedef int (*aio_notify_handler_cb)(struct rte_mbuf** pkt,
+		nflib_aio_status_t *status);
 
 /* API to register/subscribe for AIO service
  * Must setup the callback handler if ASYNC IO is desired
  * Return Status: 0 succes; -ve value : Failures
  */
-int nflib_aio_init(onvm_nflib_aio_init_info_t *info, aio_notify_handler_cb cb_handler);
+int nflib_aio_init(onvm_nflib_aio_init_info_t *info,
+		aio_notify_handler_cb cb_handler);
 
 /* API to initiate relevant AIO for the packet
  *  Note: Data to write will be setup by the NF; NFLib will only perform Write on NFs behalf.
  *        Read data file offset details will need to be specified by the NF; read data will be returned back in aio_status_t*
  *        Return Status: 0 Success; -ve value Failures; +ve value>0 (later extension ??);
  */
-int nflib_pkt_aio(struct rte_mbuf* pkt, nflib_aio_status_t *status, uint32_t rw_options);   //per pkt rw_options: 0=read,1=write; 2=extend later..
+int nflib_pkt_aio(struct rte_mbuf* pkt, nflib_aio_status_t *status,
+		uint32_t rw_options); //per pkt rw_options: 0=read,1=write; 2=extend later..
 
 #if 0
 /** Structure to represent the Dirty state map for the in-memory NF state **/
 typedef struct dirty_mon_state_map_tbl {
-        uint64_t dirty_index;
-        // Bit index to every 1K LSB=0-1K, MSB=63-64K
+	uint64_t dirty_index;
+	// Bit index to every 1K LSB=0-1K, MSB=63-64K
 }dirty_mon_state_map_tbl_t;
 #endif
 
@@ -418,7 +407,5 @@ extern dirty_mon_state_map_tbl_t *dirty_state_map;
 #ifdef MIMIC_FTMB
 extern uint8_t SV_ACCES_PER_PACKET;
 #endif
-
-
 
 #endif  // _ONVM_NFLIB_H_

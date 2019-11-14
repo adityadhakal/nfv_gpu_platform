@@ -364,7 +364,7 @@ struct onvm_service_chain;
 
 #ifdef ENABLE_NFV_RESL
 #define ENABLE_NF_MGR_IDENTIFIER    // Identifier for the NF Manager node
-#define ENABLE_BFD                  // BFD management
+//#define ENABLE_BFD                  // BFD management
 //#define ENABLE_SHADOW_RINGS         //enable shadow rings in the NF to save enqueued packets.
 //#define ENABLE_PER_SERVICE_MEMPOOL  //enable common mempool for all NFs on same service type.
 //#define ENABLE_REPLICA_STATE_UPDATE //enable feature to update (copy over NF state (_NF_STATE_MEMPOOL_NAME) info to local replic's state
