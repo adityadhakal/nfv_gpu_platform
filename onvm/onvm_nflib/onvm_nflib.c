@@ -1305,7 +1305,8 @@ case MSG_NF_TRIGGER_ECB:
 	}
 	reply_msg->msg_type = MSG_NF_GPU_READY;
 	reply_msg->msg_data = nf_info;
-	printf("Sending the GPU initialization completion message to Manager \n");
+	printf("Sending the GPU initialization completion message to Manager. Meanwhile image agg mask %"PRIu32" \n", nf_info->image_info->ready_mask);
+	//sleep(1);
 	rte_ring_enqueue(mgr_msg_ring, reply_msg);
 	//sleep(1);
 	break;
@@ -1560,6 +1561,32 @@ static inline void onvm_nflib_cleanup(
 		rte_exit(EXIT_FAILURE, "Cannot create shutdown msg");
 	}
 
+#ifdef ONVM_GPU //waiting for GPU work to be finished.
+
+	//struct timespec current_time,later_time;
+	//clock_gettime(CLOCK_MONOTONIC, &current_time);
+	//check if streams are all done. wait for at least 1 second, at most 2 before getting out of loop otherwise NF will be stuck for ever
+	while(nf_info->image_info->ready_mask){
+
+			check_and_release_stream();
+			//clock_gettime(CLOCK_MONOTONIC, &later_time);
+			//if(later_time.tv_sec>(current_time.tv_sec+2)){
+			//	break;
+			//}
+			printf("Ready mask now is: %"PRIu32"\n",nf_info->image_info->ready_mask);
+	}
+	//check the images status..
+	int i = 0;
+	for(i = 0; i<MAX_IMAGES_BATCH_SIZE;i++){
+		printf("Status of %d image: %d\n", i, nf_info->image_info->images[i].usage_status);
+		// we can clear those status now..
+		nf_info->image_info->images[i].usage_status = 0;
+	}
+
+	printf("The final bitmask %"PRIu32"\n",nf_info->image_info->ready_mask);
+#endif
+
+
 	shutdown_msg->msg_type = MSG_NF_STOPPING;
 	shutdown_msg->msg_data = nf_info;
 
@@ -1654,6 +1681,9 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	printf("User defined GPU percent was %s\n",gpu_percent);
 	setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);//overwrite cuda_mps_active_thread_precentage
 
+	int num_sms = 0;
+	cudaDeviceGetAttribute(&num_sms, cudaDevAttrMultiProcessorCount, 0);
+	printf("Number of sms %d\n", num_sms);
 	// 2. Create all streams
 	retval = init_streams();
 	if(retval)
@@ -2191,7 +2221,7 @@ void gpu_image_callback_function(void *data) {
 
 		number_of_images_since_last_computation += num_of_images_inferred;
 		uint64_t per_batch_timestamp = (call_back_time.tv_sec)*1000000+(call_back_time.tv_nsec)/1000;
-		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency);
+		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu32"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask);
 
 		/** Adapt batch size to meet the SLO latency objective **/
 		if((callback_data->nf_info->inference_slo_ms) && (ADAPTIVE_BATCHING_SELF_LEARNING == callback_data->nf_info->enable_adaptive_batching)) {

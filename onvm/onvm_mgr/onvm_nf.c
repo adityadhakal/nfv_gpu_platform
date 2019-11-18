@@ -540,7 +540,7 @@ void onvm_nf_recv_and_process_msgs(void) {
 					//set the new NF GPU RA to set
 					if(	gpu_ra_mgt.ra_status[alt_nf_id] == GPU_RA_IS_SET){
 
-						nfs[alt_nf_id].info->ring_flag = 1;
+						//nfs[alt_nf_id].info->ring_flag = 1;
 						gpu_ra_mgt.nf_gpu_ra_list[nf_id] = 0; //clearing the lock on Phase 2
 					}
 

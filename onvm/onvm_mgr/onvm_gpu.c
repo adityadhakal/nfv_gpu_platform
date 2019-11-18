@@ -742,7 +742,7 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 			if(gpu_ra_mgt.ra_status[i]==GPU_RA_NEEDS_ALLOCATION)
 			{
 				onvm_gpu_set_gpu_percentage(nfs[i].info,gpu_ra_mgt.nf_gpu_ra_list[i] );
-				//onvm_gpu_set_gpu_percentage(nfs[i].info,100 );
+				//onvm_gpu_set_gpu_percentage(nfs[i].info,1);
 				gpu_ra_mgt.nf_gpu_ra_list[i] = MAX_GPU_OVERPRIVISION_VALUE+1;
 				nfs[i].info->ring_flag = 1;
 				check_and_wakeup_nf(i);
@@ -753,8 +753,15 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 				//check if the percentage is same and if it is do not restart.
 				uint8_t shadow_nf_id = get_associated_active_or_standby_nf_id(i);
 				if(onvm_nf_is_valid(&nfs[shadow_nf_id])){
-					onvm_gpu_set_gpu_percentage(nfs[shadow_nf_id].info,gpu_ra_mgt.nf_gpu_ra_list[i]);
+				  onvm_gpu_set_gpu_percentage(nfs[shadow_nf_id].info,gpu_ra_mgt.nf_gpu_ra_list[i]);
+				  //onvm_gpu_set_gpu_percentage(nfs[shadow_nf_id].info,60);
+
 					gpu_ra_mgt.nf_gpu_ra_list[i] = MAX_GPU_OVERPRIVISION_VALUE+1;
+
+					struct timespec time_we_send_msg;
+					clock_gettime(CLOCK_MONOTONIC, &time_we_send_msg);
+					long msg_sent_time = time_we_send_msg.tv_sec*1000000000+time_we_send_msg.tv_nsec;
+					printf("The time we sent msg to shadow NF %ld\n",msg_sent_time);
 					get_shadow_NF_ready(nfs[i].info);
 				}
 				else
@@ -785,8 +792,15 @@ int update_gpu_ra_status_ring_flag(struct onvm_nf_info *nf){
 		printf("Changing the ring flags from NFs Time now: %ld\n", curr_time);
 		nfs[alt_nf_id].info->ring_flag = 0;
 		nfs[alt_nf_id].info->gpu_percentage = 0;
+
+		struct timespec time_we_send_msg;
+		clock_gettime(CLOCK_MONOTONIC, &time_we_send_msg);
+		long msg_sent_time = time_we_send_msg.tv_sec*1000000000+time_we_send_msg.tv_nsec;
+		printf("The time we changed ring flag to shadow NF %ld\n",msg_sent_time);
+
+
 		//sleep(5);//checking if sleep helps
-		//nfs[nf_id].info->ring_flag = 1;
+		nfs[nf_id].info->ring_flag = 1;
 		onvm_nf_send_msg(alt_nf_id,MSG_STOP,0,NULL);
 
 		//gpu_ra_mgt.nf_gpu_ra_list[alt_nf_id] = 0; //clearing the lock on Phase 2

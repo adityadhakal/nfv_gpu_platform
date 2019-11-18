@@ -7,11 +7,11 @@
 #include "onvm_ml_libraries.h"
 #include "onvm_stream.h"
 
-#define ENABLE_GPU_NETML
-//#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
+//#define ENABLE_GPU_NETML
+#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 #define MAX_CHUNKS_PER_IMAGE 2352
-#define MAX_IMAGES_BATCH_SIZE 128
+#define MAX_IMAGES_BATCH_SIZE 32
 
 #define SIZE_OF_EACH_ELEMENT sizeof(float)
 
@@ -108,7 +108,7 @@ int init_streams(void);
 /* this function provides an empty stream */
 stream_tracker *give_stream_v2(void);
 stream_tracker *give_stream(void);
-
+int check_and_release_stream(void);
 /* this function returns stream */
 void return_stream(stream_tracker *stream);
 

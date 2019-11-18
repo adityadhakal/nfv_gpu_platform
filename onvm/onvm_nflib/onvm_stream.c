@@ -33,23 +33,32 @@ int init_streams(void) {
 	return 0;
 }
 
+/* return 0=all_released_and_free; 1=stream_still_busy_and_pending_to_complete */
+int check_and_release_stream(void) {
+	//check and return null of retry give_stream();
+	int i;
+	cudaError_t cuda_ret;
+	for (i = 0; i < MAX_STREAMS; i++) {
+		if (PARALLEL_EXECUTION > streams_track[i].status) {
+			cuda_ret = cudaEventQuery(streams_track[i].event);
+			if (cuda_ret == cudaSuccess) {
+				//we can run callback here.
+				gpu_image_callback_function(&streams_track[i].callback_info);
+			} else {
+				//	printf("CUDA error at give_stream_v2 error: %d \n",cuda_ret);
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
 //int status_tracker[MAX_STREAMS];
 stream_tracker *give_stream_v2(void) {
 	stream_tracker *st = give_stream();
-	int i = 0;
-	cudaError_t cuda_ret;
+	//int i = 0;
+	//
 	if (!st) {
-		//check and return null of retry give_stream();
-		for(i = 0; i<MAX_STREAMS; i++){
-			cuda_ret = cudaEventQuery(streams_track[i].event);
-			if(cuda_ret == cudaSuccess){
-				//we can run callback here.
-				gpu_image_callback_function(&streams_track[i].callback_info);
-			}
-			//else{
-			//	printf("CUDA error at give_stream_v2 error: %d \n",cuda_ret);
-			//}
-		}
+		check_and_release_stream();
 		st = give_stream();
 	}
 	return st;

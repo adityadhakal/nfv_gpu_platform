@@ -179,6 +179,13 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 /* the function to load and execute in GPU */
 int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggregation_info_t * batch_agg_info, ml_framework_operations_t *ml_operations, cudaHostFn_t callback_function, uint32_t new_images) {
 	int ret = 0;
+
+	//check what time this function is called
+	//struct timespec load_data;
+	//clock_gettime(CLOCK_MONOTONIC, &load_data);
+	//long time_in_ns = load_data.tv_sec*1000000000+load_data.tv_nsec;
+	//printf("************ Time load_data function was called %ld\n",time_in_ns);
+
 	//prepare callback arguments
 	//first find the callback
 	//batch_agg_info->temp_mask = 0;
@@ -190,6 +197,9 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 	 printf("This function is called %d many times --------\n",how_many_times_called);
 	 */
+
+	//printf("The bitmask %"PRIu32"\n",nf_info->image_info->ready_mask);
+
 	__attribute__((unused)) static uint32_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
 //	__attribute__((unused)) static onvm_interval_timer_t start_tsc = 0;
 //	__attribute__((unused)) static onvm_interval_timer_t end_tsc = 0;
@@ -224,8 +234,10 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		uint32_t num_of_images = __builtin_popcount(last_processed_index);//(last_processed_index)?(__builtin_popcount(last_processed_index)):(__builtin_popcount(new_images));
 		//num_of_images = (nf_info->fixed_batch_size)? ((num_of_images>nf_info->fixed_batch_size)?(nf_info->fixed_batch_size):(num_of_images)):(num_of_images);
 		if(unlikely(nf_info->fixed_batch_size)) {
-			if(num_of_images > nf_info->fixed_batch_size) num_of_images = nf_info->fixed_batch_size;
-			else {
+			if(num_of_images > nf_info->fixed_batch_size) {
+				num_of_images = nf_info->fixed_batch_size;
+			} else {
+				/* Not sufficient images in the current batch; hence wait till fixed_batch_Size is reached */
 				return_stream(cuda_stream);
 				return 0;
 			}
