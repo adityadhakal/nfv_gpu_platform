@@ -1305,7 +1305,7 @@ case MSG_NF_TRIGGER_ECB:
 	}
 	reply_msg->msg_type = MSG_NF_GPU_READY;
 	reply_msg->msg_data = nf_info;
-	printf("Sending the GPU initialization completion message to Manager. Meanwhile image agg mask %"PRIu32" \n", nf_info->image_info->ready_mask);
+	printf("Sending the GPU initialization completion message to Manager. Meanwhile image agg mask %"PRIu64" \n", nf_info->image_info->ready_mask);
 	//sleep(1);
 	rte_ring_enqueue(mgr_msg_ring, reply_msg);
 	//sleep(1);
@@ -1563,17 +1563,20 @@ static inline void onvm_nflib_cleanup(
 
 #ifdef ONVM_GPU //waiting for GPU work to be finished.
 
-	//struct timespec current_time,later_time;
-	//clock_gettime(CLOCK_MONOTONIC, &current_time);
+	struct timespec current_time,later_time;
+	clock_gettime(CLOCK_MONOTONIC, &current_time);
 	//check if streams are all done. wait for at least 1 second, at most 2 before getting out of loop otherwise NF will be stuck for ever
+	int j = 0;
 	while(nf_info->image_info->ready_mask){
 
 			check_and_release_stream();
-			//clock_gettime(CLOCK_MONOTONIC, &later_time);
-			//if(later_time.tv_sec>(current_time.tv_sec+2)){
-			//	break;
-			//}
-			printf("Ready mask now is: %"PRIu32"\n",nf_info->image_info->ready_mask);
+			clock_gettime(CLOCK_MONOTONIC, &later_time);
+			if(later_time.tv_sec > (current_time.tv_sec+2)){
+				break;
+			}
+			//printf("Ready mask now is: %"PRIu64"\n",nf_info->image_info->ready_mask);
+			j++;
+
 	}
 	//check the images status..
 	int i = 0;
@@ -1583,8 +1586,8 @@ static inline void onvm_nflib_cleanup(
 		nf_info->image_info->images[i].usage_status = 0;
 	}
 
-	printf("The final bitmask %"PRIu32"\n",nf_info->image_info->ready_mask);
-#endif
+	printf("The final bitmask %"PRIu64"\n",nf_info->image_info->ready_mask);
+#endif //onvm_gpu
 
 
 	shutdown_msg->msg_type = MSG_NF_STOPPING;
@@ -2140,7 +2143,7 @@ void gpu_image_callback_function(void *data) {
 	callback_data->status = 0;
 
 	/* we also have to clear the images status as inferred */
-	int num_of_images_inferred = __builtin_popcount(callback_data->bitmask_images);
+	int num_of_images_inferred = __builtin_popcountll(callback_data->bitmask_images);
 
 	int i;
 	int bit_position;
@@ -2151,10 +2154,9 @@ void gpu_image_callback_function(void *data) {
 
 	for( i = 0; i<num_of_images_inferred; i++) {
 		//printf("Image ID %d \n", i);
-		bit_position = ffs(callback_data->bitmask_images);
-		//CLEAR_BIT(callback_data->batch_aggregation->ready_mask,(bit_position));
-		//CLEAR_BIT(callback_data->bitmask_images,bit_position);
+		bit_position = ffsll(callback_data->bitmask_images);
 		bit_position--;//as it reports bit position 0 as 1.
+		//printf("bit position %d\n",bit_position);
 		//printf("status[%d], The number of packets in the callback %d the bitmask is %x\n",callback_data->batch_aggregation->images[bit_position].usage_status, callback_data->batch_aggregation->images[bit_position].packets_count,callback_data->bitmask_images);
 
 		//compute the latencies for this batch across cpu, gpu and n/w.
@@ -2167,7 +2169,6 @@ void gpu_image_callback_function(void *data) {
 		temp_latency = (image_ready_timestamp.tv_sec - image_start_aggr_timestamp.tv_sec)*1000000+(image_ready_timestamp.tv_nsec - image_start_aggr_timestamp.tv_nsec)/1000;
 		if(temp_latency>nw_latency) nw_latency = temp_latency;
 
-		//printf("latency(ms):,%f \n batch_size,%d:", latency,num_of_images_inferred);
 
 #ifdef HOLD_PACKETS_TILL_CALLBACK
 		//REVERT FOR HOLDING THE PACKETS
@@ -2201,19 +2202,23 @@ void gpu_image_callback_function(void *data) {
 #endif
 		//onvm_nflib_return_pkt_bulk(callback_data->nf_info, callback_data->batch_aggregation->images[bit_position].image_packets, callback_data->batch_aggregation->images[bit_position].packets_count);
 		//now clear the status of the image
+
+		//EXPERIMENT, do not clear the image status
+		//experiment undergoing
+
+		//printf("Clearing image index %d bitmask_image %"PRIu64" \n",bit_position,callback_data->bitmask_images);
+
 		callback_data->batch_aggregation->images[bit_position].bytes_count = 0;
 		callback_data->batch_aggregation->images[bit_position].packets_count = 0;
 		callback_data->batch_aggregation->images[bit_position].usage_status = 0;
 
 		CLEAR_BIT(callback_data->batch_aggregation->ready_mask,((bit_position+1)));
 		CLEAR_BIT(callback_data->bitmask_images,(bit_position+1));
-		//printf("Clearing image %d \n",bit_position);
-		//now clear the bit so we can get another bit position
-		//bit_position &= (0<<bit_position);
-		//callback_data->batch_aggregation->ready_mask &= (0<<bit_position);
 
+		//callback_data->batch_aggregation->images[bit_position].usage_status = 1;
 	}
 	//printf("Callback ended, we inferred %d images \n", num_of_images_inferred);
+	//if we had any images inferred, we need to collect statistics for them
 	if(num_of_images_inferred) {
 		hist_store_v2(&(callback_data->nf_info->cpu_latency),cpu_latency);
 
@@ -2221,7 +2226,7 @@ void gpu_image_callback_function(void *data) {
 
 		number_of_images_since_last_computation += num_of_images_inferred;
 		uint64_t per_batch_timestamp = (call_back_time.tv_sec)*1000000+(call_back_time.tv_nsec)/1000;
-		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu32"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask);
+		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu64"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask);
 
 		/** Adapt batch size to meet the SLO latency objective **/
 		if((callback_data->nf_info->inference_slo_ms) && (ADAPTIVE_BATCHING_SELF_LEARNING == callback_data->nf_info->enable_adaptive_batching)) {

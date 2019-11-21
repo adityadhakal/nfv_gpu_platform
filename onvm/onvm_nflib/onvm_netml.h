@@ -7,11 +7,11 @@
 #include "onvm_ml_libraries.h"
 #include "onvm_stream.h"
 
-//#define ENABLE_GPU_NETML
+#define ENABLE_GPU_NETML
 #define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 #define MAX_CHUNKS_PER_IMAGE 2352
-#define MAX_IMAGES_BATCH_SIZE 32
+#define MAX_IMAGES_BATCH_SIZE 60
 
 #define SIZE_OF_EACH_ELEMENT sizeof(float)
 
@@ -57,7 +57,7 @@ typedef struct image_aggregation_info_t {
 
 /* the struct that NF really accesses */
 typedef struct image_batched_aggregation_info_t {
-	uint32_t ready_mask;
+	uint64_t ready_mask;
 	//uint32_t temp_mask;
 	image_aggregation_info_t images[MAX_IMAGES_BATCH_SIZE];
 } image_batched_aggregation_info_t;
@@ -77,7 +77,7 @@ typedef struct gpu_callback {
 	struct onvm_nf_info *nf_info;
 	uint8_t status; // 0- available 1-in use
 	image_batched_aggregation_info_t *batch_aggregation;
-	uint32_t bitmask_images;
+	uint64_t bitmask_images;
 	struct timespec start_time;
 	struct stream_tracker *stream_track;
 	//void *stream_track;
@@ -132,7 +132,7 @@ void transfer_to_gpu_copy(void * data_ptrs, int num_of_payload_data,
 int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,
 		image_batched_aggregation_info_t * batch_agg_info,
 		ml_framework_operations_t *ml_operations,
-		cudaHostFn_t callback_function, uint32_t new_images);
+		cudaHostFn_t callback_function, uint64_t new_images);
 
 void check_kernel(void *ptr);
 #endif

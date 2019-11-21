@@ -59,7 +59,7 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 				//if((image->packets_count == MAX_CHUNKS_PER_IMAGE)||(image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
 				if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
 					image->usage_status = 2;
-					//printf("Image %d is complete \n", image->image_info.image_id);
+					//printf("Image %d is complete, image ID now is %d \n", image->image_info.image_id, image_id);
 					SET_BIT(image_agg->ready_mask,(image_id+1));
 
 					clock_gettime(CLOCK_MONOTONIC, &image->last_packet_time);
@@ -129,7 +129,7 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 		//first put the rte_mbuf address in the proper place and update the packet counter
 		image->image_packets[image->packets_count] = pkt;
 		image->packets_count += 1;
-		//*baggregated= 1;
+
 		//now put the number of bytes
 		image->bytes_count += chunk_header->image_chunk.size_in_bytes;
 
@@ -177,7 +177,7 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 }
 
 /* the function to load and execute in GPU */
-int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggregation_info_t * batch_agg_info, ml_framework_operations_t *ml_operations, cudaHostFn_t callback_function, uint32_t new_images) {
+int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggregation_info_t * batch_agg_info, ml_framework_operations_t *ml_operations, cudaHostFn_t callback_function, uint64_t new_images) {
 	int ret = 0;
 
 	//check what time this function is called
@@ -199,8 +199,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 	 */
 
 	//printf("The bitmask %"PRIu32"\n",nf_info->image_info->ready_mask);
-
-	__attribute__((unused)) static uint32_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
+	__attribute__((unused)) static uint64_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
 //	__attribute__((unused)) static onvm_interval_timer_t start_tsc = 0;
 //	__attribute__((unused)) static onvm_interval_timer_t end_tsc = 0;
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
@@ -228,10 +227,13 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		//Check if images were remaining last time; then pick them.
 		if(unlikely(0 == last_processed_index)) {last_processed_index = new_images;}
-		//for Freshness set (to avoid stale images comment below line
-		if(unlikely(nf_info->fixed_batch_size)) last_processed_index|=new_images;
 
-		uint32_t num_of_images = __builtin_popcount(last_processed_index);//(last_processed_index)?(__builtin_popcount(last_processed_index)):(__builtin_popcount(new_images));
+		//for Freshness set (to avoid stale images comment below line
+		//if(unlikely(nf_info->fixed_batch_size))
+		last_processed_index|=new_images;
+
+		uint32_t num_of_images = __builtin_popcountll(last_processed_index);//(last_processed_index)?(__builtin_popcount(last_processed_index)):(__builtin_popcount(new_images));
+		//printf("Number of images we counted %"PRIu32" last processed index %"PRIu64" new images %"PRIu64"\n",num_of_images, last_processed_index,new_images);
 		//num_of_images = (nf_info->fixed_batch_size)? ((num_of_images>nf_info->fixed_batch_size)?(nf_info->fixed_batch_size):(num_of_images)):(num_of_images);
 		if(unlikely(nf_info->fixed_batch_size)) {
 			if(num_of_images > nf_info->fixed_batch_size) {
@@ -249,7 +251,8 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			//if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
 		}
 
-		uint32_t temp_bitmask = last_processed_index;//(last_processed_index)?(last_processed_index):(new_images);
+		//(last_processed_index)?(last_processed_index):(new_images);
+		uint64_t temp_bitmask = last_processed_index;//(last_processed_index)?(last_processed_index):(new_images);
 		//uint32_t num_of_images = __builtin_popcount(new_images);
 
 		void *in_buffers[MAX_IMAGES_PER_PARTITION] = {NULL,};
@@ -257,7 +260,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		void *in_cpu_buffers[MAX_IMAGES_PER_PARTITION] = {NULL,};
 		void *out_cpu_buffers[MAX_IMAGES_PER_PARTITION] = {NULL,};
 		uint32_t actual_images_in_batch = 0;
-		uint32_t actual_images_in_batch_bitmask=0;
+		uint64_t actual_images_in_batch_bitmask=0;
 		void * input_dev_buffer = NULL;
 		void * output_dev_buffer = NULL;
 		void * cpu_side_buffer = NULL;
@@ -268,9 +271,9 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			give_device_addresses(cuda_stream->id, &input_dev_buffer, &output_dev_buffer);
 			if(NULL == input_dev_buffer || NULL == output_dev_buffer) break;
 			//last_processed_index=0;
-			int index = ffs(temp_bitmask);
-			CLEAR_BIT(temp_bitmask, index);
-			SET_BIT(actual_images_in_batch_bitmask, index);
+			int index = ffsll(temp_bitmask);
+			CLEAR_BIT(temp_bitmask, (index));
+			SET_BIT(actual_images_in_batch_bitmask, (index));
 			//SET_BIT(last_processed_index, index);
 			actual_images_in_batch++;
 			in_buffers[i] = input_dev_buffer;
@@ -298,7 +301,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		//printf("Image data structure %p Image index: ", nf_info->image_info);
 		for(i = 0; i< actual_images_in_batch; i++) { //for(i = 0; i<num_of_images; i++) {
 			//find which image is ready
-			int image_index = ffs(actual_images_in_batch_bitmask);// ffs(new_images);
+			int image_index = ffsll(actual_images_in_batch_bitmask);// ffs(new_images);
 			image_index -= 1;
 			//printf("%d ",image_index);
 			//printf("images ready %d index %d \n",num_of_images, image_index);
@@ -362,7 +365,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		nflib_ml_fw_infer_params_t infer_params;
 		infer_params.batch_size = actual_images_in_batch;//__builtin_popcount(callback_args->bitmask_images);
-		//printf("%d,",infer_params.batch_size);
+		//printf("Batch size fed %d,",infer_params.batch_size);
 		//printf("Batch size: %d Stream ID %"PRIu8" image mask %x\n",infer_params.batch_size, cuda_stream->id, callback_args->bitmask_images);
 		infer_params.callback_data = callback_args;
 		infer_params.callback_function = callback_function;

@@ -146,7 +146,7 @@ extern "C"
 void transfer_to_gpu_copy(void * data_ptrs, int num_of_payload_data, void *cpu_destination, void * gpu_destination, cudaStream_t *stream){
   // this is simple copy operation by one CPU thread... just copy the data to cpu destination
   // and cudamemcpy them to GPU
-  struct timespec begin_cpu_copy, end_cpu_copy, begin_cudamemcpy, end_cudamemcpy;
+  struct timespec begin_cpu_copy, end_cpu_copy;//, begin_cudamemcpy, end_cudamemcpy;
   int i = 0;
   size_t total_bytes =0;
   clock_gettime(CLOCK_MONOTONIC, &begin_cpu_copy);

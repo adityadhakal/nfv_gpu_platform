@@ -95,7 +95,7 @@
 /***********************************Macros************************************/
 
 
-#define MBUFS_PER_NF 2048 //65536 //10240 //1536                            (use U: 1536, T:1536)
+#define MBUFS_PER_NF 3072//2048 //65536 //10240 //1536                            (use U: 1536, T:1536)
 #define MBUFS_PER_PORT 1536 //(10240) //2048 //10240 //65536 //10240 //1536    (use U: 10240, T:10240)
 #define MBUF_CACHE_SIZE 512
 #define MBUF_OVERHEAD (sizeof(struct rte_mbuf) + RTE_PKTMBUF_HEADROOM)

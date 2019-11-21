@@ -588,12 +588,12 @@ typedef struct dirty_mon_state_map_tbl_txts {
 /******************************************************************************/
 /*                   Generic Helper Functions                                 */
 /******************************************************************************/
-#define SET_BIT(x,bitNum) ((x)|=(1<<(bitNum-1)))
+#define SET_BIT(x,bitNum) ((x)|=(1ULL<<(bitNum-1)))
 static inline void set_bit(long *x, unsigned bitNum) {
 	*x |= (1L << (bitNum - 1));
 }
 
-#define CLEAR_BIT(x,bitNum) ((x) &= ~(1<<(bitNum-1)))
+#define CLEAR_BIT(x,bitNum) ((x) &= ~(1ULL<<(bitNum-1)))
 static inline void clear_bit(long *x, unsigned bitNum) {
 	*x &= (~(1L << (bitNum - 1)));
 }
