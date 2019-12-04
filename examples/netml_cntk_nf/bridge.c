@@ -82,8 +82,11 @@ struct onvm_nf_info *nf_info;
 
 /* ML related variables */
 //static char *input_file_name = NULL;
-static char *batchsize = NULL;
+//static char *batchsize = NULL;
 static char *gpu_percent = NULL;
+static uint32_t inference_slo_ms; // inference SLO
+static uint32_t fixed_batch_size; //user batch size
+static uint32_t adaptive_batching_flag; //adaptive batching flag. 0-no adaptive batching, 1 - adaptive batching with GPU, 2- learned adaptive batching
 void * cpu_func_ptr = NULL;
 void * gpu_func_ptr = NULL;
 
@@ -107,25 +110,41 @@ static int
 parse_app_args(int argc, char *argv[], const char *progname) {
         int c;
 
-        while ((c = getopt (argc, argv, "p:b:g:")) != -1) {
+        while ((c = getopt (argc, argv, "p:b:g:a:s:")) != -1) {
                 switch (c) {
                 case 'p':
                         print_delay = strtoul(optarg, NULL, 10);
                         break;
-			/*
+
+                case 'a':
+						 adaptive_batching_flag = strtoul(optarg,NULL,10);
+						 break;
+
+				case 'b':
+						fixed_batch_size = strtoul(optarg,NULL,10);
+					break;
+				case 's':
+						inference_slo_ms = strtoul(optarg, NULL, 10);
+						break;
+				case 'g':
+						gpu_percent = optarg;
+						break;
+						/*						
 		case 'f':
 		        input_file_name = optarg;
 		        break;
+			
 		case 'm':
 		        ml_model = optarg;
 		        break;
-			*/
+
 		case 'b':
 		  batchsize = optarg;
 		  break;
 		case 'g':
 		  gpu_percent = optarg;
 		  break;
+		  */
                 case '?':
                         usage(progname);
                         if (optopt == 'p')
@@ -241,6 +260,12 @@ ml_framework_operations_t ml_functions;
 
 int main(int argc, char *argv[]) {
         int arg_offset;
+        //create a struct of functions from the library to register with NFlib.
+        	ml_fw_load_model load_mdl = cntk_load_model;
+        	ml_functions.load_model_fptr = load_mdl;
+        	ml_functions.link_model_fptr = cntk_link_pointers;
+        	ml_functions.infer_batch_fptr = cntk_infer_batch;
+        	nflib_register_ml_fw_operations(&ml_functions);
 
         const char *progname = argv[0];
 
@@ -258,16 +283,33 @@ int main(int argc, char *argv[]) {
 	//register the funtion for processing the GPU related message from manager
 	//register_gpu_msg_handling_function(&function_to_process_gpu_message);
 
-	//create a struct of functions from the library to register with NFlib.
-	ml_fw_load_model load_mdl = cntk_load_model;
-	ml_functions.load_model_fptr = load_mdl;
-	ml_functions.link_model_fptr = cntk_link_pointers;
-	ml_functions.infer_batch_fptr = cntk_infer_batch;
-	nflib_register_ml_fw_operations(&ml_functions);
+
 
 	//put in the batch size
 	//nf_info->user_batch_size = atoi(batchsize);
-	nf_info->user_batch_size = 1;
+	//nf_info->user_batch_size = 1;
+
+        if(gpu_percent != NULL){
+        	  nf_info->gpu_percentage = atoi(gpu_percent);
+        	  setenv("CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", gpu_percent, 1);
+
+        	int num_sms = 0;
+        	cudaDeviceGetAttribute(&num_sms, cudaDevAttrMultiProcessorCount, 0);
+        	printf("Number of sms %d\n", num_sms);
+
+
+        		//nf_info->gpu_percentage = 0;
+        	}
+
+
+        nf_info->enable_adaptive_batching = adaptive_batching_flag;
+		nf_info->inference_slo_ms = inference_slo_ms;
+		//just for netml experiments
+		printf("gpu percent from command line %s\n",gpu_percent);
+		//getting the batch size from user
+		nf_info->fixed_batch_size = fixed_batch_size; //0 = adaptive batching... max size is 8.
+
+
 
 	pid_t pid = getpid();
 
@@ -302,9 +344,9 @@ int main(int argc, char *argv[]) {
 	//printf("memory pinned-------\n");
 	//receive packets.
  
-	int answer2;
-	cudaDeviceGetAttribute(&answer2,cudaDevAttrCanUseHostPointerForRegisteredMem, 0);
-	printf("Can use host pointer for registered mem %d\n",answer2);
+	//int answer2;
+	//cudaDeviceGetAttribute(&answer2,cudaDevAttrCanUseHostPointerForRegisteredMem, 0);
+	//printf("Can use host pointer for registered mem %d\n",answer2);
 	onvm_nflib_run(nf_info, &packet_handler);
         printf("If we reach here, program is ending\n");
         return 0;

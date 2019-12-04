@@ -12,10 +12,12 @@
 #include "CNTKLibrary.h"
 extern "C"{
 
-  #include "onvm_cntk_api.h"
+#include "onvm_cntk_api.h"
 #include "onvm_ml_libraries.h"
 
 }
+
+#define BATCH_SIZE 32
 
 using namespace CNTK;
 
@@ -257,15 +259,15 @@ int cntk_link_pointers(nflib_ml_fw_link_params_t* link_params,  void *status)
     for (auto a: outputsizedim){
       tot_output_size *= a;
     }
-
+    tot_output_size = 1000*BATCH_SIZE;
     
     std::vector<float> outputData(tot_output_size,0.0); //allocating output vector
 
     //let's try something... let's make our own GPU buffer
     void * gpu_input_buffer;
-    cudaMalloc(&gpu_input_buffer, sizeof(float)*3*224*224);
+    cudaMalloc(&gpu_input_buffer, sizeof(float)*3*224*224*BATCH_SIZE);
 
-    printf("GPU side pointer is %p \n", gpu_input_buffer);
+    //printf("GPU side pointer is %p \n", gpu_input_buffer);
       //allocate a new vector... to feed in the data..
       //for(int i =0; i<total_size;i++){
       //  inputData.at(i) = (float) (i%255);
@@ -275,19 +277,20 @@ int cntk_link_pointers(nflib_ml_fw_link_params_t* link_params,  void *status)
 
     printf("input size %d outputsize %d \n", total_size, tot_output_size);
     clock_gettime(CLOCK_MONOTONIC, &begin);
-    std::vector<float> inputData(total_size,0.0); //allocating a vector
+
+    std::vector<float> inputData(total_size*BATCH_SIZE,0.0); //allocating a vector
     //inputVal = Value::CreateBatch(inputvar.Shape(), inputData, CNTK::DeviceDescriptor::CPUDevice() , false, gpu_input_buffer);
     inputVal = Value::CreateBatch(inputvar.Shape(), inputData, gpu_device , false, gpu_input_buffer);
     //inputVal = Value::CreateBatch_nocopy(inputvar.Shape(), inputData,gpu_device, false, gpu_input_buffer);
-    //((inputVal->Data()).get())->Attach_GPU_Address(gpu_device, (float *) gpu_input_buffer);
+    ((inputVal->Data()).get())->Attach_GPU_Address(gpu_device, (float *) gpu_input_buffer);
      clock_gettime(CLOCK_MONOTONIC, &end);
-     outputVal = Value::CreateBatch(outputvar.Shape(), outputData, gpu_device);
-     double time_spent = (end.tv_sec-begin.tv_sec)*1000.0+(end.tv_nsec-begin.tv_nsec)/1000000.0;
-     printf("Time spent creating a cpu side batch %f milliseconds\n",time_spent);
-    printf("After conversion GPU side batch pointer is %p \n",(void *)inputVal->Data()->DataBuffer<float>());
+    outputVal = Value::CreateBatch(outputvar.Shape(), outputData, gpu_device);
+    // double time_spent = (end.tv_sec-begin.tv_sec)*1000.0+(end.tv_nsec-begin.tv_nsec)/1000000.0;
+    // printf("Time spent creating a cpu side batch %f milliseconds\n",time_spent);
+    //printf("After conversion GPU side batch pointer is %p \n",(void *)inputVal->Data()->DataBuffer<float>());
      link_params->gpu_side_input_pointer = (void *)inputVal->Data()->DataBuffer<float>();
      link_params->gpu_side_output_pointer = (void *)outputVal->Data()->DataBuffer<float>();
-    
+
   return 0;
 }
 
@@ -349,16 +352,16 @@ int cntk_infer_batch(nflib_ml_fw_infer_params_t* infer_params,  void *status){
       total_size *= a;
     }
   }
-  
-  std::vector<float> inputData(input, input+input_size); //allocating a vector
+*/
+  //std::vector<float> inputData(input, input+input_size); //allocating a vector
   //allocate a new vector... to feed in the data..
   //for(int i =0; i<total_size;i++){
   //  inputData.at(i) = (float) (i%255);
   //}
-  const auto& gpu_device = CNTK::DeviceDescriptor::GPUDevice(0);
+  //const auto& gpu_device = CNTK::DeviceDescriptor::GPUDevice(0);
     
-  ValuePtr inputVal = Value::CreateBatch(inputvar.Shape(), inputData, gpu_device);
-  */
+  //ValuePtr inputVal = Value::CreateBatch(inputvar.Shape(), inputData, gpu_device);
+
 
 
   //create a map of input.
@@ -386,11 +389,11 @@ int cntk_infer_batch(nflib_ml_fw_infer_params_t* infer_params,  void *status){
     //std::cout<<"output var shape "<<outputvar.Shape().TotalSize()<<std::endl;
   auto output_ndarray = outputVal->Data()->DataBuffer<float>();
 
-  cudaMemcpyAsync(output, output_ndarray, sizeof(float)*1000*batch_size, cudaMemcpyDeviceToHost, 0);
+  //cudaMemcpyAsync(output, output_ndarray, sizeof(float)*1000*batch_size, cudaMemcpyDeviceToHost, *(infer_params->stream));
 
-  if(callback_function != NULL){
-    cudaLaunchHostFunc(0, callback_function, callback_data);
-  }
+ // if(callback_function != NULL){
+ //   cudaLaunchHostFunc(0, callback_function, callback_data);
+ // }
 
   //cudaMemcpy(output, output_ndarray, sizeof(float)*1000, cudaMemcpyDeviceToHost); //currently in zero stream
   //add callback if it exists

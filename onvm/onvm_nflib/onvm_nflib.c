@@ -1563,19 +1563,21 @@ static inline void onvm_nflib_cleanup(
 
 #ifdef ONVM_GPU //waiting for GPU work to be finished.
 
-	struct timespec current_time,later_time;
-	clock_gettime(CLOCK_MONOTONIC, &current_time);
+	//struct timespec current_time,later_time;
+	//clock_gettime(CLOCK_MONOTONIC, &current_time);
 	//check if streams are all done. wait for at least 1 second, at most 2 before getting out of loop otherwise NF will be stuck for ever
-	int j = 0;
+	//int j = 0;
 	while(nf_info->image_info->ready_mask){
 
-			check_and_release_stream();
-			clock_gettime(CLOCK_MONOTONIC, &later_time);
-			if(later_time.tv_sec > (current_time.tv_sec+2)){
+			if(!check_and_release_stream()){
 				break;
 			}
+			//clock_gettime(CLOCK_MONOTONIC, &later_time);
+			//if(later_time.tv_sec > (current_time.tv_sec+2)){
+			//	break;
+		//	}
 			//printf("Ready mask now is: %"PRIu64"\n",nf_info->image_info->ready_mask);
-			j++;
+		//	j++;
 
 	}
 	//check the images status..
@@ -1688,7 +1690,8 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	cudaDeviceGetAttribute(&num_sms, cudaDevAttrMultiProcessorCount, 0);
 	printf("Number of sms %d\n", num_sms);
 	// 2. Create all streams
-	retval = init_streams();
+	// current priority is set as a GPU model, higher the GPU model number, higher the priority... there should be another metric for this
+	retval = init_streams(nf_info->gpu_model);
 	if(retval)
 	printf("Error while creating CUDA streams \n");
 
@@ -2144,6 +2147,7 @@ void gpu_image_callback_function(void *data) {
 
 	/* we also have to clear the images status as inferred */
 	int num_of_images_inferred = __builtin_popcountll(callback_data->bitmask_images);
+	//printf("Callback number_of_images_inferred %d\n",num_of_images_inferred);
 
 	int i;
 	int bit_position;
@@ -2155,8 +2159,8 @@ void gpu_image_callback_function(void *data) {
 	for( i = 0; i<num_of_images_inferred; i++) {
 		//printf("Image ID %d \n", i);
 		bit_position = ffsll(callback_data->bitmask_images);
+		//printf("image being processed in callback %d\n",bit_position);
 		bit_position--;//as it reports bit position 0 as 1.
-		//printf("bit position %d\n",bit_position);
 		//printf("status[%d], The number of packets in the callback %d the bitmask is %x\n",callback_data->batch_aggregation->images[bit_position].usage_status, callback_data->batch_aggregation->images[bit_position].packets_count,callback_data->bitmask_images);
 
 		//compute the latencies for this batch across cpu, gpu and n/w.
@@ -2187,7 +2191,7 @@ void gpu_image_callback_function(void *data) {
 		//printf("ret of ring enqueue = %d \n", ret);
 		//printf("Releasing %d packets\n",callback_data->batch_aggregation->images[bit_position].packets_count);
 		if(!ret) {
-			onvm_nf_yeild(nf_info, YIELD_DUE_TO_FULL_TX_RING);
+			//onvm_nf_yeild(nf_info, YIELD_DUE_TO_FULL_TX_RING);
 //			goto retry;
 			//printf("Can't release packet with enqueue, dropping the packets for image %d which has %d packets with %zu bytes of data \n",bit_position,callback_data->batch_aggregation->images[bit_position].packets_count, callback_data->batch_aggregation->images[bit_position].bytes_count);
 			//printf("Address of the individual packet \n");
@@ -2200,13 +2204,6 @@ void gpu_image_callback_function(void *data) {
 			//printf("\n\n\n");
 		}
 #endif
-		//onvm_nflib_return_pkt_bulk(callback_data->nf_info, callback_data->batch_aggregation->images[bit_position].image_packets, callback_data->batch_aggregation->images[bit_position].packets_count);
-		//now clear the status of the image
-
-		//EXPERIMENT, do not clear the image status
-		//experiment undergoing
-
-		//printf("Clearing image index %d bitmask_image %"PRIu64" \n",bit_position,callback_data->bitmask_images);
 
 		callback_data->batch_aggregation->images[bit_position].bytes_count = 0;
 		callback_data->batch_aggregation->images[bit_position].packets_count = 0;
@@ -2482,7 +2479,7 @@ static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_time
 	clock_gettime(CLOCK_MONOTONIC, &timestamp);
 	uint64_t timestamp_64 = timestamp.tv_sec*1000000+timestamp.tv_nsec/1000;
 
-	printf("%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64"\n",throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64);
+	printf("Measurement_interval(ms):,%d,%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64"\n",NF_INFERENCE_PERIOD_MS,throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64);
 	number_of_images_since_last_computation = 0;
 }
 

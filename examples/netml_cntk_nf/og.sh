@@ -41,16 +41,18 @@ then
     usage
 fi
 
-while getopts ":p:b:g:f:m:" opt; do
+while getopts ":p:b:g:f:m:a:s:b:" opt; do
   case $opt in
     p) print="-p $OPTARG";;
     f) file_name="-f $OPTARG";;
     m) model_name="-m $OPTARG";;
     b) batch_size="-b $OPTARG";;
     g) gpu_percent="-g $OPTARG";;
+    a) adaptive_batching_flag="-a $OPTARG";;
+    s) inference_slo="-s $OPTARG";;
     \?) echo "Unknown option -$OPTARG" && usage
     ;;
   esac
 done
-echo sudo $SCRIPTPATH/build/app/bridge -l $cpu -n 3 --proc-type=secondary -- -r $service -n $inst_id $file_name $model_name -- $print $batch_size $gpu_percent
-exec sudo $SCRIPTPATH/build/app/bridge -l $cpu -n 3 --proc-type=secondary -- -r $service -n $inst_id $file_name $model_name -- $print $batch_size $gpu_percent
+echo sudo $SCRIPTPATH/build/app/bridge -l $cpu -n 3 --proc-type=secondary -- -r $service -n $inst_id $file_name $model_name -- $print $batch_size $gpu_percent $adaptive_batching_flag $inference_slo
+exec sudo $SCRIPTPATH/build/app/bridge -l $cpu -n 3 --proc-type=secondary -- -r $service -n $inst_id $file_name $model_name -- $print $batch_size $gpu_percent $adaptive_batching_flag $inference_slo

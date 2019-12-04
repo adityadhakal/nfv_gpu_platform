@@ -6,21 +6,29 @@
 #include <cuda_runtime_api.h>
 #include <driver_types.h>//cuda error
 
+//#define STREAM_PRIORITY_TEST
+
 //Remove the below array.. and make an array that will rather store the pair of image data and nf_info pointers
 struct gpu_callback gpu_callbacks[MAX_STREAMS * PARALLEL_EXECUTION];
 
 stream_tracker streams_track[MAX_STREAMS];
 
 /* initialize the streams  with no flags */
-int init_streams(void) {
+int init_streams(uint8_t priority) {
 	int i;
 	cudaError_t cuda_error;
 	for (i = 0; i < MAX_STREAMS; i++) {
 		if (!DEFAULT_STREAM) {
+#ifdef STREAM_PRIORITY_TEST
+
+			cuda_error = cudaStreamCreateWithPriority(&(streams_track[i].stream),
+								cudaStreamNonBlocking, priority);
+#else
 			cuda_error = cudaStreamCreateWithFlags(&(streams_track[i].stream),
 					cudaStreamNonBlocking);
+#endif
 			if (cuda_error != cudaSuccess) {
-				printf("Failed to Create Streams \n");
+				printf("Failed to Create Streams. Priority was %"PRIu8" \n",priority);
 				return -1;
 			}
 		} else {

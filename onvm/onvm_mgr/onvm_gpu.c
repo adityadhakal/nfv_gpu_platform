@@ -56,7 +56,8 @@ void init_ml_models(void) {
 	models[2] = "VGG19_ImageNet_Caffe.model";
 	models[3] = "ResNet152_ImageNet_CNTK.model";
 	models[4] = "Fast-RCNN_Pascal.model";
-	models[5] = "SRGAN.model";
+	//models[5] = "SRGAN.model";
+	models[5] = "AlexNet_ImageNet_CNTK.model";
 	models[6] = "resnet50_batch64.trt";
 	models[7] = "alexnet_batch128.trt";
 	models[8] = "resnet152_batch128.trt";
@@ -71,7 +72,8 @@ void init_ml_models(void) {
 	models_runtime[2] = "vgg19_cntk_runtime.txt";
 	models_runtime[3] = "resnet152_cntk_runtime.txt";
 	models_runtime[4] = "fastrcnn_cntk_runtime.txt";
-	models_runtime[5] = "srgan_cntk_runtime.txt";
+	//models_runtime[5] = "srgan_cntk_runtime.txt";
+	models_runtime[5] = "alexnet_cntk_runtime.txt";
 	models_runtime[6] = "resnet50_tensorrt.txt";
 	models_runtime[7] = "alexnet_tensorrt.txt";
 	models_runtime[8] = "resnet152_tensorrt.txt";
@@ -354,7 +356,10 @@ inline int onvm_gpu_check_any_readjustment(void) {
 inline int onvm_gpu_set_gpu_percentage(struct onvm_nf_info *nf, uint16_t gpu_percent) {
 	nf->gpu_percentage = gpu_percent;
 	gpu_ra_mgt.nf_gpu_ra_list[nf->instance_id] = gpu_percent;
-	gpu_ra_mgt.gpu_ra_info->gpu_ra_avail -= gpu_percent;
+	//if(gpu_percent>gpu_ra_mgt.gpu_ra_info->gpu_ra_avail)
+		gpu_ra_mgt.gpu_ra_info->gpu_ra_avail -= gpu_percent;
+	//else
+	//	gpu_ra_mgt.gpu_ra_info->gpu_ra_avail = 0;
 	gpu_ra_mgt.gpu_ra_info->active_nfs++;
 	gpu_ra_mgt.ra_status[nf->instance_id] = GPU_RA_IS_SET;
 	return 0;
@@ -549,11 +554,13 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 	 }*/
 
 	//Check current GPU status, whether it is underutilized (make sure to always allocate 100%+ of GPU resource)
+	printf("The RA available is %d \n", gpu_ra_info.gpu_ra_avail);
 	if(gpu_ra_info.gpu_ra_avail >= GPU_MAX_RA_PER_NF) {
 		onvm_gpu_set_gpu_percentage(nf, GPU_MAX_RA_PER_NF);
 		}
 	// Check if request can be sufficiently met, with a step overprovision for NF?
 	else if (/*(0 == nf->gpu_monitor_lat) && */gpu_ra_info.gpu_ra_avail > nf->gpu_percentage) {
+		printf("NF's gpu percentage is %d \n",nf->gpu_percentage);
 		//Space to over-provision the NFs GPU percentage.
 		uint16_t overprovision_val = gpu_ml_info->operational_range.max;//onvm_gpu_ml_model_profiler_data[nf->gpu_model].operational_range.max;
 		if(overprovision_val > gpu_ra_info.gpu_ra_avail) {
@@ -636,31 +643,43 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	}
 
 	uint8_t needs_ra=0, readj_ra=0, set_ra=0, gpu_using_nfs=0;
-	uint8_t nfs_need_ra_list[MAX_NFS], nfs_readj_ra_list[MAX_NFS], nfs_set_ra_list[MAX_NFS];
+	uint8_t nfs_need_ra_list[MAX_NFS], nfs_readj_ra_list[MAX_NFS], nfs_set_ra_list[MAX_NFS], knee_values[MAX_NFS];
 
 	//intialize the values of the variables to zero 
 	for(i = 0; i<MAX_NFS; i++){
 		nfs_need_ra_list[i] = 0;
 		nfs_readj_ra_list[i] = 0;
 		nfs_set_ra_list[i] = 0;
+		knee_values[i] = 0;
 		gpu_ra_mgt.nf_gpu_ra_list[i] = 0;
 	}
 
 
-	//count the num of NFs that need GPU RA, RJ and SET.
+	//count the num of NFs that need GPU RA, RJ and SET and see what the Knee for each NFs is
 	for(i=0; i<MAX_NFS; i++) {
 		if((GPU_RA_NEEDS_ALLOCATION == gpu_ra_mgt.ra_status[i]) || (GPU_RA_IS_WAITLISTED == gpu_ra_mgt.ra_status[i])) {
 			nfs_need_ra_list[needs_ra] = i;
 			needs_ra+=1;
 
+			//store the knee values too
+			knee_values[i] = onvm_gpu_ml_model_profiler_data[nfs[i].info->gpu_model].optimal_value;
+
 		}
 		else if ((GPU_RA_NEEDS_READJUSTMENT == gpu_ra_mgt.ra_status[i])) {
 			nfs_readj_ra_list[readj_ra] = i;
 			readj_ra+=1;
+
+
+			//store the knee values too
+			knee_values[i] = onvm_gpu_ml_model_profiler_data[nfs[i].info->gpu_model].optimal_value;
 		}
 		else if ((GPU_RA_IS_SET  == gpu_ra_mgt.ra_status[i])){
 			nfs_set_ra_list[set_ra] = i;
 			set_ra+=1;
+
+
+			//store the knee values too
+			knee_values[i] = onvm_gpu_ml_model_profiler_data[nfs[i].info->gpu_model].optimal_value;
 		}
 	}
 	gpu_using_nfs = needs_ra+readj_ra+set_ra; //all NFs that are concerned about GPU resource
@@ -682,13 +701,16 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	 */
 
 	
-	uint16_t gpu_percentage_in_play = (uint16_t) MAX_GPU_OVERPRIVISION_VALUE; //all the resource we can allocate.
+	int gpu_percentage_in_play = (int) MAX_GPU_OVERPRIVISION_VALUE; //all the resource we can allocate.
 	
 	printf("Number of NFs using gpu %d set_ra %d \n",gpu_using_nfs, set_ra);
 
 	// If the resource is divided into NFs equally
 	if(gpu_using_nfs == 0)
 		return 0;
+
+	//the algorithm for max-min fairness
+	/*
 	uint16_t per_nf_ra = gpu_percentage_in_play/gpu_using_nfs;
 	printf("Equal distribution of resource: Each NF will get %d percent GPU.\n",per_nf_ra);
 
@@ -727,11 +749,59 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	}
 	printf("\n");
 
+	*/
+
+	//algorithm here...
+	//first see if we can give the knee to all NFs
+	uint8_t sum_of_all_knees = 0;
+	for(i = 0; i<MAX_NFS; i++){
+		gpu_percentage_in_play -= knee_values[i];
+		sum_of_all_knees += knee_values[i];
+	}
+
+	printf("Percentage in play %d \n", gpu_percentage_in_play);
+	//if positive... we can allocate Knee for everyone
+	//then we can share rest proportionally
+	//
+	//if zero... we can allocate the Knee to everyone
+	//
+	//if negative, then we do not have enough resource, we will just proportionally reduce the resource from the knee
+
+	//if we can suffice the knee
+	if(gpu_percentage_in_play==0){
+		//allocate the knee to everyone
+		for(i = 0; i<MAX_NFS; i++){
+			gpu_ra_mgt.nf_gpu_ra_list[i] = knee_values[i];
+		}
+	}
+
+	//if we have more GPU to give around
+	if(gpu_percentage_in_play > 0){
+		//first allocate the knee then add the remaining percentage proportionally
+		for(i = 0; i<MAX_NFS; i++){
+			gpu_ra_mgt.nf_gpu_ra_list[i] = knee_values[i]+(uint8_t) (knee_values[i]*gpu_percentage_in_play/sum_of_all_knees);
+		}
+	}
+
+	//now we do not have enough GPU to give around
+	if(gpu_percentage_in_play < 0){
+		// we have to penalize the NF that has higher knee
+		for(i = 0; i<MAX_NFS; i++){
+					gpu_ra_mgt.nf_gpu_ra_list[i] = (knee_values[i]*MAX_GPU_OVERPRIVISION_VALUE/sum_of_all_knees);
+				}
+	}
+
+	//gpu_ra_info.gpu_ra_avail = 0; //temp fix TODO: fix this with decreasing percentage in each phase
+
+
 	for(i=0; i<needs_ra; i++) {
 		printf("Needs GPU Allocation: %d, %d, %d\n", i, nfs_need_ra_list[i], nfs_need_ra_list[i]);
 	}
 	for(i=0; i<readj_ra; i++) {
 		printf("Needs GPU Allocation: %d, %d, %d\n", i, nfs_readj_ra_list[i], nfs_readj_ra_list[i]);
+	}
+	for(i=0; i<set_ra;i++){
+		printf("GPU already set: %d, %d, %d\n", i, nfs_set_ra_list[i],nfs_set_ra_list[i]);
 	}
 
 	//get the shadow NF of NFs that we decide to change "ready", i.e. send the messages.

@@ -18,6 +18,7 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 	unsigned i = 0;
 	struct rte_mbuf* pkt = NULL;
 	uint32_t image_id = 0;
+
 	for (i = 0; i < nb_pkts; i++) {
 		pkt = (struct rte_mbuf*) pkts[i];
 		//we shall copy the packets here itself.. why should we give it to the handler
@@ -29,12 +30,32 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 			//printf("  ID %d start offset %"PRIu32" bytes length %"PRIu32" \n",  chunk_header->image_id, chunk_header->image_chunk.start_offset, chunk_header->image_chunk.size_in_bytes);
 			image_id = (chunk_header->image_id);//*2;//TODO: hack to fix odd numbered image. DONE: Buffer overwriting incorrect index!
 
+
+
+
+
 #ifdef NO_IMAGE_ID
 			static uint current_image = 0;
 			image_id = current_image;
-#endif
+			//printf("Image ID to be referred to is %d \n",image_id);
+#endif //NO_IMAGE_ID
 
 			image_aggregation_info_t *image = &(image_agg->images[image_id]); //(image_agg->images[chunk_header->image_id]);
+
+
+#ifdef NO_IMAGE_ID
+		//There are cases where the fixed batch size cannot form fixed batch eg. final 5 images are filled but not 6th one for batch of 6
+		// thus will never be able to update the image ID.. thus, we will just push the image ID by 1 if we encounter image with status 2.
+
+		if(image->usage_status==2){
+
+			current_image = (current_image+1)%MAX_IMAGES_BATCH_SIZE;
+			image_id = current_image;
+			image = &(image_agg->images[image_id]);
+		}
+
+#endif //NO_IMAGE ID
+
 			if(image->usage_status==0 || image->bytes_count==0) {
 				image->packets_count=0;
 				image->usage_status = 1;
@@ -61,11 +82,12 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 					image->usage_status = 2;
 					//printf("Image %d is complete, image ID now is %d \n", image->image_info.image_id, image_id);
 					SET_BIT(image_agg->ready_mask,(image_id+1));
-
+					//printf("Number of images in the batch right now %d \n",__builtin_popcountll(image_agg->ready_mask));
 					clock_gettime(CLOCK_MONOTONIC, &image->last_packet_time);
 
 #ifdef NO_IMAGE_ID
-					current_image = (current_image+1)%MAX_IMAGES_BATCH_SIZE;
+					current_image = (current_image+1)%(MAX_IMAGES_BATCH_SIZE);
+					//printf("Next image to be filled is %d.. \n", current_image);
 #endif
 				}
 			} else {
@@ -155,6 +177,7 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 			//image_id = (image_id%MAX_IMAGES_BATCH_SIZE);
 #ifdef NO_IMAGE_ID
 			current_image = (current_image+1)%MAX_IMAGES_BATCH_SIZE;
+
 #endif
 			//printf("The address of the bitmask %p \n", &ready_images);
 		}
@@ -226,7 +249,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 #endif
 
 		//Check if images were remaining last time; then pick them.
-		if(unlikely(0 == last_processed_index)) {last_processed_index = new_images;}
+		//if(unlikely(0 == last_processed_index)) {last_processed_index = new_images;}
 
 		//for Freshness set (to avoid stale images comment below line
 		//if(unlikely(nf_info->fixed_batch_size))
@@ -236,10 +259,11 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		//printf("Number of images we counted %"PRIu32" last processed index %"PRIu64" new images %"PRIu64"\n",num_of_images, last_processed_index,new_images);
 		//num_of_images = (nf_info->fixed_batch_size)? ((num_of_images>nf_info->fixed_batch_size)?(nf_info->fixed_batch_size):(num_of_images)):(num_of_images);
 		if(unlikely(nf_info->fixed_batch_size)) {
-			if(num_of_images > nf_info->fixed_batch_size) {
+			if(num_of_images >= nf_info->fixed_batch_size) {
 				num_of_images = nf_info->fixed_batch_size;
 			} else {
 				/* Not sufficient images in the current batch; hence wait till fixed_batch_Size is reached */
+				//printf("Batch Size didn't reach\n");
 				return_stream(cuda_stream);
 				return 0;
 			}
@@ -285,8 +309,8 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			out_cpu_buffers[i] = cpu_side_output;
 
 		}
-		//printf("number of images ready %d, can_be_processed=%d index of image %d \n", num_of_images, actual_images_in_batch, ffs(new_images)-1);
-
+		//printf("number of images ready %d, can_be_processed=%d index of image %d \n", num_of_images, actual_images_in_batch, ffsll(new_images)-1);
+		//printf("index of image being sent %d \n",ffsll(actual_images_in_batch_bitmask));
 		//prepare execution arguments
 		callback_args->bitmask_images= actual_images_in_batch_bitmask;//actual_images_in_batch;//new_images;
 		callback_args->batch_aggregation = batch_agg_info;
@@ -337,7 +361,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 						CLEAR_BIT(batch_agg_info->ready_mask, (image_index+1));
 						CLEAR_BIT(last_processed_index, (image_index+1));
 					} //checking GPU percentage
-					  //printf("After posting image ready mask %"PRIu32",final_batch size %d \n", batch_agg_info->ready_mask, actual_images_in_batch);
+					  //printf("After posting image ready mask %"PRIu64",final_batch size %d \n", batch_agg_info->ready_mask, actual_images_in_batch);
 				}
 				else
 				{
@@ -365,13 +389,20 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		nflib_ml_fw_infer_params_t infer_params;
 		infer_params.batch_size = actual_images_in_batch;//__builtin_popcount(callback_args->bitmask_images);
-		//printf("Batch size fed %d,",infer_params.batch_size);
+		//printf("Batch size fed %d,\n",infer_params.batch_size);
 		//printf("Batch size: %d Stream ID %"PRIu8" image mask %x\n",infer_params.batch_size, cuda_stream->id, callback_args->bitmask_images);
 		infer_params.callback_data = callback_args;
 		infer_params.callback_function = callback_function;
 		infer_params.stream = &(cuda_stream->stream);
 		infer_params.model_handle = nf_info->ml_model_handle;
-		infer_params.input_data = start_dev_buffer;
+
+		//this path is different for CNTK and Tensorrt. CNTK only takes CPU side buffer not GPU side buffer so will only
+		if(nf_info->gpu_model>5){
+			infer_params.input_data = start_dev_buffer;
+		}
+		else if(nf_info->gpu_model<=5){
+			infer_params.input_data = cpu_side_buffer;
+		}
 		infer_params.input_size = SIZE_OF_AN_IMAGE_BYTES*infer_params.batch_size;
 		infer_params.output = start_output_buffer;
 

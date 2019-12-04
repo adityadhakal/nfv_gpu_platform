@@ -8,10 +8,10 @@
 #include "onvm_stream.h"
 
 #define ENABLE_GPU_NETML
-#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
+//#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 #define MAX_CHUNKS_PER_IMAGE 2352
-#define MAX_IMAGES_BATCH_SIZE 60
+#define MAX_IMAGES_BATCH_SIZE 64
 
 #define SIZE_OF_EACH_ELEMENT sizeof(float)
 
@@ -103,7 +103,8 @@ extern struct gpu_callback gpu_callbacks[MAX_STREAMS * PARALLEL_EXECUTION];
 void gpu_image_callback_function(void *data);
 
 /* this function initializes the number of streams desired by the program */
-int init_streams(void);
+// providing functionality for stream priority
+int init_streams(uint8_t priority);
 
 /* this function provides an empty stream */
 stream_tracker *give_stream_v2(void);

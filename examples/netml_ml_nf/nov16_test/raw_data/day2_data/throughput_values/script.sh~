@@ -1,0 +1,7 @@
+#! /bin/bash
+for f in *.txt
+do
+    echo $f
+    echo " Median Throughput (ips), Median Latency (micro-sec)"
+    datamash -t, --header-in median 1 median 3 <$f
+    
