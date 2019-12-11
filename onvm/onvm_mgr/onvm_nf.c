@@ -414,7 +414,14 @@ inline void monitor_nf_node_liveliness_via_pid_monitoring(void) {
 	}
 }
 
+#ifdef ONVM_GPU
+inline int onvm_nf_is_valid_for_gpu(struct onvm_nf *cl){
+	return cl->info &&((cl->info->status & NF_RUNNING) || (cl->info->status & NF_STARTING)); //NF starting should also be a valid condition for GPU
+}
+#endif //ONVM_GPU
+
 inline int onvm_nf_is_valid(struct onvm_nf *cl) {
+	//return cl->info &&((cl->info->status & NF_RUNNING) || (cl->info->status & NF_STARTING)); //NF starting should also be a valid condition for GPU
 	return cl->info && (cl->info->status & NF_RUNNING); //can be both running and paused
 	return cl->info && cl->info->status == NF_RUNNING;
 }
@@ -536,7 +543,7 @@ void onvm_nf_recv_and_process_msgs(void) {
 				uint8_t nf_id = nf->instance_id;
 				uint8_t alt_nf_id = get_associated_active_or_standby_nf_id(nf_id);
 				if(gpu_ra_mgt.ra_status[nf_id] == GPU_RA_NEED_TO_RELINQUISH){
-					nfs[alt_nf_id].info->gpu_percentage = 0;
+					//nfs[alt_nf_id].info->gpu_percentage = 0;
 					//set the new NF GPU RA to set
 					if(	gpu_ra_mgt.ra_status[alt_nf_id] == GPU_RA_IS_SET){
 
@@ -735,6 +742,7 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 	uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_info->instance_id);//here we just need instance ID Of other NF
 
 
+
 	//if we have alternate running then do not do anything.. put the original in pause
 	if(likely(onvm_nf_is_valid(&nfs[stdby_nfid]))) {
 		printf("###____-----#### OtherNF instance %d is up so we pause__+++++ Service count: %d\n", stdby_nfid,service_count);
@@ -747,6 +755,7 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 			nf_info->status = NF_RUNNING;
 
 	}
+
 	// Register this NF running within its service
 	services[nf_info->service_id][service_count] = nf_info->instance_id;
 
@@ -891,19 +900,32 @@ int onvm_nf_start(struct onvm_nf_info *nf_info) {
 	//if we have alternate running then do not do anything.. put the original in pause
 	if(likely(onvm_nf_is_valid(&nfs[stdby_nfid]))) {
 
+		printf("Alternate NF is valid... ring flag will be 0 \n");
 		nf_info->ring_flag = 0;//set the ring flag to 0 so the secondary NF doesn't touch the ring
 		nf_info->gpu_percentage = 0;//give 0 as gpu percentage
-	}
-	else
-	{
-		nf_info->ring_flag = 1; //let this NF have the access to ring
-		// provide a GPU percentage.. let's start with 80%
-		onvm_gpu_get_gpu_percentage_for_nf(nf_info);//nf_info->gpu_percentage = 100;
+
 		if(nf_info->gpu_model && nf_info->gpu_percentage==0)
 		{
+			printf("Halting the NF ---- until signal from manager \n");
 			//this NF did not get GPU percentage, so we will just put it in suspended state..
 			gpu_state_and_percentage_check(nf_info);
 		}
+
+	}
+	else
+	{
+		printf("Alternate NF is not valid, so Ring Flag will be 1\n");
+		nf_info->ring_flag = 1; //let this NF have the access to ring
+		// provide a GPU percentage.. let's start with 80%
+		onvm_gpu_get_gpu_percentage_for_nf(nf_info);//nf_info->gpu_percentage = 100;
+
+
+		//if(nf_info->gpu_model && nf_info->gpu_percentage==0)
+		//{
+			//this NF did not get GPU percentage, so we will just put it in suspended state..
+		//	gpu_state_and_percentage_check(nf_info);
+		//}
+
 	}
 	//let's send the message to orchestrator
 
@@ -931,6 +953,8 @@ int onvm_nf_stop(struct onvm_nf_info *nf_info) {
 
 #if defined(ENABLE_NFV_RESL)
 #ifdef ONVM_GPU
+	//Release GPU Resource for this NF
+	onvm_gpu_release_gpu_percentage_for_nf(nf_info);
 	//For Primary Instance DOWN; ensure that if corresponding secondary is active move it to RUNNING state;
 	if(likely(is_primary_active_nf_id(nf_id)||is_secondary_active_nf_id(nf_id))) {
 		uint16_t stdby_nfid = get_associated_active_or_standby_nf_id(nf_id); //here we just need instance ID Of other NF
@@ -938,16 +962,15 @@ int onvm_nf_stop(struct onvm_nf_info *nf_info) {
 		//For Primary Instance DOWN; ensure that if corresponding secondary is active move it to RUNNING state;
 		if(likely(is_primary_active_nf_id(nf_id))) {
 			uint16_t stdby_nfid = get_associated_standby_nf_id(nf_id); //here we just need instance ID Of other NF
-#endif
+#endif //ONVM_GPU
 			struct onvm_nf *cl = &nfs[stdby_nfid];
 			if(likely((onvm_nf_is_valid(cl) && onvm_nf_is_paused(cl)))) {
 				cl->info->status ^=NF_PAUSED_BIT;
 #ifdef ONVM_GPU
-				//Release GPU Resource for this NF
-				onvm_gpu_release_gpu_percentage_for_nf(nf_info);
+
 				//Must allocate the current standby with GPU\% before notifying it to run.
 				onvm_gpu_get_gpu_percentage_for_nf(cl->info);
-#endif
+#endif//ONVM_GPU
 				onvm_nf_send_msg(stdby_nfid, MSG_RESUME, MSG_MODE_ASYNCHRONOUS,NULL);
 			}
 		}
@@ -955,9 +978,7 @@ int onvm_nf_stop(struct onvm_nf_info *nf_info) {
 		nfs[nf_id].service_state_pool = NULL;
 #endif
 #endif
-#ifdef ONVM_GPU
-	onvm_gpu_release_gpu_percentage_for_nf(nf_info);
-#endif
+
 	/* Clean up dangling pointers to info struct */
 	nfs[nf_id].info = NULL;
 

@@ -244,10 +244,14 @@ whether_wakeup_client(int instance_id)
         //If PRIMARY(ACTIVE) NF IS ALIVE, then DO NOT WAKE THE (SECONDARY) STANDBY NF;
         //if((!is_primary_active_nf_id(instance_id)) && (NF_RUNNING == nfs[get_associated_active_or_standby_nf_id(instance_id)].info->status)) {
 #ifdef ONVM_GPU
-	if(unlikely((is_secondary_active_nf_id(instance_id))) && likely((onvm_nf_is_valid(&nfs[get_associated_active_or_standby_nf_id(instance_id)])) ) ) {
-	  return 1; //wakeup is necessary
-		
-        }
+        //Aditya changed it to make it work with both primary and secondary
+       if(unlikely((is_secondary_active_nf_id(instance_id))) && likely((onvm_nf_is_valid(&nfs[get_associated_active_or_standby_nf_id(instance_id)])) ) ) {
+       	return 1; //wakeup is necessary
+       }
+ //       if(likely((onvm_nf_is_valid(&nfs[get_associated_active_or_standby_nf_id(instance_id)]))))
+ //       {
+ //       	return 1;
+ //       }
 #else
         if(unlikely((is_secondary_active_nf_id(instance_id))) && likely((onvm_nf_is_valid(&nfs[get_associated_active_or_standby_nf_id(instance_id)])) ) ) {
                 return 0;

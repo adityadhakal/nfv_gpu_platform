@@ -30,10 +30,6 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 			//printf("  ID %d start offset %"PRIu32" bytes length %"PRIu32" \n",  chunk_header->image_id, chunk_header->image_chunk.start_offset, chunk_header->image_chunk.size_in_bytes);
 			image_id = (chunk_header->image_id);//*2;//TODO: hack to fix odd numbered image. DONE: Buffer overwriting incorrect index!
 
-
-
-
-
 #ifdef NO_IMAGE_ID
 			static uint current_image = 0;
 			image_id = current_image;

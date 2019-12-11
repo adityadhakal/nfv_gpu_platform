@@ -129,7 +129,7 @@ void register_gpu_msg_handling_function(gpu_message_processing_func gmpf) {
 
 //old code
 //timer threads...
-#define NF_INFERENCE_PERIOD_MS 1000
+#define NF_INFERENCE_PERIOD_MS 250
 
 void initialize_ml_timers(struct onvm_nf_info *nf_info);
 static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_timer,
@@ -1404,7 +1404,7 @@ onvm_nflib_info_init(const char *tag) {
 	hist_init_v2(&(info->cpu_latency));
 	hist_init_v2(&(info->gpu_latency));
 	hist_init_v2(&(info->throughput_histogram));
-	hist_init_v2(&(info->image_aggregation_latency));
+	hist_init_v2(&(info->image_aggregation_rate));
 	get_batch_agg_and_dev_buffer_mempool(info);//find the mempool for agg info and dev buffer
 	initialize_ml_timers(info);
 
@@ -2223,7 +2223,7 @@ void gpu_image_callback_function(void *data) {
 
 		number_of_images_since_last_computation += num_of_images_inferred;
 		uint64_t per_batch_timestamp = (call_back_time.tv_sec)*1000000+(call_back_time.tv_nsec)/1000;
-		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu64"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask);
+		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu64",stream_id,%"PRIu8"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask,callback_data->stream_track->id);
 
 		/** Adapt batch size to meet the SLO latency objective **/
 		if((callback_data->nf_info->inference_slo_ms) && (ADAPTIVE_BATCHING_SELF_LEARNING == callback_data->nf_info->enable_adaptive_batching)) {

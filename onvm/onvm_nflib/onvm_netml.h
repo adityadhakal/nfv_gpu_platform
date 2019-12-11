@@ -83,7 +83,7 @@ typedef struct gpu_callback {
 	//void *stream_track;
 } gpu_callback;
 
-#define MAX_STREAMS 1
+#define MAX_STREAMS 2
 #define PARALLEL_EXECUTION 1
 #define STREAMS_ENABLED 1
 #define DEFAULT_STREAM 0

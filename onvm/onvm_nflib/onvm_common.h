@@ -1135,7 +1135,7 @@ struct onvm_nf_info {
 	histogram_v2_t cpu_latency; //histogram measuring latency for Inference starting from CPU (first image ready) to CPU inference output send for batch.
 	histogram_v2_t throughput_histogram; //histogram to process image processing throughput (images processed per second)
 	histogram_v2_t gpu_latency; //histogram measuring latency starting from time batch is given to GPU to inference callback from GPU.
-	histogram_v2_t image_aggregation_latency; //the time to have data transfer + image processing
+	histogram_v2_t image_aggregation_rate; //the rate of aggregation of images
 #endif //ONVM_GPU
 
 };
