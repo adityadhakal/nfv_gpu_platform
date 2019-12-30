@@ -48,6 +48,9 @@ APP = bridge
 
 # all source are stored in SRCS-y
 SRCS-y := bridge.c
+SRCS-y += python_c_api.c
+
+#SRCS-y:= /home/adhak001/dev/dlib/dlib/all/source.cpp
 #SRCS-y += $(SRCDIR)/../../tensorrt_lib/tensorrt_test.o
 
 ONVM= $(SRCDIR)/../../onvm
@@ -56,6 +59,12 @@ ONVM= $(SRCDIR)/../../onvm
 CFLAGS += -I/usr/local/cuda/include
 LDFLAGS += -L/usr/local/cuda/lib64
 LDFLAGS += -L/usr/local/cuda/lib64/stubs
+
+#some python attachments
+CFLAGS += -I/root/anaconda3/include/python3.7m
+LDFLAGS += -L/root/anaconda3/lib/ -rpath,/root/anaconda3/lib/ -rpath,/root/anaconda3/lib/python37/
+
+
 
 CFLAGS += -I/$(SRCDIR)/../../tensorrt_lib/
 
@@ -72,14 +81,16 @@ CFLAGS += -I$(ONVM)/lib
 
 LDFLAGS += $(ONVM)/onvm_nflib/$(RTE_TARGET)/libonvm.a -lstdc++ -lcudart -lcuda
 LDFLAGS += $(ONVM)/lib/$(RTE_TARGET)/lib/libonvmhelper.a
-
-
-
+CFLAGS += -I/usr/local/include/
+LDFLAGS += -ldlib -lX11 
 #LDFLAGS += $(ONVM)/onvm_nflib/build/onvm_netml_cuda.o -lstdc++
 
 #CFLAGS += -I$(SRCDIR)/../../cntk_lib/ 
 #LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
 LDLIBS += -lnvinfer -lcudart_static -lrt -ldl -lpthread -lstdc++ -lm -lcudart
+
+LDFLAGS += -lpython3.7m
+
 
 
 LDFLAGS += $(RTE_SDK)/$(RTE_TARGET)/lib/librte_timer.a

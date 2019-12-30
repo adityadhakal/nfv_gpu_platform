@@ -52,6 +52,7 @@ LIB    = libonvm.a
 SRCS-y := onvm_pkt_helper.c onvm_sc_common.c onvm_sc_mgr.c onvm_flow_table.c onvm_flow_dir.c onvm_nflib.c
 #SRCS-y += onvm_pkt_common.c
 SRCS-y += onvm_netml_cuda.o
+SRCS-y += clipper_batchsize_extension.o
 SRCS-y += onvm_gpu_buffer_factory.c onvm_stream.c
 SRCS-y += onvm_netml.c
 SRCS-y += onvm_config_common.c
@@ -89,3 +90,6 @@ include $(RTE_SDK)/mk/rte.extlib.mk
 
 onvm_netml_cuda.o: onvm_netml_cuda.cu
 	nvcc -c $(SRCDIR)/onvm_netml_cuda.cu -lstdc++
+
+clipper_batchsize_extension.o: clipper_batchsize_extension.cpp
+	gcc -lstdc++ -c $(SRCDIR)/clipper_batchsize_extension.cpp /home/adhak001/dev/dlib/dlib/all/source.cpp -std=c++11 -O3 -ldlib -lX11 -lpthread -I /home/adhak001/dev/dlib/

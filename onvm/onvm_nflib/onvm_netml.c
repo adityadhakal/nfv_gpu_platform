@@ -2,6 +2,8 @@
 #include "onvm_common.h"
 #include "onvm_netml.h"
 #include "onvm_gpu_buffer_factory.h"
+#include "clipper_batchsize_extension.h"
+
 #include <strings.h>//for ffs
 #include <rte_mbuf.h>
 #include <rte_ip.h>
@@ -23,7 +25,7 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 		pkt = (struct rte_mbuf*) pkts[i];
 		//we shall copy the packets here itself.. why should we give it to the handler
 		if(onvm_pkt_ipv4_hdr(pkt) != NULL) {
-			onvm_get_pkt_meta(pkt)->action = ONVM_NF_ACTION_NEXT;
+			onvm_get_pkt_meta(pkt)->action = ONVM_NF_ACTION_DROP;
 			//first find which image this packet belongs to
 			payload = (void *)rte_pktmbuf_mtod_offset(pkt, void *, (sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr)));
 			chunk_header =(image_chunk_header_t *)( (char * )payload + 2);// 2bytes offset to make it 4byte aligned address.
@@ -74,7 +76,7 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 
 				//if we have a right amount of bytes for an image, we should make it a ready image and then update the readymask
 				//if((image->packets_count == MAX_CHUNKS_PER_IMAGE)||(image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
-				if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
+				if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)){	//||(image->packets_count >= SIZE_OF_SENTENCE_BATCH)) { //use for sentences NFs
 					image->usage_status = 2;
 					//printf("Image %d is complete, image ID now is %d \n", image->image_info.image_id, image_id);
 					SET_BIT(image_agg->ready_mask,(image_id+1));
@@ -227,6 +229,11 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 	if(cuda_stream != NULL) {
 
 		uint32_t i;
+
+		//arguments for inference
+		nflib_ml_fw_infer_params_t infer_params;
+
+		//arguments for callback
 		struct gpu_callback * callback_args = NULL;
 		callback_args = &cuda_stream->callback_info;
 #if 0  //This code is for explicit callback mode
@@ -264,12 +271,21 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 				return 0;
 			}
 		}
+
 		/* Should Adaptive batching be learning or not? */
 		else if (ADAPTIVE_BATCHING_SELF_LEARNING == nf_info->enable_adaptive_batching) {
 			// Check and cap to max batch size that is learnt and determined to not exceed SLO for the current operating settings
 			if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
 			//if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
 		}
+#ifdef CLIPPER_ADAPTIVE_BATCHING
+		if(ADAPTIVE_BATCHING_SELF_LEARNING == nf_info->enable_adaptive_batching){
+			int clipper_batch_size = clipper_check_batch_size(nf_info->inference_slo_ms*1000);
+			nf_info->learned_max_batch_size = clipper_batch_size;
+			num_of_images = nf_info->learned_max_batch_size;
+		}
+
+#endif //clipper adaptive batching
 
 		//(last_processed_index)?(last_processed_index):(new_images);
 		uint64_t temp_bitmask = last_processed_index;//(last_processed_index)?(last_processed_index):(new_images);
@@ -317,6 +333,10 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		void * start_dev_buffer = in_buffers[0];
 		void * start_output_buffer = out_buffers[0];
 
+		//Compute statistics for the time to copy an image to GPU
+		clock_gettime(CLOCK_MONOTONIC, &callback_args->start_gpu_transfer);
+
+
 		//printf("Actual_images in batch %d\n",actual_images_in_batch);
 		//printf("Image data structure %p Image index: ", nf_info->image_info);
 		for(i = 0; i< actual_images_in_batch; i++) { //for(i = 0; i<num_of_images; i++) {
@@ -333,12 +353,14 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 				// for CPU buffer case
 				//give_cpu_addresses(cuda_stream->id,&cpu_side_buffer, &cpu_side_output);
 
+				//feed in the pointers of the packets to infrence args
+				infer_params.array_of_packets[i] = (void **)batch_agg_info->images[image_index].image_info.copy_info;
+				infer_params.num_packets[i]= batch_agg_info->images[image_index].packets_count;
+
 				cpu_side_buffer = in_cpu_buffers[i];
 				cpu_side_output = out_cpu_buffers[i];
 
 				if(start_dev_buffer != NULL) {
-					//we have GPU buffer available
-					//printf("The image we are looking at is %d \n",image_index);
 
 					//change the status
 					batch_agg_info->images[image_index].usage_status = 3;
@@ -350,7 +372,8 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 						transfer_to_gpu((void *)(batch_agg_info->images[image_index].image_info.copy_info),batch_agg_info->images[image_index].packets_count,in_buffers[i],&(cuda_stream->stream));
 #else
 						//Copy Transfer
-						transfer_to_gpu_copy((void *)(batch_agg_info->images[image_index].image_info.copy_info),batch_agg_info->images[image_index].packets_count,cpu_side_buffer,in_buffers[i],&(cuda_stream->stream));
+						if(nf_info->platform != pytorch)
+							transfer_to_gpu_copy((void *)(batch_agg_info->images[image_index].image_info.copy_info),batch_agg_info->images[image_index].packets_count,cpu_side_buffer,in_buffers[i],&(cuda_stream->stream));
 #endif
 
 						CLEAR_BIT(actual_images_in_batch_bitmask, (image_index+1));	//CLEAR_BIT(new_images, (image_index+1));
@@ -376,6 +399,10 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 				}
 			}
 		}
+
+		//timestamp for finished GPU transfer
+		clock_gettime(CLOCK_MONOTONIC, &callback_args->end_gpu_transfer);
+
 		//printf("\n");
 
 		//time to execute the im`age
@@ -383,7 +410,6 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		//we have GPU available
 
-		nflib_ml_fw_infer_params_t infer_params;
 		infer_params.batch_size = actual_images_in_batch;//__builtin_popcount(callback_args->bitmask_images);
 		//printf("Batch size fed %d,\n",infer_params.batch_size);
 		//printf("Batch size: %d Stream ID %"PRIu8" image mask %x\n",infer_params.batch_size, cuda_stream->id, callback_args->bitmask_images);

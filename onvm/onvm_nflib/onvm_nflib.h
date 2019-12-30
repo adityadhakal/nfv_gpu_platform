@@ -64,8 +64,10 @@
 //#include "tensorrt_api.h"
 //#include "onvm_cntk_api.h"
 #include "onvm_gpu_buffer_factory.h"
-#define HOLD_PACKETS_TILL_CALLBACK
-#endif
+//#define HOLD_PACKETS_TILL_CALLBACK
+#define NEW_LEARNING_BATCH_APPROACH
+//#define CLIPPER_ADAPTIVE_BATCHING
+#endif //ONVM_GPU
 //aditya
 
 /************************************API**************************************/
@@ -322,6 +324,8 @@ void copy_data_to_image(void *packet_data, struct onvm_nf_info *nf_info);
 
 //throughput and latency calculations
 int number_of_images_since_last_computation;
+uint64_t total_images_processed;
+uint64_t total_slo_violations;
 //struct timespec previous_computation;
 
 struct timespec batch_fed[1000], batch_processed[1000];

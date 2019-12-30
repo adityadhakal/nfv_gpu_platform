@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 #define NUMBER_OF_MODELS 11
+#define MAX_IMAGES_BATCH_SIZE 64
 typedef struct nflib_ml_fw_load_params_t {
 	const char* file_path;
 	uint32_t file_len;
@@ -22,7 +23,9 @@ typedef struct nflib_ml_fw_link_params_t {
 typedef struct nflib_ml_fw_infer_params_t {
 	void* model_handle;
 	void* input_data;
-	size_t input_size;
+	size_t input_size; //bytes value of input
+	uint32_t num_packets[MAX_IMAGES_BATCH_SIZE]; //number of total packets... for translation
+	void *array_of_packets[MAX_IMAGES_BATCH_SIZE];//array of packets array
 	float* output;
 	void* evaluation_time;
 	cudaStream_t *stream;

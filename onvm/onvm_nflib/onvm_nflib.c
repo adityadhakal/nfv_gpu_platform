@@ -68,6 +68,7 @@
 #endif
 #include "onvm_includes.h"
 #include "onvm_sc_common.h"
+#include "clipper_batchsize_extension.h"
 
 /**********************************Macros*************************************/
 //HOld packets during execution
@@ -156,6 +157,7 @@ void gpu_image_callback_function(void *data);
 //following are utilized while parsing the NF arguments so should stay
 static char *ml_model_file;//filename of model
 static uint16_t ml_model_number;//ml model number
+static uint16_t ml_priority;//ml priority
 
 /* A wrapper to replace NF callback */
 typedef int (*process_batch_NF)(struct onvm_nf_info *nf_info,
@@ -1410,6 +1412,7 @@ onvm_nflib_info_init(const char *tag) {
 
 	//also initialize the gpu models and the model number before sending it to the manager
 	info->gpu_model = ml_model_number;
+	info->gpu_priority = ml_priority;
 	info->ring_flag = 0;//by default there will be a ring guard. Only manager will be able to remove it
 
 	//put the batch aggregation buffer in the NF
@@ -1470,7 +1473,7 @@ static int onvm_nflib_parse_args(int argc, char *argv[]) {
 	opterr = 0;
 #ifdef ENABLE_STATIC_ID
 #ifdef ONVM_GPU
-	while((c = getopt (argc, argv, "n:r:f:m:")) != -1)
+	while((c = getopt (argc, argv, "n:r:f:m:i:")) != -1)
 #else
 	while ((c = getopt (argc, argv, "n:r:")) != -1)
 #endif //onvm_gpu
@@ -1490,6 +1493,13 @@ static int onvm_nflib_parse_args(int argc, char *argv[]) {
 		case 'm':
 		ml_model_number = (uint16_t) strtoul(optarg, NULL, 10);
 		break;
+		case 'i':
+			if(optarg != NULL){
+				ml_priority = (uint16_t) strtoul(optarg, NULL, 10);
+			}
+			else
+				ml_priority = 0;
+			break;
 #else
 		case 'n':
 		initial_instance_id = (uint16_t) strtoul(optarg, NULL, 10);
@@ -1981,7 +1991,7 @@ void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int message_type) {
  */
 #define MIN_GAP_THRESHOLD (50)	//Latency gap between SLO and observed latency below which the scaling cannot be performed.
 #define MAX_OVERFLOW_THRESHOLD (5)
-#define NEW_LEARNING_BATCH_APPROACH
+
 #ifdef NEW_LEARNING_BATCH_APPROACH
 #define SLO_OFFSET_THRESHOLD_PERCENTAGE (10)
 //GPU callback function to report after the evaluation is finished...
@@ -1997,6 +2007,9 @@ inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_in
 	}
 	//exceeds the SLO
 	else if (unlikely(cur_lat > slo_time_us)) {
+		//Note SLO violation
+		total_slo_violations++;
+
 		callback_data->nf_info->b_i_exceeding_slo_per_sec++;
 		uint32_t overflow_us = (cur_lat - slo_time_us);
 		if(unlikely(num_of_images_inferred == ((uint32_t) 1))) {
@@ -2223,7 +2236,9 @@ void gpu_image_callback_function(void *data) {
 
 		number_of_images_since_last_computation += num_of_images_inferred;
 		uint64_t per_batch_timestamp = (call_back_time.tv_sec)*1000000+(call_back_time.tv_nsec)/1000;
-		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu64",stream_id,%"PRIu8"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask,callback_data->stream_track->id);
+		uint64_t data_transfer_time = (callback_data->end_gpu_transfer.tv_sec-callback_data->start_gpu_transfer.tv_sec)*1000000+(callback_data->end_gpu_transfer.tv_nsec-callback_data->start_gpu_transfer.tv_nsec)/1000;
+		//printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu64",stream_id,%"PRIu8"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask,callback_data->stream_track->id);
+		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",stream_id,%"PRIu8",data_transfer_time,%"PRIu64"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->stream_track->id,data_transfer_time);
 
 		/** Adapt batch size to meet the SLO latency objective **/
 		if((callback_data->nf_info->inference_slo_ms) && (ADAPTIVE_BATCHING_SELF_LEARNING == callback_data->nf_info->enable_adaptive_batching)) {
@@ -2232,6 +2247,14 @@ void gpu_image_callback_function(void *data) {
 				callback_data->nf_info->adaptive_cur_batch_size=num_of_images_inferred;
 			}
 			uint32_t cur_lat = gpu_latency;		//cpu_latency;
+
+#ifdef CLIPPER_ADAPTIVE_BATCHING
+			clipper_add_processing_datapoint(num_of_images_inferred,cur_lat);
+			if (unlikely(cur_lat > (callback_data->nf_info->inference_slo_ms*1000*0.9))) {
+					//Note SLO violation
+					total_slo_violations++;
+			}
+#endif //clipper_adaptive_batching
 #ifdef NEW_LEARNING_BATCH_APPROACH
 			gpu_compute_batch_size_for_slo(data, (uint32_t)num_of_images_inferred, cur_lat);
 #else
@@ -2461,6 +2484,8 @@ void gpu_image_callback_function(void *data) {
  }
  */
 
+struct timespec time_per_1000_images;
+
 //timer function for inference Aditya check
 static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_timer,void * info) {
 	struct onvm_nf_info *nf_info = (struct onvm_nf_info *) info;
@@ -2479,7 +2504,13 @@ static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_time
 	clock_gettime(CLOCK_MONOTONIC, &timestamp);
 	uint64_t timestamp_64 = timestamp.tv_sec*1000000+timestamp.tv_nsec/1000;
 
-	printf("Measurement_interval(ms):,%d,%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64"\n",NF_INFERENCE_PERIOD_MS,throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64);
+	total_images_processed += number_of_images_since_last_computation;
+	printf("Measurement_interval(ms):,%d,%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64",%"PRIu64",%"PRIu64"\n",NF_INFERENCE_PERIOD_MS,throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64,total_images_processed,total_slo_violations);
+	//if((total_images_processed %1000) < 50){
+	//	double time_for_1000_images = (timestamp.tv_sec-time_per_1000_images.tv_sec)*1000+(timestamp.tv_nsec-time_per_1000_images.tv_nsec)/(1000*1000);
+	//	printf("Time for 1000 images %f milliseconds\n", time_for_1000_images);
+	//	clock_gettime(CLOCK_MONOTONIC, &time_per_1000_images);
+	//}
 	number_of_images_since_last_computation = 0;
 }
 

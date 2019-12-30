@@ -156,10 +156,19 @@ void transfer_to_gpu_copy(void * data_ptrs, int num_of_payload_data, void *cpu_d
     //void * src_ptr = data_chunk.src_cpy_ptr;
     uint32_t size = data_chunk.image_chunk.size_in_bytes;
     uint32_t offset = data_chunk.image_chunk.start_offset;
+
+    //#ifdef NO_IMAGE_ID
+    //offset = size*i;
+  //#endif
+    
     total_bytes += size;
     char *empty_buffer = ((char *) cpu_destination)+offset;
     char *data = (char *) (data_chunk.src_cpy_ptr);
+   
+
     memcpy(empty_buffer,data,size);
+
+    
   }
   clock_gettime(CLOCK_MONOTONIC, &end_cpu_copy);
   
@@ -167,8 +176,8 @@ void transfer_to_gpu_copy(void * data_ptrs, int num_of_payload_data, void *cpu_d
   //cudaMemcpyAsync(gpu_destination, cpu_destination, total_bytes, cudaMemcpyHostToDevice, *stream);
   //clock_gettime(CLOCK_MONOTONIC, &begin_cudamemcpy);
 
-  //cudaMemcpyAsync(gpu_destination, cpu_destination, total_bytes, cudaMemcpyHostToDevice, *stream);
-  cudaMemcpy(gpu_destination, cpu_destination, total_bytes, cudaMemcpyHostToDevice);
+  cudaMemcpyAsync(gpu_destination, cpu_destination, total_bytes, cudaMemcpyHostToDevice, *stream);
+  //cudaMemcpy(gpu_destination, cpu_destination, total_bytes, cudaMemcpyHostToDevice);
 
   //clock_gettime(CLOCK_MONOTONIC, &end_cudamemcpy);
   //float cpu_copy_time = (end_cpu_copy.tv_sec-begin_cpu_copy.tv_sec)*1000.0+(end_cpu_copy.tv_nsec-begin_cpu_copy.tv_nsec)/1000000.0;
