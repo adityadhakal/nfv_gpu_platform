@@ -2,7 +2,7 @@
 #define _ONVM_ML_LIBRARIES_H
 #include <cuda_runtime.h>
 
-#define NUMBER_OF_MODELS 11
+#define NUMBER_OF_MODELS (11)
 #define MAX_IMAGES_BATCH_SIZE 64
 typedef struct nflib_ml_fw_load_params_t {
 	const char* file_path;
@@ -18,6 +18,7 @@ typedef struct nflib_ml_fw_link_params_t {
 	void* cuda_handles_for_gpu_data;
 	void* gpu_side_input_pointer; //in platform where we cannot create GPU buffers easily, the platform can create it and populate the address here
 	void* gpu_side_output_pointer;
+	int link_options; //1- link the model, 0- do not link the modelss
 }nflib_ml_fw_link_params_t;
 
 typedef struct nflib_ml_fw_infer_params_t {

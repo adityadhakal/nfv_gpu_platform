@@ -6,8 +6,9 @@
 //#ifdef ONVM_GPU
 #include "onvm_ml_libraries.h"
 #include "onvm_stream.h"
+#include "histogram.h"
 
-#define ENABLE_GPU_NETML
+//#define ENABLE_GPU_NETML
 #define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 
@@ -19,7 +20,7 @@
 #define SIZE_OF_AN_IMAGE_BYTES (SIZE_OF_EACH_ELEMENT*3*224*224)
 #define IMAGE_BATCH_DEV_BUFFER_SIZE (MAX_IMAGES_BATCH_SIZE*SIZE_OF_AN_IMAGE_BYTES)
 
-#define SIZE_OF_SENTENCE_BATCH 1000 //set this to large value for images execution
+#define SIZE_OF_SENTENCE_BATCH 10000 //set this to large value for images execution
 
 /* structure that defines a chunk of data included in a packet*/
 typedef struct __attribute__ ((packed)) chunk_info_t {
@@ -87,7 +88,7 @@ typedef struct gpu_callback {
 	struct stream_tracker *stream_track;
 } gpu_callback;
 
-#define MAX_STREAMS 1
+#define MAX_STREAMS 2
 #define PARALLEL_EXECUTION 1
 #define STREAMS_ENABLED 1
 #define DEFAULT_STREAM 0
@@ -125,7 +126,7 @@ uint32_t data_aggregation(struct rte_mbuf *pkt,
 		uint32_t *ready_images_index);
 uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts,
 		image_batched_aggregation_info_t *image_agg, void** drop_pkts,
-		unsigned *db_pkts);
+		unsigned *db_pkts, histogram_v2_t *arrival_histogram);
 
 void transfer_to_gpu(void *data_ptrs, int number_of_data_pts, void *destination,
 		cudaStream_t *stream);

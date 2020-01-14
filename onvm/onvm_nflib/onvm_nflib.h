@@ -322,7 +322,8 @@ void register_gpu_msg_handling_function(gpu_message_processing_func gmpf);
 void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int msg_type);
 void copy_data_to_image(void *packet_data, struct onvm_nf_info *nf_info);
 
-//throughput and latency calculations
+//throughput and latency calculations.. as well as arrival rate measurement
+uint64_t number_of_images_arrived_since_last_computation;
 int number_of_images_since_last_computation;
 uint64_t total_images_processed;
 uint64_t total_slo_violations;

@@ -1,0 +1,494 @@
+sudo /home/adhak001/dev/openNetVM_sameer/examples/netml_ml_nf/build/app/bridge -l 10 -n 3 --proc-type=secondary -- -r 1 -n 1 -m 9 -- -b 1 -g 4
+EAL: Detected 80 lcore(s)
+EAL: Detected 2 NUMA nodes
+EAL: Multi-process socket /var/run/dpdk/rte/mp_socket_52659_11cee4867ed6d8
+EAL: Probing VFIO support...
+EAL: VFIO support initialized
+EAL: PCI device 0000:19:00.0 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.1 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.2 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.3 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:af:00.0 on NUMA socket 1
+EAL:   probe driver: 19ee:4000 net_nfp_pf
+The instance ID of the nf is 1 and associated id 9
+NF_1_BATCH_AGG_POOL_NAME
+ address 0x17fb9fb80mempool get retval 0 
+Resolved CPU Dev Buffer 
+cur_index:1, action:4, destination:0
+
+APP: Waiting for manager to assign an ID...
+WAIT_TIME(INIT-->START): 62029 ns
+APP: Using Instance ID 1
+APP: Using Service ID 1
+sem_name=MProc_NF_1_SEM for client 1
+mkdir: cannot create directory ‘/sys/fs/cgroup/cpu/nf_1’: File exists
+GPU model is 9
+NF is using GPU
+
+ NF cgroup name and path: nf_1, /sys/fs/cgroup/cpu/nf_1/
+ CMD_TO_CREATE_CGROUP_for_NF: 1, mkdir /sys/fs/cgroup/cpu/nf_1
+ CMD_TO_ADD_NF_TO_CGROUP: echo 52659 > /sys/fs/cgroup/cpu/nf_1/tasks
+ CMD_TO_SET_CPU_SHARE: echo 1024 > /sys/fs/cgroup/cpu/nf_1/cpu.sharesNF on core=10 added to cgroup: nf_1, ret=0Timer subsystem init
+WAIT_TIME(INIT-->START-->Init_end): 160965536 ns
+APP: Finished Process Init.
+Number of sms 4
+gpu percent from command line 4
+User Flags Set:
+ Adaptive_Batching: 0
+ Fixed_Batch_size: 1
+ ML OPS SLO: 0(ms)
+Can use host pointer for registered mem 0
+GPU Percentage set by the manager now 4 
+Linking the cuda memhandles from (nil) 
+pointer to gpu agg buffer 0x17677f600
+User defined GPU percent was 4
+Number of sms 4
+registered cuda memory mem-addr 0x140000000 size 1073741824 cuda error 0 
+Could not register memory mem-addr 0x980000000 size 1073741824 cuda error 1 
+Could not register memory mem-addr 0x11c0000000 size 1073741824 cuda error 1 
+Could not register memory mem-addr 0x1a00000000 size 1073741824 cuda error 1 
+Total time taken to register the mempages to cuda is 31049.484000 micro-seconds 
+Buffer size 629282648
+[W] [TRT] Using an engine plan file across different models of devices is not recommended and is likely to affect performance or even cause errors.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+Time taken to load the model is 10995.000000 milliseconds
+Model load timestamp 31808856111
+Resolved GPU Dev Buffer 
+GPU initialization is complete..
+
+Client process 1 handling packets
+[Press Ctrl-C to quit ...]
+APP: Waiting for manager to put to RUN state...
+WAIT_TIME(START-->RUN): 108922 ns
+WAIT_TIME(INIT-->START-->RUN-->RUNNING): 11329709751 ns
+Measurement_interval(ms):,250,0,0,0,0,0,1,31808873608,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840278999,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279002,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279005,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279006,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279008,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279009,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279011,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279011,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279051,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279052,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279054,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279055,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279057,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279058,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279106,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279107,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279109,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279110,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279112,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279113,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279114,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279115,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279116,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279117,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279161,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279162,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279164,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279165,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279167,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279168,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279169,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279170,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279216,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279217,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279220,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279220,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279223,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279224,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279225,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279226,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279271,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279272,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279274,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279275,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279277,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279277,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279279,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279279,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279326,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279327,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279329,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279330,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279332,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279332,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279333,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279334,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279335,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279336,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279381,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279382,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279384,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279385,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279387,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279387,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279389,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279389,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279436,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279437,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279439,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279446,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279449,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279450,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279450,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279451,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279452,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279453,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279491,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840279492,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280345,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280347,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280349,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280350,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280352,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280353,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280355,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280356,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280358,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280359,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280361,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280361,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280364,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280364,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280366,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280367,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280369,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280371,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280373,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280373,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280375,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280376,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280378,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280379,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280381,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280382,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280384,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280385,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280387,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280388,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280390,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280391,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280393,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280394,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280396,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280397,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280402,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280403,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280405,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280406,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280409,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280410,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280412,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280413,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280416,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280416,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280419,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280420,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280422,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280423,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280425,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280426,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280428,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280429,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280432,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280432,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280435,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280436,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280438,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280439,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280441,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280449,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280452,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280453,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280455,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280456,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280458,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280459,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280462,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280462,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280465,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280465,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280467,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280468,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280469,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280470,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280513,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280514,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280516,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280517,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280519,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280520,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280566,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280567,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280570,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280570,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280573,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280574,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280575,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280576,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840280577,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840417288,0,0
+batch_size:,1,timestamp,31840653700,latency,374204,stream_id,0,data_transfer_time,34,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31840667307,1,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31840917283,1,0
+batch_size:,1,timestamp,31841011875,latency,358162,stream_id,0,data_transfer_time,18,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31841167312,2,0
+batch_size:,1,timestamp,31841369264,latency,357375,stream_id,0,data_transfer_time,18,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31841417291,3,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31841667305,3,0
+batch_size:,1,timestamp,31841726791,latency,357514,stream_id,0,data_transfer_time,17,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31841917290,4,0
+batch_size:,1,timestamp,31842084834,latency,358031,stream_id,0,data_transfer_time,18,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31842167317,5,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31842417297,5,0
+batch_size:,1,timestamp,31842442477,latency,357631,stream_id,0,data_transfer_time,16,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31842667288,6,0
+batch_size:,1,timestamp,31842799996,latency,357508,stream_id,0,data_transfer_time,17,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31842917285,7,0
+batch_size:,1,timestamp,31843157928,latency,357917,stream_id,0,data_transfer_time,16,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31843167304,8,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31843417296,8,0
+batch_size:,1,timestamp,31843516072,latency,358133,stream_id,0,data_transfer_time,15,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31843667312,9,0
+batch_size:,1,timestamp,31843873832,latency,357748,stream_id,0,data_transfer_time,15,instant_thpt,0,arrival_rate,0,
+Measurement_interval(ms):,250,4,0,0,0,0,1,31843917288,10,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31844167267,10,0
+batch_size:,1,timestamp,31844232078,latency,358236,stream_id,0,data_transfer_time,17,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,358236,0,0,0,1,31844417286,11,0
+batch_size:,1,timestamp,31844590054,latency,357965,stream_id,0,data_transfer_time,17,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,358100,0,0,0,1,31844667310,12,0
+Measurement_interval(ms):,250,0,358100,0,0,0,1,31844917313,12,0
+batch_size:,1,timestamp,31844947929,latency,357855,stream_id,0,data_transfer_time,18,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357977,0,0,0,1,31845167295,13,0
+batch_size:,1,timestamp,31845305664,latency,357725,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357851,0,0,0,1,31845417285,14,0
+batch_size:,1,timestamp,31845663608,latency,357934,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357892,0,0,0,1,31845667267,15,0
+Measurement_interval(ms):,250,0,357892,0,0,0,1,31845917294,15,0
+batch_size:,1,timestamp,31846021552,latency,357934,stream_id,0,data_transfer_time,17,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357913,0,0,0,1,31846167267,16,0
+batch_size:,1,timestamp,31846379441,latency,357878,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357895,0,0,0,1,31846417294,17,0
+Measurement_interval(ms):,250,0,357895,0,0,0,1,31846667262,17,0
+batch_size:,1,timestamp,31846737549,latency,358098,stream_id,0,data_transfer_time,17,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357996,0,0,0,1,31846917304,18,0
+batch_size:,1,timestamp,31847095168,latency,357608,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357802,0,0,0,1,31847167283,19,0
+Measurement_interval(ms):,250,0,357802,0,0,0,1,31847417272,19,0
+batch_size:,1,timestamp,31847453451,latency,358270,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,358036,0,0,0,1,31847667310,20,0
+batch_size:,1,timestamp,31847811480,latency,358020,stream_id,0,data_transfer_time,17,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,358028,0,0,0,1,31847917305,21,0
+Measurement_interval(ms):,250,0,358028,0,0,0,1,31848167295,21,0
+batch_size:,1,timestamp,31848168344,latency,356855,stream_id,0,data_transfer_time,19,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357441,0,0,0,1,31848417278,22,0
+batch_size:,1,timestamp,31848526497,latency,358144,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357792,0,0,0,1,31848667266,23,0
+batch_size:,1,timestamp,31848885091,latency,358584,stream_id,0,data_transfer_time,18,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,358188,0,0,0,1,31848917273,24,0
+Measurement_interval(ms):,250,0,358188,0,0,0,1,31849167261,24,0
+batch_size:,1,timestamp,31849242614,latency,357515,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357851,0,0,0,1,31849417275,25,0
+batch_size:,1,timestamp,31849600017,latency,357392,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357621,0,0,0,1,31849667272,26,0
+Measurement_interval(ms):,250,0,357621,0,0,0,1,31849917305,26,0
+batch_size:,1,timestamp,31849957330,latency,357304,stream_id,0,data_transfer_time,17,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357462,0,0,0,1,31850167284,27,0
+batch_size:,1,timestamp,31850315226,latency,357888,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357675,0,0,0,1,31850417269,28,0
+Measurement_interval(ms):,250,0,357675,0,0,0,1,31850667304,28,0
+batch_size:,1,timestamp,31850672804,latency,357570,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357622,0,0,0,1,31850917306,29,0
+batch_size:,1,timestamp,31851029809,latency,356995,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357308,0,0,0,1,31851167284,30,0
+batch_size:,1,timestamp,31851387505,latency,357685,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357496,0,0,0,1,31851417270,31,0
+Measurement_interval(ms):,250,0,357496,0,0,0,1,31851667260,31,0
+batch_size:,1,timestamp,31851745414,latency,357899,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357697,0,0,0,1,31851917294,32,0
+batch_size:,1,timestamp,31852102858,latency,357435,stream_id,0,data_transfer_time,17,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357566,0,0,0,1,31852167304,33,0
+Measurement_interval(ms):,250,0,357566,0,0,0,1,31852417263,33,0
+batch_size:,1,timestamp,31852460189,latency,357322,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357444,0,0,0,1,31852667282,34,0
+batch_size:,1,timestamp,31852817462,latency,357264,stream_id,0,data_transfer_time,14,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357354,0,0,0,1,31852917284,35,0
+Measurement_interval(ms):,250,0,357354,0,0,0,1,31853167255,35,0
+batch_size:,1,timestamp,31853175174,latency,357703,stream_id,0,data_transfer_time,17,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357528,0,0,0,1,31853417286,36,0
+batch_size:,1,timestamp,31853532643,latency,357460,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357494,0,0,0,1,31853667275,37,0
+batch_size:,1,timestamp,31853889891,latency,357239,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357366,0,0,0,1,31853917289,38,0
+Measurement_interval(ms):,250,0,357366,0,0,0,1,31854167287,38,0
+batch_size:,1,timestamp,31854246666,latency,356766,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357066,0,0,0,1,31854417259,39,0
+batch_size:,1,timestamp,31854604107,latency,357431,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357248,0,0,0,1,31854667289,40,0
+Measurement_interval(ms):,250,0,357248,0,0,0,1,31854917300,40,0
+batch_size:,1,timestamp,31854961329,latency,357211,stream_id,0,data_transfer_time,22,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357229,0,0,0,1,31855167270,41,0
+batch_size:,1,timestamp,31855318338,latency,357001,stream_id,0,data_transfer_time,14,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357115,0,0,0,1,31855417282,42,0
+Measurement_interval(ms):,250,0,357115,0,0,0,1,31855667278,42,0
+batch_size:,1,timestamp,31855675800,latency,357452,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357283,0,0,0,1,31855917282,43,0
+batch_size:,1,timestamp,31856033674,latency,357867,stream_id,0,data_transfer_time,22,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357575,0,0,0,1,31856167258,44,0
+batch_size:,1,timestamp,31856390882,latency,357199,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357387,0,0,0,1,31856417296,45,0
+Measurement_interval(ms):,250,0,357387,0,0,0,1,31856667249,45,0
+batch_size:,1,timestamp,31856748647,latency,357756,stream_id,0,data_transfer_time,14,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357571,0,0,0,1,31856917298,46,0
+batch_size:,1,timestamp,31857105960,latency,357303,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357437,0,0,0,1,31857167283,47,0
+Measurement_interval(ms):,250,0,357437,0,0,0,1,31857417286,47,0
+batch_size:,1,timestamp,31857463784,latency,357814,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357625,0,0,0,1,31857667273,48,0
+batch_size:,1,timestamp,31857820890,latency,357098,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357361,0,0,0,1,31857917264,49,0
+Measurement_interval(ms):,250,0,357361,0,0,0,1,31858167280,49,0
+batch_size:,1,timestamp,31858178494,latency,357596,stream_id,0,data_transfer_time,14,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357478,0,0,0,1,31858417264,50,0
+batch_size:,1,timestamp,31858535927,latency,357423,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357450,0,0,0,1,31858667278,51,0
+batch_size:,1,timestamp,31858893321,latency,357384,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357417,0,0,0,1,31858917266,52,0
+Measurement_interval(ms):,250,0,357417,0,0,0,1,31859167294,52,0
+batch_size:,1,timestamp,31859250780,latency,357450,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357433,0,0,0,1,31859417246,53,0
+batch_size:,1,timestamp,31859608994,latency,358204,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357818,0,0,0,1,31859667286,54,0
+Measurement_interval(ms):,250,0,357818,0,0,0,1,31859917295,54,0
+batch_size:,1,timestamp,31859966874,latency,357869,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357843,0,0,0,1,31860167252,55,0
+batch_size:,1,timestamp,31860324882,latency,357999,stream_id,0,data_transfer_time,14,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357921,0,0,0,1,31860417244,56,0
+Measurement_interval(ms):,250,0,357921,0,0,0,1,31860667243,56,0
+batch_size:,1,timestamp,31860682415,latency,357523,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357722,0,0,0,1,31860917252,57,0
+batch_size:,1,timestamp,31861039882,latency,357459,stream_id,0,data_transfer_time,16,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357590,0,0,0,1,31861167262,58,0
+batch_size:,1,timestamp,31861397936,latency,358044,stream_id,0,data_transfer_time,14,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357817,0,0,0,1,31861417262,59,0
+Measurement_interval(ms):,250,0,357817,0,0,0,1,31861667288,59,0
+batch_size:,1,timestamp,31861755825,latency,357877,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357847,0,0,0,1,31861917279,60,0
+batch_size:,1,timestamp,31862113297,latency,357464,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357655,0,0,0,1,31862167242,61,0
+Measurement_interval(ms):,250,0,357655,0,0,0,1,31862417288,61,0
+batch_size:,1,timestamp,31862470872,latency,357564,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357609,0,0,0,1,31862667266,62,0
+batch_size:,1,timestamp,31862828242,latency,357360,stream_id,0,data_transfer_time,14,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357484,0,0,0,1,31862917281,63,0
+Measurement_interval(ms):,250,0,357484,0,0,0,1,31863167262,63,0
+batch_size:,1,timestamp,31863186287,latency,358035,stream_id,0,data_transfer_time,14,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357759,0,0,0,1,31863417271,64,0
+batch_size:,1,timestamp,31863544080,latency,357784,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357771,0,0,0,1,31863667249,65,0
+batch_size:,1,timestamp,31863901616,latency,357527,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357649,0,0,0,1,31863917257,66,0
+Measurement_interval(ms):,250,0,357649,0,0,0,1,31864167268,66,0
+batch_size:,1,timestamp,31864259387,latency,357763,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357706,0,0,0,1,31864417272,67,0
+batch_size:,1,timestamp,31864617190,latency,357793,stream_id,0,data_transfer_time,13,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357749,0,0,0,1,31864667286,68,0
+Measurement_interval(ms):,250,0,357749,0,0,0,1,31864917247,68,0
+batch_size:,1,timestamp,31864974466,latency,357267,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357508,0,0,0,1,31865167255,69,0
+batch_size:,1,timestamp,31865331364,latency,356889,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357198,0,0,0,1,31865417243,70,0
+Measurement_interval(ms):,250,0,357198,0,0,0,1,31865667263,70,0
+batch_size:,1,timestamp,31865689797,latency,358424,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357811,0,0,0,1,31865917240,71,0
+batch_size:,1,timestamp,31866047170,latency,357355,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Measurement_interval(ms):,250,4,357583,0,0,0,1,31866167285,72,0
+APP: Shutting down...
+
+ NF is Exiting...!
+batch_size:,1,timestamp,31866404308,latency,357129,stream_id,0,data_transfer_time,15,instant_thpt,2,arrival_rate,0,
+Status of 0 image: 0
+Status of 1 image: 2
+Status of 2 image: 2
+Status of 3 image: 2
+Status of 4 image: 2
+Status of 5 image: 2
+Status of 6 image: 2
+Status of 7 image: 2
+Status of 8 image: 2
+Status of 9 image: 2
+Status of 10 image: 2
+Status of 11 image: 2
+Status of 12 image: 2
+Status of 13 image: 2
+Status of 14 image: 2
+Status of 15 image: 2
+Status of 16 image: 2
+Status of 17 image: 2
+Status of 18 image: 2
+Status of 19 image: 2
+Status of 20 image: 2
+Status of 21 image: 2
+Status of 22 image: 2
+Status of 23 image: 2
+Status of 24 image: 2
+Status of 25 image: 2
+Status of 26 image: 2
+Status of 27 image: 2
+Status of 28 image: 2
+Status of 29 image: 2
+Status of 30 image: 2
+Status of 31 image: 2
+Status of 32 image: 2
+Status of 33 image: 2
+Status of 34 image: 2
+Status of 35 image: 2
+Status of 36 image: 2
+Status of 37 image: 2
+Status of 38 image: 2
+Status of 39 image: 2
+Status of 40 image: 2
+Status of 41 image: 2
+Status of 42 image: 2
+Status of 43 image: 2
+Status of 44 image: 2
+Status of 45 image: 2
+Status of 46 image: 2
+Status of 47 image: 2
+Status of 48 image: 2
+Status of 49 image: 2
+Status of 50 image: 2
+Status of 51 image: 2
+Status of 52 image: 2
+Status of 53 image: 2
+Status of 54 image: 2
+Status of 55 image: 2
+Status of 56 image: 2
+Status of 57 image: 2
+Status of 58 image: 2
+Status of 59 image: 2
+Status of 60 image: 2
+Status of 61 image: 2
+Status of 62 image: 2
+Status of 63 image: 2
+The final bitmask 18446744073709551614
+If we reach here, program is ending
+Time this NF died 31866404328
+[E] [TRT] Parameter check failed at: engine.cpp::terminateCommonContext::240, condition: cudaEventDestroy(context.start) failure.
+[E] [TRT] Parameter check failed at: engine.cpp::terminateCommonContext::245, condition: cudaEventDestroy(context.stop) failure.
+[E] [TRT] runtime.cpp (31) - Cuda Error in free: 4 (driver shutting down)
+terminate called after throwing an instance of 'nvinfer1::CudaError'
+  what():  std::exception

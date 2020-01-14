@@ -89,7 +89,7 @@ LDFLAGS += ./libzmq.a
 include $(RTE_SDK)/mk/rte.extlib.mk
 
 onvm_netml_cuda.o: onvm_netml_cuda.cu
-	nvcc -c $(SRCDIR)/onvm_netml_cuda.cu -lstdc++
+	nvcc -c -g $(SRCDIR)/onvm_netml_cuda.cu -lstdc++
 
 clipper_batchsize_extension.o: clipper_batchsize_extension.cpp
 	gcc -lstdc++ -c $(SRCDIR)/clipper_batchsize_extension.cpp /home/adhak001/dev/dlib/dlib/all/source.cpp -std=c++11 -O3 -ldlib -lX11 -lpthread -I /home/adhak001/dev/dlib/

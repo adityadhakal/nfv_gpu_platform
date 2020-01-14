@@ -48,6 +48,8 @@ int cntk_load_model(nflib_ml_fw_load_params_t* load_params,  void *status)
   const char * file_path_char = load_params->file_path;
   printf("the file path is %s \n", file_path_char);
   int load_flag = load_params->load_options;
+  long load_begin_ms = load_begin.tv_sec*1000000+load_begin.tv_nsec/1000;
+   printf("Model load begin time %ld\n",load_begin_ms);
   
   setlocale(LC_ALL, "en_US.UTF-8");
 
@@ -184,40 +186,43 @@ int cntk_link_pointers(nflib_ml_fw_link_params_t* link_params,  void *status)
 {
   struct timespec begin_linking, end_linking;
   clock_gettime(CLOCK_MONOTONIC, &begin_linking);
-  void *cpu_function_pointer = link_params->model_handle;
-  void *cuda_handles_for_gpu_data = link_params->cuda_handles_for_gpu_data;
-  int number_of_parameters = link_params->number_of_parameters;
-  
-  //printf("Number of parameters %d \n",link_params->number_of_parameters);
+  long load_begin_ms = begin_linking.tv_sec*1000000+begin_linking.tv_nsec/1000;
+  printf("Model link begin time %ld\n",load_begin_ms);
 
-  /* we assume the models are identical in CPU and GPU side */
-  const auto& gpu_device = CNTK::DeviceDescriptor::GPUDevice(0);
-  Function *rootFunc = (Function*) cpu_function_pointer;
-  auto parameters = (rootFunc)->Parameters();
-  int counter = 0;
+	  void *cpu_function_pointer = link_params->model_handle;
+	  void *cuda_handles_for_gpu_data = link_params->cuda_handles_for_gpu_data;
+	  int number_of_parameters = link_params->number_of_parameters;
 
-  // a single variable should be enough
-  //void ** gpu_pointer = (void **)malloc(sizeof(void *)*number_of_parameters);
-  void * gpu_pointer;
-  
-  //since the number of paramters and the number of gpu pointers are the same... we can resolve the GPU pointers in the loop itself 
-  for(auto& p: parameters){
-    auto ndarray = p.GetValue();
-    // resolve the cuda handles
-    cudaError_t cuda_error = cudaIpcOpenMemHandle((void **)&(gpu_pointer), ((cudaIpcMemHandle_t*)cuda_handles_for_gpu_data)[counter],cudaIpcMemLazyEnablePeerAccess);
-    if(cuda_error != cudaSuccess)
-      std::cout<<"CUDA ERROR : "<<cudaGetErrorString(cuda_error)<<" gpu pointer "<<gpu_pointer<<"counter "<<counter<<std::endl;
+	  //printf("Number of parameters %d \n",link_params->number_of_parameters);
 
-    //else
-    //  std::cout<<"CUDA pointer successfully converted "<<gpu_pointer[counter]<<std::endl;
+	  /* we assume the models are identical in CPU and GPU side */
+	  const auto& gpu_device = CNTK::DeviceDescriptor::GPUDevice(0);
+	  Function *rootFunc = (Function*) cpu_function_pointer;
+	  auto parameters = (rootFunc)->Parameters();
+	  int counter = 0;
 
-    
-    //now attach the gpu pointers
-    (ndarray.get())->Attach_GPU_Address(gpu_device, (float *) gpu_pointer);
-    counter++;
+	  // a single variable should be enough
+	  //void ** gpu_pointer = (void **)malloc(sizeof(void *)*number_of_parameters);
+	  void * gpu_pointer;
+	  if(link_params->link_options){
+	  //since the number of paramters and the number of gpu pointers are the same... we can resolve the GPU pointers in the loop itself
+	  for(auto& p: parameters){
+		  auto ndarray = p.GetValue();
+		  // resolve the cuda handles
+		  cudaError_t cuda_error = cudaIpcOpenMemHandle((void **)&(gpu_pointer), ((cudaIpcMemHandle_t*)cuda_handles_for_gpu_data)[counter],cudaIpcMemLazyEnablePeerAccess);
+		  if(cuda_error != cudaSuccess)
+			  std::cout<<"CUDA ERROR : "<<cudaGetErrorString(cuda_error)<<" gpu pointer "<<gpu_pointer<<"counter "<<counter<<std::endl;
+
+		  //else
+		  //  std::cout<<"CUDA pointer successfully converted "<<gpu_pointer[counter]<<std::endl;
+
+
+		  //now attach the gpu pointers
+		  (ndarray.get())->Attach_GPU_Address(gpu_device, (float *) gpu_pointer);
+		  counter++;
+	  }
+	  //free(gpu_pointer);
   }
-  //free(gpu_pointer);
-
   clock_gettime(CLOCK_MONOTONIC, &end_linking);
 
   double linking_time = (end_linking.tv_sec-begin_linking.tv_sec)*1000.0+(end_linking.tv_nsec-begin_linking.tv_nsec)/1000000.0;
@@ -275,7 +280,7 @@ int cntk_link_pointers(nflib_ml_fw_link_params_t* link_params,  void *status)
       //const auto& gpu_device = CNTK::DeviceDescriptor::GPUDevice(0);
     struct timespec begin,end;
 
-    printf("input size %d outputsize %d \n", total_size, tot_output_size);
+    printf("input size %ld outputsize %d \n", total_size, tot_output_size);
     clock_gettime(CLOCK_MONOTONIC, &begin);
 
     std::vector<float> inputData(total_size*BATCH_SIZE,0.0); //allocating a vector

@@ -1,0 +1,7 @@
+#! /bin/bash
+
+for f in *.csv
+do
+    echo $f
+    datamash -t, mean 2 pstdev 2 mean 12 pstdev 12 <$f
+done

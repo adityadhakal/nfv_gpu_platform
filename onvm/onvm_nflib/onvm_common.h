@@ -1113,6 +1113,7 @@ struct onvm_nf_info {
 	uint8_t aiad_aimd_increase_factor; //Batch size step increment when operating within SLO.
 	uint8_t aiad_aimd_decrease_factor; // Batch size step decrement factor when exceeding SLO.
 	uint16_t inference_slo_ms; //SLO latenency objective for the NF in milliseconds.
+	uint32_t recommended_gpu_percentage; //When the self-learning algorithm recommends new GPU percentage...
 	uint32_t batches_inferred_per_sec; //counter tracking number of batches inferred in a second.
 	uint32_t b_i_exceeding_slo_per_sec;	//counter tracking number of batches inferred exceeding the SLO in a second.
 	uint32_t over_provisioned_for_slo;//counter tracking when NFs GPU is overprovisioned (number of batches inferred has peaked (MAX) the ceiling and more than sufficient to meet SLO.
@@ -1136,6 +1137,7 @@ struct onvm_nf_info {
 	histogram_v2_t throughput_histogram; //histogram to process image processing throughput (images processed per second)
 	histogram_v2_t gpu_latency; //histogram measuring latency starting from time batch is given to GPU to inference callback from GPU.
 	histogram_v2_t image_aggregation_rate; //the rate of aggregation of images
+	histogram_v2_t image_arrival_latency; //the latency of image arrival
 #endif //ONVM_GPU
 
 };

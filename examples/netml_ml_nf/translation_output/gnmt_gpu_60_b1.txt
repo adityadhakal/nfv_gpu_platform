@@ -1,0 +1,4467 @@
+sudo /home/adhak001/dev/openNetVM_sameer/examples/netml_ml_nf/build/app/bridge -l 10 -n 3 --proc-type=secondary -- -r 1 -n 1 -m 6 -- -b 1 -g 60
+EAL: Detected 80 lcore(s)
+EAL: Detected 2 NUMA nodes
+EAL: Multi-process socket /var/run/dpdk/rte/mp_socket_197815_112593aabfee18
+EAL: Probing VFIO support...
+EAL: VFIO support initialized
+EAL: PCI device 0000:19:00.0 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.1 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.2 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.3 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:af:00.0 on NUMA socket 1
+EAL:   probe driver: 19ee:4000 net_nfp_pf
+The instance ID of the nf is 1 and associated id 9
+NF_1_BATCH_AGG_POOL_NAME
+ address 0x17fb9fb80mempool get retval 0 
+Resolved CPU Dev Buffer 
+cur_index:1, action:4, destination:0
+
+APP: Waiting for manager to assign an ID...
+WAIT_TIME(INIT-->START): 61736 ns
+APP: Using Instance ID 1
+APP: Using Service ID 1
+sem_name=MProc_NF_1_SEM for client 1
+mkdir: cannot create directory ‘/sys/fs/cgroup/cpu/nf_1’: File exists
+GPU model is 6
+NF is using GPU
+
+ NF cgroup name and path: nf_1, /sys/fs/cgroup/cpu/nf_1/
+ CMD_TO_CREATE_CGROUP_for_NF: 1, mkdir /sys/fs/cgroup/cpu/nf_1
+ CMD_TO_ADD_NF_TO_CGROUP: echo 197815 > /sys/fs/cgroup/cpu/nf_1/tasks
+ CMD_TO_SET_CPU_SHARE: echo 1024 > /sys/fs/cgroup/cpu/nf_1/cpu.sharesNF on core=10 added to cgroup: nf_1, ret=0Timer subsystem init
+WAIT_TIME(INIT-->START-->Init_end): 146990478 ns
+APP: Finished Process Init.
+3.7.5
+python3
+['python']
+['python']
+Model Path
+/home/adhak001/dev/DeepLearningExamples/PyTorch/Translation/GNMT/results/gnmt/model_best.pth
+Args.cuda
+True
+args.local_rank
+0
+args.bleu
+False
+0: Restoring state of the tokenizer
+0: Run arguments: Namespace(batch_first=True, batch_size=[2], beam_size=[5], bleu=False, cov_penalty_factor=0.1, cuda=True, cudnn=True, env=False, input=None, input_text=None, len_norm_const=5.0, len_norm_factor=0.6, local_rank=0, math=['fp16'], max_seq_len=80, model='/home/adhak001/dev/DeepLearningExamples/PyTorch/Translation/GNMT/results/gnmt/model_best.pth', output=None, percentiles=(50, 90, 95, 99, 100), print_freq=1, rank=0, reference=None, repeat={2: 1}, sort=False, tables=False, target_bleu=None, target_perf=None, warmup=0)
+0: math: fp16, batch size: 2, beam size: 5
+math
+fp16
+0: Running evaluation on test set
+Number of sms 48
+gpu percent from command line 60
+User Flags Set:
+ Adaptive_Batching: 0
+ Fixed_Batch_size: 1
+ ML OPS SLO: 0(ms)
+Can use host pointer for registered mem 0
+GPU Percentage set by the manager now 60 
+Linking the cuda memhandles from (nil) 
+pointer to gpu agg buffer 0x17677f600
+User defined GPU percent was 60
+Number of sms 48
+registered cuda memory mem-addr 0x140000000 size 1073741824 cuda error 0 
+Could not register memory mem-addr 0x980000000 size 1073741824 cuda error 1 
+Could not register memory mem-addr 0x11c0000000 size 1073741824 cuda error 1 
+Could not register memory mem-addr 0x1a00000000 size 1073741824 cuda error 1 
+Total time taken to register the mempages to cuda is 31084.000000 micro-seconds 
+Initializing PyTorch.. py is initialized 0 
+Initializing PyTorch.. py is initialized 1 
+Py version 3.7.5 (default, Oct 25 2019, 15:54:44) 
+[GCC 7.3.0]
+0: TEST [0/1]	Time 0.0345 (0.0345)	Decoder iters 10.0 (10.0)	Tok/s 551 (551)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 2, beam size: 5
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0217 (0.0217)	Decoder iters 6.0 (6.0)	Tok/s 739 (739)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 3, beam size: 5
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0344 (0.0344)	Decoder iters 10.0 (10.0)	Tok/s 900 (900)
+0: Finished evaluation on test set
+0: Translated output:
+Resolved GPU Dev Buffer 
+ERROR! while setting up the model in GPU 
+GPU initialization is complete..
+
+Client process 1 handling packets
+[Press Ctrl-C to quit ...]
+APP: Waiting for manager to put to RUN state...
+WAIT_TIME(START-->RUN): 55682 ns
+WAIT_TIME(INIT-->START-->RUN-->RUNNING): 8555797413 ns
+Measurement_interval(ms):,250,0,0,0,0,0,1,285857317607,0,0
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876591133,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876591136,0,0
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0231 (0.0231)	Decoder iters 7.0 (7.0)	Tok/s 519 (519)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876615766,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876615769,0,0
+batch_size:,1,timestamp,285876615778,latency,24634,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0227 (0.0227)	Decoder iters 7.0 (7.0)	Tok/s 528 (528)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876639687,1,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876639690,1,0
+batch_size:,1,timestamp,285876639695,latency,23914,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0228 (0.0228)	Decoder iters 7.0 (7.0)	Tok/s 527 (527)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876663592,2,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876663595,2,0
+batch_size:,1,timestamp,285876663601,latency,23903,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0227 (0.0227)	Decoder iters 7.0 (7.0)	Tok/s 529 (529)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876687411,3,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876687413,3,0
+batch_size:,1,timestamp,285876687418,latency,23815,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0227 (0.0227)	Decoder iters 7.0 (7.0)	Tok/s 529 (529)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876711242,4,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876711245,4,0
+batch_size:,1,timestamp,285876711250,latency,23829,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0227 (0.0227)	Decoder iters 7.0 (7.0)	Tok/s 529 (529)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876735088,5,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876735091,5,0
+batch_size:,1,timestamp,285876735096,latency,23844,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0227 (0.0227)	Decoder iters 7.0 (7.0)	Tok/s 529 (529)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876758899,6,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876758902,6,0
+batch_size:,1,timestamp,285876758907,latency,23809,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0227 (0.0227)	Decoder iters 7.0 (7.0)	Tok/s 529 (529)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876782705,7,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876782707,7,0
+batch_size:,1,timestamp,285876782712,latency,23803,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0227 (0.0227)	Decoder iters 7.0 (7.0)	Tok/s 529 (529)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876806498,8,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876806501,8,0
+batch_size:,1,timestamp,285876806506,latency,23791,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0226 (0.0226)	Decoder iters 7.0 (7.0)	Tok/s 531 (531)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876830236,9,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876830239,9,0
+batch_size:,1,timestamp,285876830244,latency,23736,stream_id,0,data_transfer_time,0,instant_thpt,0,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0226 (0.0226)	Decoder iters 7.0 (7.0)	Tok/s 530 (530)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,0,0,0,0,1,285876854002,10,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,285876854005,10,0
+batch_size:,1,timestamp,285876854010,latency,23764,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0226 (0.0226)	Decoder iters 7.0 (7.0)	Tok/s 531 (531)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23764,0,0,0,1,285876877730,11,0
+Measurement_interval(ms):,250,0,23764,0,0,0,1,285876877733,11,0
+batch_size:,1,timestamp,285876877738,latency,23725,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23744,0,0,0,1,285876901124,12,0
+Measurement_interval(ms):,250,0,23744,0,0,0,1,285876901127,12,0
+batch_size:,1,timestamp,285876901132,latency,23392,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23568,0,0,0,1,285876924536,13,0
+Measurement_interval(ms):,250,0,23568,0,0,0,1,285876924539,13,0
+batch_size:,1,timestamp,285876924544,latency,23410,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23489,0,0,0,1,285876947987,14,0
+Measurement_interval(ms):,250,0,23489,0,0,0,1,285876947990,14,0
+batch_size:,1,timestamp,285876947995,latency,23448,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23468,0,0,0,1,285876971441,15,0
+Measurement_interval(ms):,250,0,23468,0,0,0,1,285876971444,15,0
+batch_size:,1,timestamp,285876971449,latency,23452,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23460,0,0,0,1,285876994894,16,0
+Measurement_interval(ms):,250,0,23460,0,0,0,1,285876994897,16,0
+batch_size:,1,timestamp,285876994902,latency,23450,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23455,0,0,0,1,285877018274,17,0
+Measurement_interval(ms):,250,0,23455,0,0,0,1,285877018277,17,0
+batch_size:,1,timestamp,285877018282,latency,23379,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23417,0,0,0,1,285877041715,18,0
+Measurement_interval(ms):,250,0,23417,0,0,0,1,285877041718,18,0
+batch_size:,1,timestamp,285877041722,latency,23438,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23427,0,0,0,1,285877065178,19,0
+Measurement_interval(ms):,250,0,23427,0,0,0,1,285877065181,19,0
+batch_size:,1,timestamp,285877065186,latency,23461,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23444,0,0,0,1,285877088622,20,0
+Measurement_interval(ms):,250,0,23444,0,0,0,1,285877088625,20,0
+batch_size:,1,timestamp,285877088630,latency,23442,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23443,0,0,0,1,285877112092,21,0
+Measurement_interval(ms):,250,0,23443,0,0,0,1,285877112095,21,0
+batch_size:,1,timestamp,285877112100,latency,23467,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23455,0,0,0,1,285877135528,22,0
+Measurement_interval(ms):,250,0,23455,0,0,0,1,285877135530,22,0
+batch_size:,1,timestamp,285877135536,latency,23434,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 536 (536)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23444,0,0,0,1,285877159026,23,0
+Measurement_interval(ms):,250,0,23444,0,0,0,1,285877159029,23,0
+batch_size:,1,timestamp,285877159034,latency,23495,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23469,0,0,0,1,285877182411,24,0
+Measurement_interval(ms):,250,0,23469,0,0,0,1,285877182414,24,0
+batch_size:,1,timestamp,285877182418,latency,23382,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 536 (536)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23425,0,0,0,1,285877205919,25,0
+Measurement_interval(ms):,250,0,23425,0,0,0,1,285877205922,25,0
+batch_size:,1,timestamp,285877205926,latency,23506,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23465,0,0,0,1,285877229392,26,0
+Measurement_interval(ms):,250,0,23465,0,0,0,1,285877229395,26,0
+batch_size:,1,timestamp,285877229400,latency,23471,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23468,0,0,0,1,285877252808,27,0
+Measurement_interval(ms):,250,0,23468,0,0,0,1,285877252811,27,0
+batch_size:,1,timestamp,285877252816,latency,23414,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 536 (536)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23441,0,0,0,1,285877276314,28,0
+Measurement_interval(ms):,250,0,23441,0,0,0,1,285877276316,28,0
+batch_size:,1,timestamp,285877276321,latency,23503,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23472,0,0,0,1,285877299673,29,0
+Measurement_interval(ms):,250,0,23472,0,0,0,1,285877299676,29,0
+batch_size:,1,timestamp,285877299681,latency,23357,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23414,0,0,0,1,285877323126,30,0
+Measurement_interval(ms):,250,0,23414,0,0,0,1,285877323129,30,0
+batch_size:,1,timestamp,285877323134,latency,23451,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23432,0,0,0,1,285877346503,31,0
+Measurement_interval(ms):,250,0,23432,0,0,0,1,285877346506,31,0
+batch_size:,1,timestamp,285877346511,latency,23375,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23403,0,0,0,1,285877369966,32,0
+Measurement_interval(ms):,250,0,23403,0,0,0,1,285877369969,32,0
+batch_size:,1,timestamp,285877369973,latency,23460,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23431,0,0,0,1,285877393371,33,0
+Measurement_interval(ms):,250,0,23431,0,0,0,1,285877393374,33,0
+batch_size:,1,timestamp,285877393379,latency,23403,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23417,0,0,0,1,285877416763,34,0
+Measurement_interval(ms):,250,0,23417,0,0,0,1,285877416765,34,0
+batch_size:,1,timestamp,285877416770,latency,23389,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23403,0,0,0,1,285877440190,35,0
+Measurement_interval(ms):,250,0,23403,0,0,0,1,285877440193,35,0
+batch_size:,1,timestamp,285877440198,latency,23426,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23414,0,0,0,1,285877463620,36,0
+Measurement_interval(ms):,250,0,23414,0,0,0,1,285877463623,36,0
+batch_size:,1,timestamp,285877463628,latency,23427,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23420,0,0,0,1,285877487102,37,0
+Measurement_interval(ms):,250,0,23420,0,0,0,1,285877487105,37,0
+batch_size:,1,timestamp,285877487109,latency,23480,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23450,0,0,0,1,285877510453,38,0
+Measurement_interval(ms):,250,0,23450,0,0,0,1,285877510456,38,0
+batch_size:,1,timestamp,285877510461,latency,23349,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23399,0,0,0,1,285877533897,39,0
+Measurement_interval(ms):,250,0,23399,0,0,0,1,285877533900,39,0
+batch_size:,1,timestamp,285877533904,latency,23441,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23420,0,0,0,1,285877557346,40,0
+Measurement_interval(ms):,250,0,23420,0,0,0,1,285877557349,40,0
+batch_size:,1,timestamp,285877557353,latency,23447,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23433,0,0,0,1,285877580736,41,0
+Measurement_interval(ms):,250,0,23433,0,0,0,1,285877580739,41,0
+batch_size:,1,timestamp,285877580744,latency,23388,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23410,0,0,0,1,285877604128,42,0
+Measurement_interval(ms):,250,0,23410,0,0,0,1,285877604131,42,0
+batch_size:,1,timestamp,285877604136,latency,23390,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23400,0,0,0,1,285877627468,43,0
+Measurement_interval(ms):,250,0,23400,0,0,0,1,285877627471,43,0
+batch_size:,1,timestamp,285877627476,latency,23337,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23368,0,0,0,1,285877650929,44,0
+Measurement_interval(ms):,250,0,23368,0,0,0,1,285877650932,44,0
+batch_size:,1,timestamp,285877650937,latency,23459,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23413,0,0,0,1,285877674279,45,0
+Measurement_interval(ms):,250,0,23413,0,0,0,1,285877674281,45,0
+batch_size:,1,timestamp,285877674286,latency,23347,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23380,0,0,0,1,285877697719,46,0
+Measurement_interval(ms):,250,0,23380,0,0,0,1,285877697722,46,0
+batch_size:,1,timestamp,285877697727,latency,23438,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23409,0,0,0,1,285877721125,47,0
+Measurement_interval(ms):,250,0,23409,0,0,0,1,285877721128,47,0
+batch_size:,1,timestamp,285877721133,latency,23405,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23407,0,0,0,1,285877744529,48,0
+Measurement_interval(ms):,250,0,23407,0,0,0,1,285877744532,48,0
+batch_size:,1,timestamp,285877744537,latency,23401,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23404,0,0,0,1,285877767949,49,0
+Measurement_interval(ms):,250,0,23404,0,0,0,1,285877767952,49,0
+batch_size:,1,timestamp,285877767957,latency,23418,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23411,0,0,0,1,285877791330,50,0
+Measurement_interval(ms):,250,0,23411,0,0,0,1,285877791333,50,0
+batch_size:,1,timestamp,285877791338,latency,23379,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23395,0,0,0,1,285877814723,51,0
+Measurement_interval(ms):,250,0,23395,0,0,0,1,285877814726,51,0
+batch_size:,1,timestamp,285877814731,latency,23391,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23393,0,0,0,1,285877838080,52,0
+Measurement_interval(ms):,250,0,23393,0,0,0,1,285877838082,52,0
+batch_size:,1,timestamp,285877838087,latency,23354,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 535 (535)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23373,0,0,0,1,285877861608,53,0
+Measurement_interval(ms):,250,0,23373,0,0,0,1,285877861611,53,0
+batch_size:,1,timestamp,285877861616,latency,23526,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23449,0,0,0,1,285877884993,54,0
+Measurement_interval(ms):,250,0,23449,0,0,0,1,285877884996,54,0
+batch_size:,1,timestamp,285877885001,latency,23383,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23416,0,0,0,1,285877908390,55,0
+Measurement_interval(ms):,250,0,23416,0,0,0,1,285877908393,55,0
+batch_size:,1,timestamp,285877908398,latency,23395,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,4,23405,0,0,0,1,285877931867,56,0
+batch_size:,1,timestamp,285877931874,latency,23474,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285877955352,latency,23476,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285877978765,latency,23409,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878002113,latency,23346,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878025504,latency,23387,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878048913,latency,23406,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878072305,latency,23388,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878095699,latency,23390,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878119084,latency,23381,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,36,23386,0,0,0,1,285878142404,65,0
+batch_size:,1,timestamp,285878142411,latency,23323,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878165778,latency,23365,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878189113,latency,23332,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878212551,latency,23434,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878235905,latency,23350,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878259306,latency,23398,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878282616,latency,23306,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878305942,latency,23323,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878329305,latency,23359,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878352671,latency,23362,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878376012,latency,23337,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23345,0,0,0,1,285878399352,76,0
+batch_size:,1,timestamp,285878399359,latency,23344,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878422768,latency,23406,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878446090,latency,23318,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878469501,latency,23408,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878492794,latency,23290,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878516200,latency,23402,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878539529,latency,23326,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878562895,latency,23362,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878586265,latency,23366,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878609607,latency,23339,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878632909,latency,23298,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23323,0,0,0,1,285878656255,87,0
+batch_size:,1,timestamp,285878656262,latency,23350,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878679575,latency,23311,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878702932,latency,23353,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878726254,latency,23319,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878749647,latency,23389,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878773013,latency,23362,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878796384,latency,23368,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878819671,latency,23284,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878843050,latency,23375,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878866455,latency,23401,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23375,0,0,0,1,285878889766,97,0
+batch_size:,1,timestamp,285878889772,latency,23314,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878913134,latency,23360,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878936492,latency,23355,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878959803,latency,23308,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285878983172,latency,23366,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879006520,latency,23345,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879029909,latency,23385,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879053306,latency,23393,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879076720,latency,23411,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879100114,latency,23390,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879123508,latency,23391,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23391,0,0,0,1,285879146906,108,0
+batch_size:,1,timestamp,285879146913,latency,23400,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Invalid Bucket Size! min[42], max[63]batch_size:,1,timestamp,285879170311,latency,23396,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879193723,latency,23406,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879217036,latency,23308,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879240486,latency,23447,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879263905,latency,23416,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879287277,latency,23369,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879310594,latency,23313,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879333987,latency,23390,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 536 (536)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879357500,latency,23510,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879380877,latency,23373,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23406,23833,0,0,1,285879404310,119,0
+batch_size:,1,timestamp,285879404317,latency,23436,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879427690,latency,23371,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879451120,latency,23426,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879474565,latency,23442,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879497976,latency,23407,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879521391,latency,23412,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879544772,latency,23377,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 536 (536)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879568290,latency,23515,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879591659,latency,23365,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879615093,latency,23430,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23420,23833,0,0,1,285879638503,129,0
+batch_size:,1,timestamp,285879638510,latency,23413,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879661943,latency,23431,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879685357,latency,23410,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879708781,latency,23420,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879732264,latency,23479,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879755666,latency,23398,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879779084,latency,23415,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879802491,latency,23404,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879825941,latency,23446,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879849335,latency,23391,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879872717,latency,23379,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23394,23833,0,0,1,285879896153,140,0
+batch_size:,1,timestamp,285879896160,latency,23439,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879919527,latency,23365,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879942915,latency,23385,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879966302,latency,23384,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285879989782,latency,23476,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880013153,latency,23369,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880036554,latency,23398,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880059953,latency,23395,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880083351,latency,23395,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880106769,latency,23414,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880130173,latency,23400,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23402,23833,0,0,1,285880153609,151,0
+batch_size:,1,timestamp,285880153617,latency,23441,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880177023,latency,23404,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880200460,latency,23434,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880223901,latency,23437,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880247327,latency,23423,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880270779,latency,23448,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880294212,latency,23430,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880317667,latency,23452,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880341067,latency,23397,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 536 (536)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880364546,latency,23476,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23447,23833,0,0,1,285880387962,161,0
+batch_size:,1,timestamp,285880387968,latency,23419,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880411390,latency,23419,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880434822,latency,23429,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880458263,latency,23438,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880481711,latency,23445,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880505118,latency,23404,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880528546,latency,23424,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880551969,latency,23420,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880575405,latency,23433,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880598779,latency,23370,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880622112,latency,23330,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23364,23833,0,0,1,285880645474,172,0
+batch_size:,1,timestamp,285880645481,latency,23366,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880668885,latency,23402,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880692288,latency,23400,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880715714,latency,23422,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880739100,latency,23383,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880762488,latency,23385,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880785865,latency,23373,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880809214,latency,23346,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880832617,latency,23399,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880855998,latency,23378,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880879401,latency,23394,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23386,23833,0,0,1,285880902749,183,0
+batch_size:,1,timestamp,285880902755,latency,23350,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880926118,latency,23361,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880949421,latency,23300,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880972794,latency,23370,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285880996123,latency,23326,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881019435,latency,23309,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881042815,latency,23376,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881066156,latency,23338,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881089500,latency,23340,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,0,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881112799,latency,23296,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23318,23833,0,0,1,285881136167,193,0
+batch_size:,1,timestamp,285881136174,latency,23371,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881159532,latency,23355,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881182865,latency,23330,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881206225,latency,23356,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881229606,latency,23377,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881252911,latency,23302,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881276239,latency,23325,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881299575,latency,23333,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881322988,latency,23409,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881346330,latency,23339,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881369730,latency,23396,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23375,23833,0,0,1,285881393037,204,0
+batch_size:,1,timestamp,285881393044,latency,23310,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881416402,latency,23356,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881439722,latency,23317,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881463179,latency,23453,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881486566,latency,23384,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881509925,latency,23355,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881533344,latency,23414,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881556728,latency,23381,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881580123,latency,23391,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881603467,latency,23340,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881626926,latency,23455,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23409,23833,0,0,1,285881650316,215,0
+batch_size:,1,timestamp,285881650323,latency,23394,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881673764,latency,23439,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881697194,latency,23426,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881720633,latency,23436,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881744046,latency,23409,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881767453,latency,23403,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881790906,latency,23450,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881814328,latency,23418,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881837775,latency,23444,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881861248,latency,23470,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881884680,latency,23428,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23440,23833,0,0,1,285881908131,226,0
+batch_size:,1,timestamp,285881908137,latency,23454,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881931505,latency,23365,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881954978,latency,23470,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285881978359,latency,23377,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882001711,latency,23349,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882025104,latency,23390,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882048526,latency,23419,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882071932,latency,23402,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882095330,latency,23394,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882118781,latency,23448,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23422,23833,0,0,1,285882142222,236,0
+batch_size:,1,timestamp,285882142229,latency,23444,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 535 (535)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882165755,latency,23523,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882189141,latency,23383,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882212552,latency,23408,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882235946,latency,23390,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882259406,latency,23457,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882282839,latency,23429,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882306203,latency,23360,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882329602,latency,23396,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882352991,latency,23386,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882376388,latency,23394,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23392,23833,0,0,1,285882399696,247,0
+batch_size:,1,timestamp,285882399702,latency,23310,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882423110,latency,23405,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882446492,latency,23379,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882469926,latency,23431,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882493294,latency,23365,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882516743,latency,23445,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882540163,latency,23416,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882563590,latency,23424,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882586987,latency,23394,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882610403,latency,23413,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882633833,latency,23427,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23418,23833,0,0,1,285882657250,258,0
+batch_size:,1,timestamp,285882657256,latency,23420,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882680705,latency,23446,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882704109,latency,23400,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882727498,latency,23386,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882750896,latency,23394,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882774309,latency,23409,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882797738,latency,23426,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882821106,latency,23364,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882844561,latency,23452,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882867969,latency,23404,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23412,23833,0,0,1,285882891358,268,0
+batch_size:,1,timestamp,285882891365,latency,23392,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882914750,latency,23384,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882938184,latency,23430,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882961639,latency,23452,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285882985003,latency,23361,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883008480,latency,23474,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883031864,latency,23381,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883055303,latency,23436,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883078808,latency,23502,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883102254,latency,23442,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883125708,latency,23451,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23451,23833,0,0,1,285883149093,279,0
+batch_size:,1,timestamp,285883149100,latency,23389,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 536 (536)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883172602,latency,23499,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883196036,latency,23431,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883219420,latency,23380,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883242775,latency,23351,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883266188,latency,23410,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883289617,latency,23426,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883313031,latency,23410,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 535 (535)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883336555,latency,23521,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883359996,latency,23437,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883383425,latency,23426,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23438,23833,0,0,1,285883406880,290,0
+batch_size:,1,timestamp,285883406887,latency,23458,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883430296,latency,23407,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883453719,latency,23419,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883477106,latency,23384,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883500560,latency,23450,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883523978,latency,23415,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883547370,latency,23389,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883570843,latency,23470,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883594259,latency,23412,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883617715,latency,23453,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23438,23833,0,0,1,285883641096,300,0
+batch_size:,1,timestamp,285883641103,latency,23384,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883664513,latency,23408,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883687885,latency,23368,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883711273,latency,23385,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883734621,latency,23344,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883758063,latency,23438,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883781481,latency,23414,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883804823,latency,23339,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883828195,latency,23369,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883851555,latency,23356,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883874946,latency,23386,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23374,23712,0,0,1,285883898282,311,0
+batch_size:,1,timestamp,285883898289,latency,23339,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883921736,latency,23445,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883945134,latency,23395,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883968526,latency,23389,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285883991895,latency,23365,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884015280,latency,23382,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884038647,latency,23363,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884062006,latency,23356,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884085419,latency,23409,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884108823,latency,23401,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884132256,latency,23430,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23411,23712,0,0,1,285884155674,322,0
+batch_size:,1,timestamp,285884155682,latency,23422,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884179149,latency,23465,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884202488,latency,23336,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884225897,latency,23405,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884249269,latency,23368,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884272723,latency,23450,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884296130,latency,23404,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884319567,latency,23433,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884342937,latency,23367,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884366335,latency,23395,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23394,23712,0,0,1,285884389748,332,0
+batch_size:,1,timestamp,285884389755,latency,23416,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884413168,latency,23411,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884436605,latency,23434,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884459952,latency,23343,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884483380,latency,23425,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884506803,latency,23419,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884530195,latency,23389,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884553572,latency,23373,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884577000,latency,23425,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884600406,latency,23403,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884623717,latency,23307,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0224 (0.0224)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23355,23712,0,0,1,285884647190,343,0
+batch_size:,1,timestamp,285884647196,latency,23476,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884670594,latency,23396,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884693969,latency,23371,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884717303,latency,23330,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884740721,latency,23415,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884764176,latency,23452,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884787581,latency,23401,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884811014,latency,23430,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884834390,latency,23373,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884857814,latency,23420,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884881178,latency,23360,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23384,23712,0,0,1,285884904597,354,0
+batch_size:,1,timestamp,285884904603,latency,23422,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884927967,latency,23361,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884951364,latency,23393,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884974824,latency,23458,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285884998196,latency,23368,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885021504,latency,23306,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885044806,latency,23298,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885068235,latency,23426,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885091623,latency,23384,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885114976,latency,23350,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23364,23712,0,0,1,285885138387,364,0
+batch_size:,1,timestamp,285885138394,latency,23415,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885161787,latency,23391,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885185125,latency,23335,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885208495,latency,23367,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885231884,latency,23386,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885255279,latency,23392,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885278708,latency,23425,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885302078,latency,23366,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885325453,latency,23372,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885348785,latency,23328,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 537 (537)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885372250,latency,23462,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23407,23712,0,0,1,285885395649,375,0
+batch_size:,1,timestamp,285885395655,latency,23401,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885419045,latency,23388,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885442443,latency,23394,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885465868,latency,23422,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885489202,latency,23331,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885512528,latency,23323,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885535776,latency,23245,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885559173,latency,23393,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885582551,latency,23375,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885605899,latency,23344,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885629243,latency,23340,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23345,23712,0,0,1,285885652590,386,0
+batch_size:,1,timestamp,285885652597,latency,23351,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885675902,latency,23303,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885699253,latency,23347,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885722583,latency,23327,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885745970,latency,23384,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885769257,latency,23283,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885792628,latency,23367,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885815953,latency,23322,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885839269,latency,23312,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885862625,latency,23353,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23337,23712,0,0,1,285885885957,396,0
+batch_size:,1,timestamp,285885885963,latency,23334,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885909311,latency,23346,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885932598,latency,23283,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885955976,latency,23375,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285885979364,latency,23384,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886002691,latency,23325,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886025990,latency,23295,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886049341,latency,23347,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886072688,latency,23344,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886096008,latency,23317,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886119386,latency,23375,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23351,23712,0,0,1,285886142764,407,0
+batch_size:,1,timestamp,285886142771,latency,23381,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886166134,latency,23361,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886189500,latency,23363,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886212819,latency,23313,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886236235,latency,23413,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886259553,latency,23314,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886282978,latency,23421,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886306284,latency,23303,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886329630,latency,23342,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886352918,latency,23284,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 538 (538)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886376320,latency,23399,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23356,23712,0,0,1,285886399621,418,0
+batch_size:,1,timestamp,285886399627,latency,23304,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886422909,latency,23279,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886446217,latency,23305,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886469525,latency,23305,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886492769,latency,23240,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886516042,latency,23270,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886539373,latency,23327,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886562725,latency,23349,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886585987,latency,23258,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886609264,latency,23274,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886632546,latency,23279,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 543 (543)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23280,23712,0,0,1,285886655732,429,0
+batch_size:,1,timestamp,285886655738,latency,23188,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886679026,latency,23285,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886702319,latency,23290,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886725630,latency,23308,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886748915,latency,23281,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886772249,latency,23332,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886795511,latency,23258,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886818804,latency,23290,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886842084,latency,23276,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886865379,latency,23292,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,40,23286,23712,0,0,1,285886888650,439,0
+batch_size:,1,timestamp,285886888657,latency,23274,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886911914,latency,23255,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886935256,latency,23338,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886958500,latency,23241,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285886981801,latency,23297,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887005040,latency,23237,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887028334,latency,23290,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887051623,latency,23285,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887074924,latency,23298,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887098219,latency,23291,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887121509,latency,23287,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23288,23712,0,0,1,285887144737,450,0
+batch_size:,1,timestamp,285887144744,latency,23232,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887168072,latency,23327,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887191382,latency,23306,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887214726,latency,23341,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887237960,latency,23230,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887261317,latency,23353,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887284623,latency,23303,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887307875,latency,23248,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887331169,latency,23291,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887354451,latency,23278,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0223 (0.0223)	Decoder iters 7.0 (7.0)	Tok/s 539 (539)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887377817,latency,23363,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+Measurement_interval(ms):,250,44,23322,23712,0,0,1,285887401056,461,0
+batch_size:,1,timestamp,285887401062,latency,23241,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887424406,latency,23342,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 542 (542)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887447651,latency,23242,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887470965,latency,23311,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0221 (0.0221)	Decoder iters 7.0 (7.0)	Tok/s 543 (543)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887494181,latency,23212,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 540 (540)
+0: Finished evaluation on test set
+0: Translated output:
+0: math: fp16, batch size: 1, beam size: 5
+batch_size:,1,timestamp,285887517497,latency,23313,stream_id,0,data_transfer_time,0,instant_thpt,42,arrival_rate,2,
+inferring batch size of 1
+math
+fp16
+0: Running evaluation on test set
+0: TEST [0/1]	Time 0.0222 (0.0222)	Decoder iters 7.0 (7.0)	Tok/s 541 (541)
+0: Finished evaluation on test set
+0: Translated output:

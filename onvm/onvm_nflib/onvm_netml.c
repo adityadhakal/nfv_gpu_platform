@@ -12,8 +12,10 @@
 #ifdef ONVM_GPU
 //puts the data into 
 #include "onvm_nflib.h"
+//#define GPU_REALLOCATION_EXPERIMENT
+#define NUM_OF_PKTS_PER_IMAGE 588
 
-uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_aggregation_info_t *image_agg, void** drop_pkts, unsigned *db_pkts) {
+uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_aggregation_info_t *image_agg, void** drop_pkts, unsigned *db_pkts, __attribute((unused)) histogram_v2_t *arrival_latency) {
 	//static placeholder variable for a single image
 	void *payload;
 	image_chunk_header_t *chunk_header;
@@ -21,10 +23,29 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 	struct rte_mbuf* pkt = NULL;
 	uint32_t image_id = 0;
 
+	//count all observed packets.
+	static uint32_t number_of_packets_seen = 0;
+	static uint8_t get_timestamp = 1;
+	static struct timespec first_pkt_timestamp, last_pkt_timestamp;
+#ifdef GPU_REALLOCATION_EXPERIMENT
+	check_and_release_stream();
+#endif //GPU_REALLOCATION_EXPERIMENT
+
 	for (i = 0; i < nb_pkts; i++) {
 		pkt = (struct rte_mbuf*) pkts[i];
 		//we shall copy the packets here itself.. why should we give it to the handler
 		if(onvm_pkt_ipv4_hdr(pkt) != NULL) {
+
+			//update with per batch packet seen
+			number_of_packets_seen += 1;
+
+			//take the timestamp of the packet arrival.
+			if(get_timestamp)
+			{
+				clock_gettime(CLOCK_MONOTONIC, &first_pkt_timestamp);
+				get_timestamp = 0;
+			}
+
 			onvm_get_pkt_meta(pkt)->action = ONVM_NF_ACTION_DROP;
 			//first find which image this packet belongs to
 			payload = (void *)rte_pktmbuf_mtod_offset(pkt, void *, (sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr)));
@@ -70,18 +91,20 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 				//first put the rte_mbuf address in the proper place and update the packet counter
 				image->image_packets[image->packets_count] = pkt;
 				image->packets_count += 1;
-				//*baggregated= 1;
 				//now put the number of bytes
 				image->bytes_count += chunk_header->image_chunk.size_in_bytes;
 
 				//if we have a right amount of bytes for an image, we should make it a ready image and then update the readymask
 				//if((image->packets_count == MAX_CHUNKS_PER_IMAGE)||(image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)) {
-				if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)){	//||(image->packets_count >= SIZE_OF_SENTENCE_BATCH)) { //use for sentences NFs
+				if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)||(image->packets_count >= SIZE_OF_SENTENCE_BATCH))  //use for sentences NFs
+				  {
 					image->usage_status = 2;
-					//printf("Image %d is complete, image ID now is %d \n", image->image_info.image_id, image_id);
+
 					SET_BIT(image_agg->ready_mask,(image_id+1));
-					//printf("Number of images in the batch right now %d \n",__builtin_popcountll(image_agg->ready_mask));
 					clock_gettime(CLOCK_MONOTONIC, &image->last_packet_time);
+
+					//time necessary to obtain an image
+					//printf("Number of images in the batch right now %d \n",__builtin_popcountll(image_agg->ready_mask));
 
 #ifdef NO_IMAGE_ID
 					current_image = (current_image+1)%(MAX_IMAGES_BATCH_SIZE);
@@ -93,6 +116,21 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 				onvm_get_pkt_meta(pkt)->action = ONVM_NF_ACTION_DROP;
 				drop_pkts[(*db_pkts)++] = pkt;
 			}
+
+			//see if we have seen the number of packets that can make one image
+			if(number_of_packets_seen>= NUM_OF_PKTS_PER_IMAGE){
+				//we have a full image
+				number_of_packets_seen -= NUM_OF_PKTS_PER_IMAGE;
+				get_timestamp = 1; //reset the timestamp for next image
+				clock_gettime(CLOCK_MONOTONIC, &last_pkt_timestamp);
+				uint32_t time_in_ms = (last_pkt_timestamp.tv_sec-first_pkt_timestamp.tv_sec)*1000000+(last_pkt_timestamp.tv_nsec-first_pkt_timestamp.tv_nsec)/1000;
+				hist_store_v2(arrival_latency,time_in_ms); //store the time in histogram
+				//subtract the number
+				//put the time taken for the image to gather in the histogram
+				number_of_images_arrived_since_last_computation += 1;
+			}
+
+
 		} //end of if (ipv4 pkt)
 		else {
 			/*Non IPV4 Pkt: Just Drop */
@@ -277,12 +315,33 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			// Check and cap to max batch size that is learnt and determined to not exceed SLO for the current operating settings
 			if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
 			//if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
+			//adaptive batching help for getting beyond 32 images
+			//if(num_of_images< nf_info->learned_max_batch_size){
+			//	return_stream(cuda_stream);
+			//	return 0;
+
+			//}
+
 		}
+
+
+
 #ifdef CLIPPER_ADAPTIVE_BATCHING
 		if(ADAPTIVE_BATCHING_SELF_LEARNING == nf_info->enable_adaptive_batching){
 			int clipper_batch_size = clipper_check_batch_size(nf_info->inference_slo_ms*1000);
+			//printf("Clipper predicted batch size: %d \n",clipper_batch_size);
+			if(clipper_batch_size > MAX_IMAGES_BATCH_SIZE || clipper_batch_size <1 )
+				clipper_batch_size = MAX_IMAGES_BATCH_SIZE;
+
 			nf_info->learned_max_batch_size = clipper_batch_size;
 			num_of_images = nf_info->learned_max_batch_size;
+			//printf("Clipper: number of images %d\n",num_of_images);
+
+			//if(num_of_images< nf_info->learned_max_batch_size){
+			//	return_stream(cuda_stream);
+			//	return 0;
+
+		//	}
 		}
 
 #endif //clipper adaptive batching

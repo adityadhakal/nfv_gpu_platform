@@ -35,10 +35,12 @@ extern "C"{
     // for adaptive batching
     double explore_dist_mu_ = 0.1;
     double explore_dist_std_ = 0.05;
-    //double budget_decay_ = 0.9;
-    double budget_decay_ = 1.0;
-    std::normal_distribution<double> exploration_distribution_;
-    std::default_random_engine exploration_engine_;
+    double budget_decay_ = 0.9;
+    //double budget_decay_ = 1.0;
+    std::normal_distribution<double> exploration_distribution_(std::normal_distribution<double>(explore_dist_mu_,explore_dist_std_));
+    std::default_random_engine exploration_engine_(std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
+    //exploration_distribution_
+    //exploration_engine_;
 
 
 enum class BatchSizeDeterminationMethod {
@@ -281,6 +283,7 @@ BatchSizeInfo get_batch_size(double budget /* difference between slo and latency
     curr_batch_size = explore();
     method = BatchSizeDeterminationMethod::Exploration;
   } else {
+	  //printf("Estimate called \n");
     curr_batch_size = estimate(budget);
     method = BatchSizeDeterminationMethod::Estimation;
   }

@@ -55,14 +55,18 @@ void init_ml_models(void) {
 	models[1] = "ResNet50_ImageNet_CNTK.model";
 	models[2] = "VGG19_ImageNet_Caffe.model";
 	models[3] = "ResNet152_ImageNet_CNTK.model";
-	models[4] = "Fast-RCNN_Pascal.model";
+	//models[4] = "Fast-RCNN_Pascal.model";
+	models[4] = "vgg16_batch64.trt";
 	//models[5] = "SRGAN.model";
 	models[5] = "AlexNet_ImageNet_CNTK.model";
 	models[6] = "resnet50_batch64.trt";
 	models[7] = "alexnet_batch128.trt";
-	models[8] = "resnet152_batch128.trt";
+	//	models[8] = "resnet152_batch128.trt";
+	models[8] = "mobilenet_batch64.trt";
+	//models[8] = "super_resolution.trt";
 	models[9] = "vgg19_batch64.trt";
 	models[10] = "resnet34_batch128.trt";
+	models[11] = "super_resolutions.trt";
 
 	/*the file name of historical runtime data */
 	const char *models_historical_dir = "/home/adhak001/openNetVM-dev/models_data/";
@@ -71,7 +75,8 @@ void init_ml_models(void) {
 	models_runtime[1] = "resnet50_cntk_runtime.txt";
 	models_runtime[2] = "vgg19_cntk_runtime.txt";
 	models_runtime[3] = "resnet152_cntk_runtime.txt";
-	models_runtime[4] = "fastrcnn_cntk_runtime.txt";
+	models_runtime[4] = "vgg16_tensorrt.txt";
+	//models_runtime[4] = "fastrcnn_runtime.txt";
 	//models_runtime[5] = "srgan_cntk_runtime.txt";
 	models_runtime[5] = "alexnet_cntk_runtime.txt";
 	models_runtime[6] = "resnet50_tensorrt.txt";
@@ -79,6 +84,7 @@ void init_ml_models(void) {
 	models_runtime[8] = "resnet152_tensorrt.txt";
 	models_runtime[9] = "vgg19_tensorrt.txt";
 	models_runtime[10] = "resnet34_tensorrt.txt";
+	models_runtime[11] = "vgg16_tensorrt.txt";
 	/* platform type */
 	ml_platform platforms[NUMBER_OF_MODELS];
 	//platforms[0] = cntk;
@@ -86,19 +92,21 @@ void init_ml_models(void) {
 	platforms[1] = cntk;
 	platforms[2] = cntk;
 	platforms[3] = cntk;
-	platforms[4] = cntk;
+	platforms[4] = tensorrt;
 	platforms[5] = cntk;
 	platforms[6] = tensorrt;
 	platforms[7] = tensorrt;
 	platforms[8] = tensorrt;
 	platforms[9] = tensorrt;
 	platforms[10] = tensorrt;
+	platforms[11] = tensorrt;
 	/* now after setting all that up, let's allocate one information at a time and fill that up */
 	struct rte_mempool *ml_model_mempool = rte_mempool_lookup(_GPU_MODELS_POOL_NAME);
 
 	/* now let's loop over mempool and get one model at a time and fill up the details as well as load it up */
 	//struct gpu_file_listing *ml_file2 = (struct gpu_file_listing *)rte_malloc(NULL,sizeof(struct gpu_file_listing)*7, 0);
 	int i;
+	cuInit(0); //initializing GPU
 	struct gpu_file_listing *ml_file;
 	for(i = 0; i < NUMBER_OF_MODELS; i++) {
 		//ml_file = &ml_file2[i];
@@ -115,7 +123,7 @@ void init_ml_models(void) {
 		strncat(ml_file->attributes.profile_data.file_path, models_runtime[i], strlen(models_runtime[i]));
 		/* now we can send this model to be populated with the load model function */
 
-		cuInit(0); //initializing GPU
+
 
 		//if(i>6)
 		load_gpu_model(ml_file);
@@ -340,17 +348,21 @@ inline int onvm_gpu_set_gpu_percentage(struct onvm_nf_info *nf, uint16_t gpu_per
 inline int onvm_gpu_check_any_readjustment(void);
 inline int onvm_gpu_check_any_readjustment(void) {
 	int i = 0;
-
+	int flag = 0;
 	for(i=0; i<MAX_NFS; i++) {
 		if(nfs[i].info){
 			if(nfs[i].info->over_provisioned_for_slo || nfs[i].info->under_provisioned_for_slo) {
 			//change the NF whose request over-provision or under provision to readjustment
 			gpu_ra_mgt.ra_status[i] =  GPU_RA_NEEDS_READJUSTMENT;
+			flag = 1;
 			}
-				return 1;
+
 		}
 	}
-	return 0;
+	if(flag)
+		return 0;
+
+	return 1;
 }
 
 inline int onvm_gpu_set_gpu_percentage(struct onvm_nf_info *nf, uint16_t gpu_percent) {
@@ -379,7 +391,9 @@ inline int compute_current_gpu_ra_stats(uint8_t *num_act_nfs, uint16_t *gpu_ra_a
 	for(;i<MAX_NFS;i++) {
 			if (((onvm_nf_is_valid(&nfs[i])))&& (nfs[i].info->gpu_percentage)) {
 				act_nfs_count++;
-				gpu_ra_used+=nfs[i].info->gpu_percentage;
+				//if(gpu_ra_mgt.ra_status[i] != GPU_RA_NEEDS_READJUSTMENT){
+					gpu_ra_used+=nfs[i].info->gpu_percentage; //DO not count the RA for the NFs slated for readjustment
+				//}
 			}
 	}
 	if(num_act_nfs) {
@@ -527,6 +541,8 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 	return (0);
 }
 
+
+#define READJUSTMENT_DUE_TO_RATE
 /* this function will be called peridically by a thread to re-allocate the GPU percentage for NFs */
 int onvm_gpu_check_gpu_ra_mgt(void) {
 	uint8_t act_nfs;
@@ -541,32 +557,70 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 	}
 	printf("\n");
 
-	//check if any NFs are waiting for RA
-	if((0 == gpu_ra_mgt.gpu_ra_info->gpu_ra_wtlst)||(0 == onvm_gpu_check_any_readjustment())){
-		//No need to change anything, all NFs are fine.
-		return 0;
+	//check the current GPU statistcs
+		compute_current_gpu_ra_stats(&act_nfs, &gpu_ra_available);
+	//Check the Phase, phase 1, is where the change is still permitted in GPU percentage for NFs,
+		// Phase 1: should not have any NF relinquishing GPU . Phase 2: if there is even one GPU needs to be relinquishing
+
+		//also check if there are any NF that needs readjustment or allocation
+		uint8_t readjust_or_allocate = 0;
+		for (i=0; i<MAX_NFS;i++)
+		{
+			if(gpu_ra_mgt.ra_status[i] == GPU_RA_NEED_TO_RELINQUISH){
+				printf("In Phase 2. Wait for finishing the loading of model\n");
+				return 0;
+			}
+			if((gpu_ra_mgt.ra_status[i] == GPU_RA_NEEDS_ALLOCATION) || (gpu_ra_mgt.ra_status[i] == GPU_RA_NEEDS_READJUSTMENT)  ){
+				readjust_or_allocate++;
+		}
 	}
 
-	//check the current GPU statistcs
-	compute_current_gpu_ra_stats(&act_nfs, &gpu_ra_available);
+	//check if any NFs are waiting for RA
+#ifdef READJUSTMENT_DUE_TO_RATE
+	if(/*(0 == gpu_ra_mgt.gpu_ra_info->gpu_ra_wtlst)||*/(0 == onvm_gpu_check_any_readjustment())){
+		printf("_+)_+_+_+++ Readjustment time \n");
+		//we have an NF with recommended GPU percentage. Just change that NF to new GPU percentage
+		for(i = 0; i<MAX_NFS;i++){
+		uint8_t shadow_nf_id = get_associated_active_or_standby_nf_id(i);
+		if(onvm_nf_is_valid(&nfs[shadow_nf_id]) && gpu_ra_mgt.ra_status[i]==GPU_RA_NEEDS_READJUSTMENT){
+
+			printf("Am I valid %d  shadow %"PRIu8" percentages %"PRIu16" ?\n",i,shadow_nf_id, gpu_ra_mgt.nf_gpu_ra_list[i]);
+
+			// Return the previous allocated GPU percentage
+			onvm_gpu_release_gpu_percentage_for_nf(nfs[i].info);
+			gpu_ra_mgt.ra_status[i] = GPU_RA_NEED_TO_RELINQUISH;
+
+			//check leftover GPU percentage
+			uint32_t leftover_gpu = gpu_ra_mgt.gpu_ra_info->gpu_ra_avail;
+			uint32_t new_gpu_percent;
+			if(leftover_gpu != 0)
+				new_gpu_percent = MIN(nfs[i].info->recommended_gpu_percentage,leftover_gpu);
+			else
+				new_gpu_percent = nfs[i].info->recommended_gpu_percentage;
+			//Now set it for new one
+			onvm_gpu_set_gpu_percentage(nfs[shadow_nf_id].info,new_gpu_percent);
+
+			gpu_ra_mgt.nf_gpu_ra_list[i] = MAX_GPU_OVERPRIVISION_VALUE+1;
+
+			struct timespec time_we_send_msg;
+			clock_gettime(CLOCK_MONOTONIC, &time_we_send_msg);
+			long msg_sent_time = time_we_send_msg.tv_sec*1000000000+time_we_send_msg.tv_nsec;
+			printf("The time we sent msg to shadow NF %ld\n",msg_sent_time);
+			get_shadow_NF_ready(nfs[i].info);
+		}
+	}
+		return 0;
+	}
+	else
+		return 0;
+#endif //readjustment_due_to_rates
+
+
 
 	printf("GPU Resource available %d (percent), Number of NFs currently using GPU %"PRIu8"\n",gpu_ra_available, act_nfs);
 
 
-	//Check the Phase, phase 1, is where the change is still permitted in GPU percentage for NFs,
-	// Phase 1: should not have any NF relinquishing GPU . Phase 2: if there is even one GPU needs to be relinquishing
 
-	//also check if there are any NF that needs readjustment or allocation
-	uint8_t readjust_or_allocate = 0;
-	for (i=0; i<MAX_NFS;i++)
-	{
-		if(gpu_ra_mgt.ra_status[i] == GPU_RA_NEED_TO_RELINQUISH){
-			return 0;
-		}
-		if((gpu_ra_mgt.ra_status[i] == GPU_RA_NEEDS_ALLOCATION) || (gpu_ra_mgt.ra_status[i] == GPU_RA_NEEDS_READJUSTMENT)  ){
-			readjust_or_allocate++;
-	}
-}
 	printf("The number of NFs we need to re-adjust or reallocate %d\n", readjust_or_allocate);
 
 	//now if nobody needs to allocate or readjust and if the resources are all utilized then return

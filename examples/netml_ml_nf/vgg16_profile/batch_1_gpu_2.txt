@@ -1,0 +1,142 @@
+sudo /home/adhak001/dev/openNetVM_sameer/examples/netml_ml_nf/build/app/bridge -l 10 -n 3 --proc-type=secondary -- -r 1 -n 1 -m 4 -- -b 1 -g 2
+EAL: Detected 80 lcore(s)
+EAL: Detected 2 NUMA nodes
+EAL: Multi-process socket /var/run/dpdk/rte/mp_socket_49206_11cd61e4016d00
+EAL: Probing VFIO support...
+EAL: VFIO support initialized
+EAL: PCI device 0000:19:00.0 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.1 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.2 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.3 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:af:00.0 on NUMA socket 1
+EAL:   probe driver: 19ee:4000 net_nfp_pf
+The instance ID of the nf is 1 and associated id 9
+NF_1_BATCH_AGG_POOL_NAME
+ address 0x17fb9fb80mempool get retval 0 
+Resolved CPU Dev Buffer 
+cur_index:1, action:4, destination:0
+
+APP: Waiting for manager to assign an ID...
+WAIT_TIME(INIT-->START): 61258 ns
+APP: Using Instance ID 1
+APP: Using Service ID 1
+sem_name=MProc_NF_1_SEM for client 1
+mkdir: cannot create directory ‘/sys/fs/cgroup/cpu/nf_1’: File exists
+GPU model is 4
+NF is using GPU
+
+ NF cgroup name and path: nf_1, /sys/fs/cgroup/cpu/nf_1/
+ CMD_TO_CREATE_CGROUP_for_NF: 1, mkdir /sys/fs/cgroup/cpu/nf_1
+ CMD_TO_ADD_NF_TO_CGROUP: echo 49206 > /sys/fs/cgroup/cpu/nf_1/tasks
+ CMD_TO_SET_CPU_SHARE: echo 1024 > /sys/fs/cgroup/cpu/nf_1/cpu.sharesNF on core=10 added to cgroup: nf_1, ret=0Timer subsystem init
+WAIT_TIME(INIT-->START-->Init_end): 164221420 ns
+APP: Finished Process Init.
+Number of sms 2
+gpu percent from command line 2
+User Flags Set:
+ Adaptive_Batching: 0
+ Fixed_Batch_size: 1
+ ML OPS SLO: 0(ms)
+Can use host pointer for registered mem 0
+GPU Percentage set by the manager now 2 
+Linking the cuda memhandles from (nil) 
+pointer to gpu agg buffer 0x176af2600
+User defined GPU percent was 2
+Number of sms 2
+registered cuda memory mem-addr 0x140000000 size 1073741824 cuda error 0 
+Could not register memory mem-addr 0x980000000 size 1073741824 cuda error 1 
+Could not register memory mem-addr 0x11c0000000 size 1073741824 cuda error 1 
+Could not register memory mem-addr 0x1a00000000 size 1073741824 cuda error 1 
+Total time taken to register the mempages to cuda is 30770.899000 micro-seconds 
+Buffer size 591259976
+[W] [TRT] Using an engine plan file across different models of devices is not recommended and is likely to affect performance or even cause errors.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+Time taken to load the model is 10496.000000 milliseconds
+Model load timestamp 31114825843
+Resolved GPU Dev Buffer 
+GPU initialization is complete..
+
+Client process 1 handling packets
+[Press Ctrl-C to quit ...]
+APP: Waiting for manager to put to RUN state...
+WAIT_TIME(START-->RUN): 50915 ns
+WAIT_TIME(INIT-->START-->RUN-->RUNNING): 10833575214 ns
+Measurement_interval(ms):,250,0,0,0,0,0,1,31114842216,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181319,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181321,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181325,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181325,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181328,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181328,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181330,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181331,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181373,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181374,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181377,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181377,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181379,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181380,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181428,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181429,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181432,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181432,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181434,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181435,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181436,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181437,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181438,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181439,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181483,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181484,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181487,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181487,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181489,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181490,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181491,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181492,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181538,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181539,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181541,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181542,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181544,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181545,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181546,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181547,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181548,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181549,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181594,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181595,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181597,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181598,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181600,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181600,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181602,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181602,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181648,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181649,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181651,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181652,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181654,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181655,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181656,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181657,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181658,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181659,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181703,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181704,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181707,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181707,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181710,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181710,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181712,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,31122181712,0,0
+Measu

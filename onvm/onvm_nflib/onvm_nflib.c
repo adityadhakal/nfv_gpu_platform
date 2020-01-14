@@ -880,7 +880,7 @@ static inline int onvm_nflib_process_packets_batch_gpu_v2(struct onvm_nf_info *n
 	unsigned i = 0;
 
 
-	data_aggregation_bulk_v2(pkts,nb_pkts, nf_info->image_info, pktsTX, &tx_batch_size);
+	data_aggregation_bulk_v2(pkts,nb_pkts, nf_info->image_info, pktsTX, &tx_batch_size,&nf_info->image_arrival_latency);
 	if(nf_info->image_info->ready_mask) {
 		load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, nf_info->image_info->ready_mask);
 	}
@@ -1407,6 +1407,7 @@ onvm_nflib_info_init(const char *tag) {
 	hist_init_v2(&(info->gpu_latency));
 	hist_init_v2(&(info->throughput_histogram));
 	hist_init_v2(&(info->image_aggregation_rate));
+	hist_init_v2(&(info->image_arrival_latency));
 	get_batch_agg_and_dev_buffer_mempool(info);//find the mempool for agg info and dev buffer
 	initialize_ml_timers(info);
 
@@ -1685,6 +1686,7 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	ml_link_params.number_of_parameters = nf_info->model_info->model_handles.number_of_parameters;
 	ml_link_params.gpu_side_input_pointer = NULL;
 	ml_link_params.gpu_side_output_pointer = NULL;
+	ml_link_params.link_options = 0; //do not link the model
 	printf("Linking the cuda memhandles from %p \n", ml_link_params.cuda_handles_for_gpu_data);
 	printf("pointer to gpu agg buffer %p\n",nf_info->image_info);
 	int retval;
@@ -1989,16 +1991,134 @@ void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int message_type) {
  
  }
  */
+
+#define NUM_VIOLATIONS_PRE_GPU_RECOMMENDATION (5)
+uint8_t over_slo_violation = 0;
+uint8_t under_slo_violation = 0;
+
+//callback function to recommend GPU percentage after each execution
+inline void gpu_recommend_gpu_percentage(struct onvm_nf_info *nf_info, uint32_t cur_lat);
+inline void gpu_recommend_gpu_percentage(struct onvm_nf_info *nf_info, uint32_t cur_lat){
+	uint32_t slo_time_us = nf_info->inference_slo_ms*1000;
+	uint32_t arrival_latency = hist_extract_v2(&nf_info->image_arrival_latency,VAL_TYPE_RUNNING_AVG);
+	//compute the arrival rate.
+	uint32_t arrival_rate = 0;
+	if(arrival_latency>0){
+		arrival_rate = 1000000/arrival_latency;
+	}
+	//arrival_rate = 30;
+	printf("arrival_rate,%"PRIu32",",arrival_rate);
+	uint32_t consumption_rate = hist_extract_v2(&nf_info->throughput_histogram, VAL_TYPE_RUNNING_AVG);
+	double new_gpu_percentage;
+
+	if (cur_lat > slo_time_us) {
+		uint32_t overflow_us = (cur_lat - slo_time_us);
+		//compute the new GPU percentage for this process
+		double slo_based_gpu_percentage = (overflow_us/((double)cur_lat))*(nf_info->gpu_percentage)+nf_info->gpu_percentage;
+		double rate_based_gpu_percentage = 0.0;
+		//check if we can meet arrival rate or not.
+		if(arrival_rate*.9>consumption_rate){
+			rate_based_gpu_percentage = nf_info->gpu_percentage+((arrival_rate-consumption_rate)/(double)consumption_rate)*nf_info->gpu_percentage;
+		}
+		else if(consumption_rate*.9>arrival_rate){
+			rate_based_gpu_percentage = nf_info->gpu_percentage-((consumption_rate-arrival_rate)/(double)consumption_rate)*nf_info->gpu_percentage;
+		}
+
+		uint32_t higher_rate = (arrival_rate>consumption_rate)?arrival_rate:consumption_rate;
+		uint32_t lower_rate = (arrival_rate<consumption_rate)?arrival_rate:consumption_rate;
+
+		if((slo_time_us/(double)cur_lat) >(higher_rate/(double)lower_rate) ){
+			new_gpu_percentage = slo_based_gpu_percentage;
+		}
+		else
+			new_gpu_percentage = rate_based_gpu_percentage;
+
+		if((int) new_gpu_percentage >100)
+			new_gpu_percentage = 100;
+		if((int) new_gpu_percentage <5)
+			new_gpu_percentage = 5;
+
+		int diff = abs(nf_info->gpu_percentage-new_gpu_percentage);
+		printf("above_SLO_gpu,%d",(int)new_gpu_percentage);
+		if(diff<3){
+			printf("no_change,");
+		}
+		else
+		{
+			over_slo_violation++;
+			if(over_slo_violation>=NUM_VIOLATIONS_PRE_GPU_RECOMMENDATION){
+				nf_info->under_provisioned_for_slo+=1;
+				nf_info->recommended_gpu_percentage = (uint32_t)new_gpu_percentage;
+				over_slo_violation = 0;
+			}
+		}
+	}
+	else if(cur_lat < slo_time_us){
+		uint32_t headroom_us = (slo_time_us - cur_lat);
+		//compute the new GPU percentage for this process
+		double slo_based_gpu_percentage =nf_info->gpu_percentage- (headroom_us/((double)slo_time_us))*(nf_info->gpu_percentage);
+		double rate_based_gpu_percentage = 0.0;
+		//check if we can meet arrival rate or not.
+		if(arrival_rate*.85>consumption_rate){
+			rate_based_gpu_percentage = nf_info->gpu_percentage+((arrival_rate-consumption_rate)/(double)consumption_rate)*nf_info->gpu_percentage;
+		}
+		else if(consumption_rate*.85>arrival_rate){
+			rate_based_gpu_percentage = nf_info->gpu_percentage-((consumption_rate-arrival_rate)/(double)consumption_rate)*nf_info->gpu_percentage;
+		}
+
+		uint32_t higher_rate = (arrival_rate>consumption_rate)?arrival_rate:consumption_rate;
+		uint32_t lower_rate = (arrival_rate<consumption_rate)?arrival_rate:consumption_rate;
+
+		new_gpu_percentage = (slo_based_gpu_percentage<rate_based_gpu_percentage) ? slo_based_gpu_percentage:rate_based_gpu_percentage;
+
+		if((slo_time_us/(double)cur_lat) >(higher_rate/(double)lower_rate) ){
+			printf("slo_based,");
+			new_gpu_percentage = slo_based_gpu_percentage;
+		}
+		else{
+			printf("rate_based,");
+			new_gpu_percentage = rate_based_gpu_percentage;
+		}
+		//if((int)rate_based_gpu_percentage==0)
+		//		new_gpu_percentage = nf_info->gpu_percentage;
+		int diff = abs(nf_info->gpu_percentage-new_gpu_percentage);
+		if((int) new_gpu_percentage >100)
+			new_gpu_percentage = 100;
+		if((int) new_gpu_percentage <5)
+			new_gpu_percentage = 5;
+
+		printf("below_slo_gpu,%d,",(int)new_gpu_percentage);
+		if(diff<3)
+			printf("no_change,");
+		else{
+			under_slo_violation++;
+			if(under_slo_violation>=NUM_VIOLATIONS_PRE_GPU_RECOMMENDATION)
+			{
+				nf_info->over_provisioned_for_slo+=headroom_us;
+				nf_info->recommended_gpu_percentage = (uint32_t) new_gpu_percentage;
+				under_slo_violation = 0;
+			}
+
+		}
+	}
+	printf("\n");
+}
+
+
 #define MIN_GAP_THRESHOLD (50)	//Latency gap between SLO and observed latency below which the scaling cannot be performed.
 #define MAX_OVERFLOW_THRESHOLD (5)
 
 #ifdef NEW_LEARNING_BATCH_APPROACH
 #define SLO_OFFSET_THRESHOLD_PERCENTAGE (10)
+
+
+
 //GPU callback function to report after the evaluation is finished...
 inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_inferred, uint32_t cur_lat);
 inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_inferred, uint32_t cur_lat) {
 	struct gpu_callback *callback_data = (struct gpu_callback *) data;
 	uint32_t slo_time_us = (callback_data->nf_info->inference_slo_ms*1000);
+
 	//Exactly match ( rare)
 	if(unlikely(slo_time_us == cur_lat)) {
 		callback_data->nf_info->adaptive_cur_batch_size = num_of_images_inferred;
@@ -2007,18 +2127,20 @@ inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_in
 	}
 	//exceeds the SLO
 	else if (unlikely(cur_lat > slo_time_us)) {
-		//Note SLO violation
-		total_slo_violations++;
+			//Note SLO violation
+			total_slo_violations++;
+			callback_data->nf_info->b_i_exceeding_slo_per_sec++;
+			uint32_t overflow_us = (cur_lat - slo_time_us);
 
-		callback_data->nf_info->b_i_exceeding_slo_per_sec++;
-		uint32_t overflow_us = (cur_lat - slo_time_us);
-		if(unlikely(num_of_images_inferred == ((uint32_t) 1))) {
-			//Must request to increase the Resource % for this NF
-			callback_data->nf_info->under_provisioned_for_slo+=1;
-			callback_data->nf_info->adaptive_cur_batch_size = 1;
-			callback_data->nf_info->learned_max_batch_size = 1;
-			printf("Need More GPU pct2: %d to meet the SLO!!! LearnedSize: %d CPULatency: %d SLO: %d\n", callback_data->nf_info->gpu_percentage, callback_data->nf_info->learned_max_batch_size, cur_lat, slo_time_us);
-			return;
+			if(unlikely(num_of_images_inferred == ((uint32_t) 1))) {
+				//Must request to increase the Resource % for this NF
+				callback_data->nf_info->under_provisioned_for_slo+=1;
+				callback_data->nf_info->adaptive_cur_batch_size = 1;
+				callback_data->nf_info->learned_max_batch_size = 1;
+
+				printf("Need More GPU pct2: %d to meet the SLO!!! LearnedSize: %d CPULatency: %d SLO: %d\n", callback_data->nf_info->gpu_percentage, callback_data->nf_info->learned_max_batch_size, cur_lat, slo_time_us);
+
+				return;
 		}
 		else {
 			//Compute the decrease factor to adapt batchsize to operate within SLO
@@ -2033,20 +2155,26 @@ inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_in
 			if(likely(overflow_us <= (SLO_OFFSET_THRESHOLD_PERCENTAGE*slo_time_us/100))) {
 				callback_data->nf_info->adaptive_cur_batch_size = num_of_images_inferred;
 				callback_data->nf_info->learned_max_batch_size = callback_data->nf_info->adaptive_cur_batch_size;
+				printf("\n");
 				return;
 			}
 			else {
 				callback_data->nf_info->adaptive_cur_batch_size -= decrease_factor;
 				callback_data->nf_info->learned_max_batch_size = callback_data->nf_info->adaptive_cur_batch_size;
 			}
+
+
 		}
+
 	}
 	//Within SLO
 	else {
 		uint32_t headroom_us = (slo_time_us - cur_lat);
+
 		//have we used smaller batch than already learned then ignore current timing for adjustment
 		if(likely(num_of_images_inferred < ((uint32_t) callback_data->nf_info->adaptive_cur_batch_size))) {
 			// no need to account for this result, as this is opportunistic obtained value; We already know better/higher value
+			printf("\n");
 			return;
 		} else if (unlikely(num_of_images_inferred >= MAX_IMAGES_BATCH_SIZE)) {
 			callback_data->nf_info->over_provisioned_for_slo+=headroom_us;
@@ -2062,7 +2190,10 @@ inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_in
 			callback_data->nf_info->adaptive_cur_batch_size += increase_factor;
 			callback_data->nf_info->learned_max_batch_size = callback_data->nf_info->adaptive_cur_batch_size;
 		}
+
+
 	}
+
 
 #if 0
 	/* Within the SLO range: Can opportunistically increase the batch size : But how much to increase by? Note: Opportunistic way could have aggregated lesser as well */
@@ -2167,6 +2298,8 @@ void gpu_image_callback_function(void *data) {
 	uint32_t temp_latency=0, nw_latency=0, cpu_latency=0;
 
 	uint32_t gpu_latency= (call_back_time.tv_sec-callback_data->start_time.tv_sec)*1000000+(call_back_time.tv_nsec-callback_data->start_time.tv_nsec)/1000;
+
+
 	hist_store_v2(&(callback_data->nf_info->gpu_latency),gpu_latency);
 
 	for( i = 0; i<num_of_images_inferred; i++) {
@@ -2233,12 +2366,23 @@ void gpu_image_callback_function(void *data) {
 		hist_store_v2(&(callback_data->nf_info->cpu_latency),cpu_latency);
 
 		//uint32_t latency = (call_back_time.tv_sec-callback_data->start_time.tv_sec)*1000000+(call_back_time.tv_nsec - callback_data->start_time.tv_nsec)/1000;
+		uint32_t throughput = (num_of_images_inferred)*(1000000)/gpu_latency;
+		hist_store_v2(&nf_info->throughput_histogram,throughput); //store the throughput into histogram
 
+		uint32_t arrival_latency = hist_extract_v2(&nf_info->image_arrival_latency,VAL_TYPE_RUNNING_AVG);
+		//compute the arrival rate.
+		uint32_t arrival_rate = 0;
+		if(arrival_latency>0){
+		arrival_rate = 1000000/arrival_latency;
+		}
+
+	
 		number_of_images_since_last_computation += num_of_images_inferred;
 		uint64_t per_batch_timestamp = (call_back_time.tv_sec)*1000000+(call_back_time.tv_nsec)/1000;
 		uint64_t data_transfer_time = (callback_data->end_gpu_transfer.tv_sec-callback_data->start_gpu_transfer.tv_sec)*1000000+(callback_data->end_gpu_transfer.tv_nsec-callback_data->start_gpu_transfer.tv_nsec)/1000;
 		//printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu64",stream_id,%"PRIu8"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask,callback_data->stream_track->id);
-		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",stream_id,%"PRIu8",data_transfer_time,%"PRIu64"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->stream_track->id,data_transfer_time);
+		uint32_t instant_thpt = hist_extract_v2(&nf_info->throughput_histogram, VAL_TYPE_RUNNING_AVG);
+		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",stream_id,%"PRIu8",data_transfer_time,%"PRIu64",instant_thpt,%"PRIu32",arrival_rate,%"PRIu32",", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->stream_track->id,data_transfer_time,instant_thpt,arrival_rate);
 
 		/** Adapt batch size to meet the SLO latency objective **/
 		if((callback_data->nf_info->inference_slo_ms) && (ADAPTIVE_BATCHING_SELF_LEARNING == callback_data->nf_info->enable_adaptive_batching)) {
@@ -2248,6 +2392,8 @@ void gpu_image_callback_function(void *data) {
 			}
 			uint32_t cur_lat = gpu_latency;		//cpu_latency;
 
+			//Check for GPU percentage Recommendation
+			gpu_recommend_gpu_percentage(callback_data->nf_info, cur_lat);
 #ifdef CLIPPER_ADAPTIVE_BATCHING
 			clipper_add_processing_datapoint(num_of_images_inferred,cur_lat);
 			if (unlikely(cur_lat > (callback_data->nf_info->inference_slo_ms*1000*0.9))) {
@@ -2339,6 +2485,7 @@ void gpu_image_callback_function(void *data) {
 #endif //NEW_LEARNING_BATCH_APPROACH
 		}
 	}
+	printf("\n");
 	//long timestamp = call_back_time.tv_sec*1000000+call_back_time.tv_nsec/1000;
 	//printf("Timestamp: %ld TotalImages: %d BatchSize: %d LearnedSize: %d CPULatency: %d GPULatency: %d SLO: %d\n",timestamp, number_of_images_since_last_computation, num_of_images_inferred, callback_data->nf_info->learned_max_batch_size, cpu_latency, gpu_latency,(callback_data->nf_info->inference_slo_ms*1000));
 	return_device_buffer(callback_data->stream_track->id);
@@ -2348,141 +2495,7 @@ void gpu_image_callback_function(void *data) {
 	return_stream(callback_data->stream_track);
 }
 
-/* initializes the images... 
- *
- * THIS FUNCTIONALITY HAS BEEN MOVED TO MANAGER
- * onvm_init.c
- *
- void image_init(struct onvm_nf_info *nf, struct onvm_nf_info *original_nf){
 
- //first check if the alternate is active or not
- if(original_nf == NULL){
- //create buffer for list of pending image (first time)
- nf->image_info.image_pending = (void *) rte_malloc(NULL, sizeof(void *)*MAX_IMAGE, 0);
- nf->image_info.ready_images = (void *) rte_malloc(NULL, sizeof(void* )*MAX_IMAGE, 0);
- nf->image_info.num_of_ready_images = 0;
- nf->image_info.index_of_ready_image = 0;
- 
- int i;
- //empty the array
- for(i = 0; i<MAX_IMAGE; i++)
- nf->image_info.image_pending[i] = NULL;
- }
- else
- {
- //attach to the alternate one's buffer
- nf->image_info = original_nf->image_info;
- } 
- }
- */
-
-/* helper function to get the image index 
- static int get_image_index(image_data *image, image_data **image_list){
- int i;
- for(i = 0; i<MAX_IMAGE; i++){
- if(image_list[i] == image)
- return i;
- }
- return -1;
- }
- */
-
-//get a new image from mempool
-/*
- static image_data *get_image(int pkt_file_index, image_data **pending_img){
- int ret;
- struct image_data *img;
- //check if the image already exist...
- if(pending_img[pkt_file_index] != NULL){
- return pending_img[pkt_file_index];
- }
- //else make a new image
- ret = rte_mempool_get(nf_image_pool,(void **)(&img));
- img->num_data_points_stored = 0;
- img->image_id = pkt_file_index; //current logic is to just name the image ID as same as the packet ID. this is not transferrable across the NFs other than the alternate NF
- if(ret != 0){
- RTE_LOG(INFO, APP, "unable to allocate image from pool \n");
- return NULL;
- }
-
- //now we have to do the accounting... record it..
- pending_img[pkt_file_index] = img;
- return img;
- }
-
- //put the images back in the mempool
- static void delete_image(image_data *image, struct onvm_nf_info *nf_info){
- image_data ** image_list = (image_data **)nf_info->image_info->ready_images;
- int retval = get_image_index(image, image_list);//find where the mempool is located
- 
- if(retval>=0)
- image_list[retval] = NULL;
- 
- rte_mempool_put(nf_image_pool, (void *)image);
- }
-
-
- //consider single image.
- void copy_data_to_image(void *packet_data,struct onvm_nf_info *nf_info){
- image_data **pending_images = (image_data **)nf_info->image_info->image_pending;
- data_struct *pkt_data = (data_struct *)packet_data;
- image_data *image = get_image(pkt_data->file_id, pending_images);
- 
- memcpy(&(image->image_data_arr[pkt_data->position]), pkt_data->data_array, sizeof(float)*pkt_data->number_of_elements);
- image->num_data_points_stored += pkt_data->number_of_elements;
-
- //printf("number of data points received %d \n",image->num_data_points_stored);
- //check if the image is ready for evaluation
- if(image->num_data_points_stored >= IMAGE_NUM_ELE){
- //add to the ready image list.
- nf_info->image_info->ready_images[(nf_info->image_info->num_of_ready_images+nf_info->image_info->index_of_ready_image)%MAX_IMAGE] = (void *)image;
- image->status = ready;
- image->output_size = IMAGENET_OUTPUT_SIZE; //outputsize for single Image
- image->batch_size = 1;
- nf_info->image_info->num_of_ready_images++;
- //printf("DEBUG.... all packets of image is received \n");
- //remove it from pending image list and put it on 
- pending_images[image->image_id] = NULL;
- }
- }
-
- //considers user provided batch sizes
- static inline void copy_data_to_image_batch(void *packet_data, struct onvm_nf_info *nf_info, int batch_size){
- image_data **pending_images = (image_data **)nf_info->image_info->image_pending;
- data_struct *pkt_data = (data_struct *)packet_data;
- int batch_id = pkt_data->file_id/batch_size; //which batch does the file belong to
- //printf("Debug, file_id %d the batch id is %d \n",pkt_data->file_id,batch_id);
- image_data *image = get_image(batch_id, pending_images);
- int batch_entry = pkt_data->file_id%batch_size; //where does the file belong in the batch
-
- 
- //check if the batch is empty.. store a timer for first packet.
- if(image->num_data_points_stored == 0){
- clock_gettime(CLOCK_MONOTONIC, &(image->timestamps[5]));
- }
- 
- //copy it correctly in a batch.
- memcpy(&(image->image_data_arr[batch_entry*IMAGE_NUM_ELE+pkt_data->position]), pkt_data->data_array, sizeof(float)*pkt_data->number_of_elements);
- image->num_data_points_stored += pkt_data->number_of_elements;
- 
- //check if the image is ready for evaluation
- if(image->num_data_points_stored >= IMAGE_NUM_ELE*batch_size){
- //add to the ready image list.
- nf_info->image_info->ready_images[(nf_info->image_info->num_of_ready_images+nf_info->image_info->index_of_ready_image)%MAX_IMAGE] = (void *)image;
- image->status = ready;
- image->output_size = IMAGENET_OUTPUT_SIZE*batch_size;
- image->batch_size = batch_size;
- nf_info->image_info->num_of_ready_images++;
- //printf("DEBUG.... all packets of image is received \n");
- //evaluate if the image is ready to be evaluated.
- if(nf_info->candidate_for_restart != 1){
- evaluate_an_image_from_mempool(NULL, nf_info, image);
- }
- //remove it from pending image list and put it on 
- pending_images[image->image_id] = NULL;
- }
- }
- */
 
 struct timespec time_per_1000_images;
 
@@ -2490,12 +2503,16 @@ struct timespec time_per_1000_images;
 static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_timer,void * info) {
 	struct onvm_nf_info *nf_info = (struct onvm_nf_info *) info;
 
+	//compute the throughput
 	uint32_t throughput = (number_of_images_since_last_computation*1000/NF_INFERENCE_PERIOD_MS);
-	uint32_t cpu_latency = hist_extract_v2(&nf_info->cpu_latency,VAL_TYPE_99_PERCENTILE);
-	uint32_t gpu_latency = hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_99_PERCENTILE);
+
+
+	uint32_t cpu_latency = hist_extract_v2(&nf_info->cpu_latency,VAL_TYPE_99_PERCENTILE); //compute the CPU and GPU latency
+	uint32_t gpu_latency = hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_RUNNING_AVG);
 
 	uint32_t batches_computed = nf_info->batches_inferred_per_sec*(1000/NF_INFERENCE_PERIOD_MS);
 	uint32_t batches_above_slo = nf_info->b_i_exceeding_slo_per_sec*(1000/NF_INFERENCE_PERIOD_MS);
+
 
 	nf_info->b_i_exceeding_slo_per_sec=0;
 	nf_info->batches_inferred_per_sec=0;
@@ -2506,12 +2523,11 @@ static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_time
 
 	total_images_processed += number_of_images_since_last_computation;
 	printf("Measurement_interval(ms):,%d,%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64",%"PRIu64",%"PRIu64"\n",NF_INFERENCE_PERIOD_MS,throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64,total_images_processed,total_slo_violations);
-	//if((total_images_processed %1000) < 50){
-	//	double time_for_1000_images = (timestamp.tv_sec-time_per_1000_images.tv_sec)*1000+(timestamp.tv_nsec-time_per_1000_images.tv_nsec)/(1000*1000);
-	//	printf("Time for 1000 images %f milliseconds\n", time_for_1000_images);
-	//	clock_gettime(CLOCK_MONOTONIC, &time_per_1000_images);
-	//}
+	//printf("Arrival Rate,%"PRIu32",images_seen,%"PRIu64"\n",arrival_rate,number_of_images_arrived_since_last_computation);
 	number_of_images_since_last_computation = 0;
+	number_of_images_arrived_since_last_computation = 0;
+
+
 }
 
 //initializes the timers....
@@ -2687,7 +2703,7 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 		void * status = NULL;
 		/* create the argument list for loading the ml model */
 		ml_load_params.file_path = nf_info->model_info->model_file_path;
-		ml_load_params.load_options = 0; //For CPU side loading = 0, for gpu = 1
+		ml_load_params.load_options = 1; //For CPU side loading = 0, for gpu = 1
 
 		/* in both NF running and pause case, we might need to load the ML model from disk to CPU */
 		//ml_functions.load_model(nf_info->model_info.model_file_path, 0 /*load in CPU */, &(nf_info->ml_model_handle), &(nf_info->ml_model_handle), nf_info->model_info.model_handles.number_of_parameters);

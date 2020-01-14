@@ -6,7 +6,7 @@
 #include <cuda_runtime_api.h>
 #include <driver_types.h>//cuda error
 
-#define STREAM_PRIORITY_TEST
+//#define STREAM_PRIORITY_TEST
 
 //Remove the below array.. and make an array that will rather store the pair of image data and nf_info pointers
 struct gpu_callback gpu_callbacks[MAX_STREAMS * PARALLEL_EXECUTION];

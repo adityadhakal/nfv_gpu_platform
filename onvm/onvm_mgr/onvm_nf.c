@@ -970,6 +970,7 @@ int onvm_nf_stop(struct onvm_nf_info *nf_info) {
 
 				//Must allocate the current standby with GPU\% before notifying it to run.
 				onvm_gpu_get_gpu_percentage_for_nf(cl->info);
+				onvm_nf_send_msg(stdby_nfid, MSG_GET_GPU_READY, 0, NULL);
 #endif//ONVM_GPU
 				onvm_nf_send_msg(stdby_nfid, MSG_RESUME, MSG_MODE_ASYNCHRONOUS,NULL);
 			}

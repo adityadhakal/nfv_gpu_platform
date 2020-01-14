@@ -1,0 +1,1063 @@
+sudo /home/adhak001/dev/openNetVM_sameer/examples/netml_ml_nf/build/app/bridge -l 10 -n 3 --proc-type=secondary -- -r 1 -n 1 -m 8 -- -b 16 -g 20
+EAL: Detected 80 lcore(s)
+EAL: Detected 2 NUMA nodes
+EAL: Multi-process socket /var/run/dpdk/rte/mp_socket_33561_f4d78578e5636
+EAL: Probing VFIO support...
+EAL: VFIO support initialized
+EAL: PCI device 0000:19:00.0 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.1 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.2 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:19:00.3 on NUMA socket 0
+EAL:   probe driver: 8086:1572 net_i40e
+EAL: PCI device 0000:af:00.0 on NUMA socket 1
+EAL:   probe driver: 19ee:4000 net_nfp_pf
+The instance ID of the nf is 1 and associated id 9
+NF_1_BATCH_AGG_POOL_NAME
+ address 0x17fb9fb80mempool get retval 0 
+Resolved CPU Dev Buffer 
+cur_index:1, action:4, destination:0
+
+APP: Waiting for manager to assign an ID...
+WAIT_TIME(INIT-->START): 7122 ns
+APP: Using Instance ID 1
+APP: Using Service ID 1
+sem_name=MProc_NF_1_SEM for client 1
+mkdir: cannot create directory ‘/sys/fs/cgroup/cpu/nf_1’: File exists
+GPU model is 8
+NF is using GPU
+
+ NF cgroup name and path: nf_1, /sys/fs/cgroup/cpu/nf_1/
+ CMD_TO_CREATE_CGROUP_for_NF: 1, mkdir /sys/fs/cgroup/cpu/nf_1
+ CMD_TO_ADD_NF_TO_CGROUP: echo 33561 > /sys/fs/cgroup/cpu/nf_1/tasks
+ CMD_TO_SET_CPU_SHARE: echo 1024 > /sys/fs/cgroup/cpu/nf_1/cpu.sharesNF on core=10 added to cgroup: nf_1, ret=0Timer subsystem init
+WAIT_TIME(INIT-->START-->Init_end): 165515790 ns
+APP: Finished Process Init.
+Number of sms 16
+gpu percent from command line 20
+User Flags Set:
+ Adaptive_Batching: 0
+ Fixed_Batch_size: 16
+ ML OPS SLO: 0(ms)
+Can use host pointer for registered mem 0
+GPU Percentage set by the manager now 20 
+Linking the cuda memhandles from (nil) 
+pointer to gpu agg buffer 0x17677f600
+User defined GPU percent was 20
+Number of sms 16
+registered cuda memory mem-addr 0x140000000 size 1073741824 cuda error 0 
+Could not register memory mem-addr 0x980000000 size 1073741824 cuda error 1 
+Could not register memory mem-addr 0x11c0000000 size 1073741824 cuda error 1 
+Could not register memory mem-addr 0x1a00000000 size 1073741824 cuda error 1 
+Total time taken to register the mempages to cuda is 30781.898000 micro-seconds 
+Buffer size 14579456
+[W] [TRT] Using an engine plan file across different models of devices is not recommended and is likely to affect performance or even cause errors.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuDNN 7.5.0 but is linked against cuDNN 7.6.4. This mismatch may potentially cause undefined behavior.
+[W] [TRT] TensorRT was compiled against cuBLAS 10.1.0 but is linked against cuBLAS 10.2.1. This mismatch may potentially cause undefined behavior.
+Time taken to load the model is 2284.000000 milliseconds
+Model load timestamp 69056986917
+Resolved GPU Dev Buffer 
+GPU initialization is complete..
+
+Client process 1 handling packets
+[Press Ctrl-C to quit ...]
+APP: Waiting for manager to put to RUN state...
+WAIT_TIME(START-->RUN): 59915 ns
+WAIT_TIME(INIT-->START-->RUN-->RUNNING): 2612452796 ns
+Measurement_interval(ms):,250,0,0,0,0,0,1,69056987898,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429500,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429501,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429504,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429505,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429506,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429507,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429553,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429554,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429556,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429557,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429558,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429559,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429608,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429609,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429611,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429612,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429614,0,0
+Measurement_interval(ms):,250,0,0,0,0,0,1,69059429615,0,0
+batch_size:,16,timestamp,69059453953,latency,16053,stream_id,0,data_transfer_time,98,instant_thpt,0,
+batch_size:,16,timestamp,69059470234,latency,16023,stream_id,0,data_transfer_time,75,instant_thpt,0,
+batch_size:,16,timestamp,69059486516,latency,16021,stream_id,0,data_transfer_time,77,instant_thpt,0,
+Measurement_interval(ms):,250,192,0,0,0,0,1,69059498843,48,0
+batch_size:,16,timestamp,69059502740,latency,15959,stream_id,0,data_transfer_time,75,instant_thpt,0,
+batch_size:,16,timestamp,69059518964,latency,15974,stream_id,0,data_transfer_time,70,instant_thpt,0,
+batch_size:,16,timestamp,69059535193,latency,15995,stream_id,0,data_transfer_time,73,instant_thpt,0,
+batch_size:,16,timestamp,69059551416,latency,15987,stream_id,0,data_transfer_time,75,instant_thpt,0,
+batch_size:,16,timestamp,69059567635,latency,15995,stream_id,0,data_transfer_time,76,instant_thpt,0,
+batch_size:,16,timestamp,69059583854,latency,15992,stream_id,0,data_transfer_time,72,instant_thpt,0,
+batch_size:,16,timestamp,69059600028,latency,15944,stream_id,0,data_transfer_time,72,instant_thpt,0,
+batch_size:,16,timestamp,69059615806,latency,15562,stream_id,0,data_transfer_time,73,instant_thpt,1028,
+batch_size:,16,timestamp,69059630763,latency,14728,stream_id,0,data_transfer_time,71,instant_thpt,1057,
+batch_size:,16,timestamp,69059645781,latency,14796,stream_id,0,data_transfer_time,71,instant_thpt,1069,
+batch_size:,16,timestamp,69059660749,latency,14746,stream_id,0,data_transfer_time,72,instant_thpt,1077,
+batch_size:,16,timestamp,69059675706,latency,14737,stream_id,0,data_transfer_time,73,instant_thpt,1081,
+batch_size:,16,timestamp,69059690667,latency,14743,stream_id,0,data_transfer_time,70,instant_thpt,1083,
+batch_size:,16,timestamp,69059705628,latency,14747,stream_id,0,data_transfer_time,70,instant_thpt,1083,
+batch_size:,16,timestamp,69059720587,latency,14749,stream_id,0,data_transfer_time,71,instant_thpt,1083,
+batch_size:,16,timestamp,69059735549,latency,14752,stream_id,0,data_transfer_time,70,instant_thpt,1083,
+Measurement_interval(ms):,250,1024,14752,0,0,0,1,69059748865,304,0
+batch_size:,16,timestamp,69059750514,latency,14755,stream_id,0,data_transfer_time,71,instant_thpt,1083,
+batch_size:,16,timestamp,69059765419,latency,14694,stream_id,0,data_transfer_time,69,instant_thpt,1085,
+batch_size:,16,timestamp,69059780374,latency,14744,stream_id,0,data_transfer_time,70,instant_thpt,1085,
+batch_size:,16,timestamp,69059795275,latency,14692,stream_id,0,data_transfer_time,69,instant_thpt,1087,
+batch_size:,16,timestamp,69059810231,latency,14754,stream_id,0,data_transfer_time,69,instant_thpt,1085,
+batch_size:,16,timestamp,69059825190,latency,14752,stream_id,0,data_transfer_time,69,instant_thpt,1084,
+batch_size:,16,timestamp,69059840149,latency,14758,stream_id,0,data_transfer_time,68,instant_thpt,1084,
+batch_size:,16,timestamp,69059855056,latency,14703,stream_id,0,data_transfer_time,71,instant_thpt,1086,
+batch_size:,16,timestamp,69059870011,latency,14756,stream_id,0,data_transfer_time,70,instant_thpt,1085,
+batch_size:,16,timestamp,69059884860,latency,14641,stream_id,0,data_transfer_time,71,instant_thpt,1088,
+batch_size:,16,timestamp,69059899709,latency,14645,stream_id,0,data_transfer_time,69,instant_thpt,1090,
+batch_size:,16,timestamp,69059914503,latency,14597,stream_id,0,data_transfer_time,70,instant_thpt,1093,
+batch_size:,16,timestamp,69059929351,latency,14651,stream_id,0,data_transfer_time,71,instant_thpt,1092,
+batch_size:,16,timestamp,69059944201,latency,14649,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69059959051,latency,14651,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69059973902,latency,14651,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69059988693,latency,14593,stream_id,0,data_transfer_time,69,instant_thpt,1094,
+Measurement_interval(ms):,250,1088,14621,0,0,0,1,69059998874,576,0
+batch_size:,16,timestamp,69060003487,latency,14599,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69060018339,latency,14655,stream_id,0,data_transfer_time,72,instant_thpt,1092,
+batch_size:,16,timestamp,69060033190,latency,14657,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69060048041,latency,14655,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69060062833,latency,14600,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69060077686,latency,14660,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69060092484,latency,14610,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69060107270,latency,14594,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69060122118,latency,14655,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69060136970,latency,14661,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69060151817,latency,14657,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69060166668,latency,14652,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69060181518,latency,14658,stream_id,0,data_transfer_time,70,instant_thpt,1091,
+batch_size:,16,timestamp,69060196370,latency,14664,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69060211165,latency,14609,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69060226013,latency,14661,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69060240860,latency,14654,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+Measurement_interval(ms):,250,1088,14650,0,0,0,1,69060248845,848,0
+batch_size:,16,timestamp,69060255705,latency,14656,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69060270543,latency,14653,stream_id,0,data_transfer_time,94,instant_thpt,1091,
+batch_size:,16,timestamp,69060285395,latency,14664,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69060300249,latency,14672,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+batch_size:,16,timestamp,69060315099,latency,14664,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+batch_size:,16,timestamp,69060329951,latency,14665,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+batch_size:,16,timestamp,69060344804,latency,14668,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69060359649,latency,14667,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+batch_size:,16,timestamp,69060374451,latency,14622,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69060389305,latency,14670,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69060404102,latency,14612,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69060418953,latency,14664,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69060433749,latency,14610,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69060448599,latency,14661,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69060463396,latency,14615,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69060478242,latency,14665,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69060493072,latency,14647,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14647,0,0,0,1,69060498868,1120,0
+batch_size:,16,timestamp,69060507870,latency,14612,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69060522722,latency,14660,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69060537521,latency,14617,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69060552324,latency,14622,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69060567174,latency,14670,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69060581976,latency,14607,stream_id,0,data_transfer_time,71,instant_thpt,1093,
+batch_size:,16,timestamp,69060596833,latency,14669,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69060611640,latency,14620,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69060626491,latency,14668,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69060641301,latency,14630,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69060656100,latency,14621,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69060670902,latency,14620,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69060685704,latency,14618,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69060700507,latency,14615,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69060715361,latency,14672,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69060730165,latency,14624,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69060744973,latency,14625,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14629,0,0,0,1,69060748845,1392,0
+batch_size:,16,timestamp,69060759779,latency,14620,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69060774631,latency,14673,stream_id,0,data_transfer_time,75,instant_thpt,1091,
+batch_size:,16,timestamp,69060789436,latency,14621,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69060804296,latency,14679,stream_id,0,data_transfer_time,72,instant_thpt,1090,
+batch_size:,16,timestamp,69060819100,latency,14622,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69060833955,latency,14671,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69060848755,latency,14611,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69060863608,latency,14675,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69060878460,latency,14671,stream_id,0,data_transfer_time,69,instant_thpt,1090,
+batch_size:,16,timestamp,69060893313,latency,14666,stream_id,0,data_transfer_time,70,instant_thpt,1090,
+batch_size:,16,timestamp,69060908113,latency,14614,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69060922960,latency,14662,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69060937811,latency,14666,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+batch_size:,16,timestamp,69060952609,latency,14614,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69060967463,latency,14667,stream_id,0,data_transfer_time,70,instant_thpt,1091,
+batch_size:,16,timestamp,69060982322,latency,14681,stream_id,0,data_transfer_time,70,instant_thpt,1090,
+batch_size:,16,timestamp,69060997181,latency,14679,stream_id,0,data_transfer_time,70,instant_thpt,1089,
+Measurement_interval(ms):,250,1088,14672,0,0,0,1,69060998860,1664,0
+batch_size:,16,timestamp,69061012042,latency,14668,stream_id,0,data_transfer_time,72,instant_thpt,1089,
+batch_size:,16,timestamp,69061026895,latency,14669,stream_id,0,data_transfer_time,68,instant_thpt,1089,
+batch_size:,16,timestamp,69061041749,latency,14674,stream_id,0,data_transfer_time,68,instant_thpt,1089,
+batch_size:,16,timestamp,69061056555,latency,14622,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69061071400,latency,14662,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69061086251,latency,14670,stream_id,0,data_transfer_time,69,instant_thpt,1090,
+batch_size:,16,timestamp,69061101099,latency,14666,stream_id,0,data_transfer_time,70,instant_thpt,1090,
+batch_size:,16,timestamp,69061115894,latency,14612,stream_id,0,data_transfer_time,71,instant_thpt,1092,
+batch_size:,16,timestamp,69061130692,latency,14614,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69061145540,latency,14670,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69061160339,latency,14620,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69061175191,latency,14670,stream_id,0,data_transfer_time,70,instant_thpt,1091,
+batch_size:,16,timestamp,69061190048,latency,14679,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+batch_size:,16,timestamp,69061204903,latency,14679,stream_id,0,data_transfer_time,70,instant_thpt,1089,
+batch_size:,16,timestamp,69061219764,latency,14681,stream_id,0,data_transfer_time,68,instant_thpt,1089,
+batch_size:,16,timestamp,69061234619,latency,14675,stream_id,0,data_transfer_time,72,instant_thpt,1089,
+Measurement_interval(ms):,250,1024,14675,31321,0,0,1,69061248869,1920,0
+batch_size:,16,timestamp,69061249474,latency,14680,stream_id,0,data_transfer_time,69,instant_thpt,1089,
+batch_size:,16,timestamp,69061264278,latency,14627,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69061279121,latency,14666,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+batch_size:,16,timestamp,69061293922,latency,14628,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69061308780,latency,14683,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+batch_size:,16,timestamp,69061323576,latency,14619,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69061338429,latency,14674,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69061353234,latency,14625,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69061368086,latency,14684,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69061382894,latency,14633,stream_id,0,data_transfer_time,70,instant_thpt,1091,
+batch_size:,16,timestamp,69061397745,latency,14670,stream_id,0,data_transfer_time,69,instant_thpt,1090,
+batch_size:,16,timestamp,69061412545,latency,14622,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69061427343,latency,14625,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69061442141,latency,14623,stream_id,0,data_transfer_time,70,instant_thpt,1093,
+batch_size:,16,timestamp,69061456944,latency,14628,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69061471796,latency,14679,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69061486603,latency,14634,stream_id,0,data_transfer_time,71,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14643,31321,0,0,1,69061498876,2192,0
+batch_size:,16,timestamp,69061501458,latency,14681,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+batch_size:,16,timestamp,69061516263,latency,14629,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69061531056,latency,14619,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69061545858,latency,14633,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69061560657,latency,14618,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69061575510,latency,14683,stream_id,0,data_transfer_time,70,instant_thpt,1091,
+batch_size:,16,timestamp,69061590308,latency,14627,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69061605108,latency,14626,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69061619961,latency,14680,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+batch_size:,16,timestamp,69061634812,latency,14675,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69061649617,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69061664424,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69061679217,latency,14625,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69061694015,latency,14625,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69061708814,latency,14631,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69061723666,latency,14679,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69061738464,latency,14624,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14639,31321,0,0,1,69061748871,2464,0
+batch_size:,16,timestamp,69061753263,latency,14626,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69061768059,latency,14625,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69061782859,latency,14630,stream_id,0,data_transfer_time,70,instant_thpt,1093,
+batch_size:,16,timestamp,69061797656,latency,14626,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69061812455,latency,14626,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69061827251,latency,14624,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69061842050,latency,14627,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69061856853,latency,14630,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69061871656,latency,14628,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69061886456,latency,14630,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69061901311,latency,14684,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69061916162,latency,14671,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69061930958,latency,14625,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69061945770,latency,14645,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69061960576,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69061975369,latency,14618,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69061990168,latency,14629,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14629,31321,0,0,1,69061998869,2736,0
+batch_size:,16,timestamp,69062005020,latency,14682,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69062019818,latency,14629,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69062034620,latency,14632,stream_id,0,data_transfer_time,73,instant_thpt,1092,
+batch_size:,16,timestamp,69062049408,latency,14621,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69062064202,latency,14621,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69062078996,latency,14626,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062093793,latency,14629,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69062108600,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062123450,latency,14667,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69062138246,latency,14632,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69062153042,latency,14625,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69062167841,latency,14628,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69062182637,latency,14621,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69062197438,latency,14631,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69062212238,latency,14632,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69062227033,latency,14624,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062241834,latency,14632,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14629,31321,0,0,1,69062248843,3008,0
+batch_size:,16,timestamp,69062256692,latency,14688,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69062271494,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69062286296,latency,14635,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69062301091,latency,14626,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69062315883,latency,14622,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69062330684,latency,14623,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062345490,latency,14637,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69062360293,latency,14637,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062375092,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062389942,latency,14683,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69062404745,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69062419540,latency,14630,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69062434344,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69062449136,latency,14625,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69062463936,latency,14631,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062478734,latency,14625,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69062493587,latency,14683,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+Measurement_interval(ms):,250,1088,14655,31321,0,0,1,69062498887,3280,0
+batch_size:,16,timestamp,69062508386,latency,14636,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69062523181,latency,14629,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69062537976,latency,14627,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69062552772,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69062567566,latency,14625,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69062582367,latency,14632,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69062597119,latency,14587,stream_id,0,data_transfer_time,68,instant_thpt,1094,
+batch_size:,16,timestamp,69062611911,latency,14629,stream_id,0,data_transfer_time,70,instant_thpt,1093,
+batch_size:,16,timestamp,69062626711,latency,14628,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062641511,latency,14632,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69062656311,latency,14631,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69062671111,latency,14632,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69062685963,latency,14671,stream_id,0,data_transfer_time,70,instant_thpt,1091,
+batch_size:,16,timestamp,69062700759,latency,14628,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69062715554,latency,14628,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69062730352,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69062745163,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14640,30152,0,0,1,69062748873,3552,0
+batch_size:,16,timestamp,69062759963,latency,14633,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69062774767,latency,14636,stream_id,0,data_transfer_time,71,instant_thpt,1092,
+batch_size:,16,timestamp,69062789566,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69062804363,latency,14634,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69062819162,latency,14632,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69062833965,latency,14633,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69062848722,latency,14595,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69062863521,latency,14631,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062878321,latency,14633,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69062893125,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062907935,latency,14645,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69062922729,latency,14624,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69062937531,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062952332,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062967132,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062981930,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69062996786,latency,14694,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+Measurement_interval(ms):,250,1088,14664,30152,0,0,1,69062998849,3824,0
+batch_size:,16,timestamp,69063011584,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69063026386,latency,14636,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063041187,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69063055935,latency,14585,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69063070734,latency,14627,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69063085536,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69063100387,latency,14688,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69063115182,latency,14627,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69063129979,latency,14635,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063144782,latency,14636,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063159572,latency,14626,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063174423,latency,14686,stream_id,0,data_transfer_time,71,instant_thpt,1090,
+batch_size:,16,timestamp,69063189223,latency,14641,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69063204021,latency,14633,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69063218821,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69063233678,latency,14693,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+batch_size:,16,timestamp,69063248474,latency,14622,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14644,30152,0,0,1,69063249077,4096,0
+batch_size:,16,timestamp,69063263270,latency,14634,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063278113,latency,14678,stream_id,0,data_transfer_time,70,instant_thpt,1091,
+batch_size:,16,timestamp,69063292965,latency,14689,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+batch_size:,16,timestamp,69063307764,latency,14636,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69063322559,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69063337347,latency,14625,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69063352146,latency,14631,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69063366953,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69063381755,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69063396549,latency,14633,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69063411397,latency,14679,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69063426248,latency,14687,stream_id,0,data_transfer_time,68,instant_thpt,1089,
+batch_size:,16,timestamp,69063441046,latency,14631,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69063455843,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69063470642,latency,14628,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063485441,latency,14633,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+Measurement_interval(ms):,250,1024,14634,30152,0,0,1,69063498866,4352,0
+batch_size:,16,timestamp,69063500241,latency,14636,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063515037,latency,14631,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063529835,latency,14632,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69063544632,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69063559426,latency,14629,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69063574275,latency,14687,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+batch_size:,16,timestamp,69063589075,latency,14632,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69063603871,latency,14631,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69063618723,latency,14681,stream_id,0,data_transfer_time,69,instant_thpt,1090,
+batch_size:,16,timestamp,69063633519,latency,14630,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69063648372,latency,14690,stream_id,0,data_transfer_time,69,instant_thpt,1090,
+batch_size:,16,timestamp,69063663166,latency,14626,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69063677961,latency,14635,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063692702,latency,14574,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69063707500,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69063722290,latency,14628,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69063737089,latency,14631,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14627,30152,0,0,1,69063748863,4624,0
+batch_size:,16,timestamp,69063751883,latency,14628,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69063766677,latency,14628,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69063781471,latency,14631,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69063796267,latency,14625,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69063811061,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69063825857,latency,14633,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69063840653,latency,14629,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69063855449,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69063870301,latency,14686,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69063885150,latency,14683,stream_id,0,data_transfer_time,69,instant_thpt,1090,
+batch_size:,16,timestamp,69063899942,latency,14626,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69063914740,latency,14626,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063929531,latency,14626,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063944330,latency,14633,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69063959125,latency,14632,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063973929,latency,14639,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69063988731,latency,14639,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14637,30152,0,0,1,69063998867,4896,0
+batch_size:,16,timestamp,69064003535,latency,14640,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064018337,latency,14631,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064033138,latency,14637,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69064047938,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064062740,latency,14627,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064077497,latency,14590,stream_id,0,data_transfer_time,69,instant_thpt,1094,
+batch_size:,16,timestamp,69064092294,latency,14633,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69064107096,latency,14639,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69064121900,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064136699,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064151497,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064166298,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064181098,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064195898,latency,14632,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064210702,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064225507,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064240310,latency,14641,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14638,29484,0,0,1,69064248843,5168,0
+batch_size:,16,timestamp,69064255102,latency,14629,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064269903,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064284700,latency,14633,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064299555,latency,14693,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69064314311,latency,14591,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69064329154,latency,14680,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69064343949,latency,14632,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69064358746,latency,14623,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69064373548,latency,14637,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69064388349,latency,14639,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69064403149,latency,14637,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69064417952,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064432750,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064447549,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064462351,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064477155,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064491977,latency,14658,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+Measurement_interval(ms):,250,1088,14648,29484,0,0,1,69064498867,5440,0
+batch_size:,16,timestamp,69064506774,latency,14630,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064521577,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064536376,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064551173,latency,14629,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064566026,latency,14691,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69064580828,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69064595630,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064610434,latency,14642,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064625239,latency,14641,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064639985,latency,14584,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69064654778,latency,14627,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69064669578,latency,14639,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69064684374,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064699218,latency,14681,stream_id,0,data_transfer_time,65,instant_thpt,1090,
+batch_size:,16,timestamp,69064714014,latency,14632,stream_id,0,data_transfer_time,69,instant_thpt,1091,
+batch_size:,16,timestamp,69064728811,latency,14638,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69064743604,latency,14629,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14635,29484,0,0,1,69064748850,5712,0
+batch_size:,16,timestamp,69064758402,latency,14634,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064773199,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064787993,latency,14632,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69064802788,latency,14630,stream_id,0,data_transfer_time,72,instant_thpt,1092,
+batch_size:,16,timestamp,69064817584,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064832378,latency,14630,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064847178,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064862022,latency,14687,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+batch_size:,16,timestamp,69064876821,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69064891622,latency,14637,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69064906415,latency,14632,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064921218,latency,14635,stream_id,0,data_transfer_time,71,instant_thpt,1092,
+batch_size:,16,timestamp,69064936014,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064950808,latency,14633,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064965608,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69064980418,latency,14641,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69064995162,latency,14585,stream_id,0,data_transfer_time,68,instant_thpt,1094,
+Measurement_interval(ms):,250,1088,14611,29484,0,0,1,69064998867,5984,0
+batch_size:,16,timestamp,69065009958,latency,14633,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69065024755,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69065039550,latency,14630,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69065054294,latency,14588,stream_id,0,data_transfer_time,65,instant_thpt,1094,
+batch_size:,16,timestamp,69065069045,latency,14590,stream_id,0,data_transfer_time,67,instant_thpt,1095,
+batch_size:,16,timestamp,69065083834,latency,14628,stream_id,0,data_transfer_time,68,instant_thpt,1094,
+batch_size:,16,timestamp,69065098632,latency,14644,stream_id,0,data_transfer_time,74,instant_thpt,1093,
+batch_size:,16,timestamp,69065113430,latency,14637,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69065128231,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69065143031,latency,14642,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065157827,latency,14633,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69065172576,latency,14588,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69065187370,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69065202171,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69065216970,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69065231823,latency,14691,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+batch_size:,16,timestamp,69065246621,latency,14638,stream_id,0,data_transfer_time,74,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14650,29484,0,0,1,69065248850,6256,0
+batch_size:,16,timestamp,69065261418,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065276217,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065290963,latency,14585,stream_id,0,data_transfer_time,68,instant_thpt,1094,
+batch_size:,16,timestamp,69065305758,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69065320553,latency,14636,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69065335347,latency,14637,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69065350147,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69065364951,latency,14646,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065379743,latency,14630,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065394542,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065409341,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065424139,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065438937,latency,14634,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69065453733,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69065468533,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065483330,latency,14625,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69065498126,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14633,29484,0,0,1,69065498874,6528,0
+batch_size:,16,timestamp,69065512978,latency,14690,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69065527770,latency,14633,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065542566,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065557362,latency,14636,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69065572156,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065586950,latency,14635,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69065601745,latency,14637,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69065616542,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69065631336,latency,14631,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69065646132,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065660926,latency,14630,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065675722,latency,14633,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69065690575,latency,14694,stream_id,0,data_transfer_time,69,instant_thpt,1090,
+batch_size:,16,timestamp,69065705370,latency,14631,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69065720166,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69065734964,latency,14636,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+Measurement_interval(ms):,250,1024,14639,29317,0,0,1,69065748880,6784,0
+batch_size:,16,timestamp,69065749761,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065764558,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065779360,latency,14640,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065794157,latency,14637,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69065808959,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065823706,latency,14586,stream_id,0,data_transfer_time,68,instant_thpt,1094,
+batch_size:,16,timestamp,69065838498,latency,14634,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69065853293,latency,14634,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69065868089,latency,14633,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69065882887,latency,14642,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69065897684,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69065912483,latency,14638,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69065927288,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69065942089,latency,14644,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065956887,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69065971685,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69065986484,latency,14639,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14639,29317,0,0,1,69065998864,7056,0
+batch_size:,16,timestamp,69066001283,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066016084,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066030881,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066045679,latency,14635,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69066060476,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066075223,latency,14588,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69066090014,latency,14633,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69066104812,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69066119609,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69066134460,latency,14692,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69066149257,latency,14639,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+batch_size:,16,timestamp,69066164055,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69066178848,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066193642,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066208440,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066223236,latency,14637,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066238085,latency,14689,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+Measurement_interval(ms):,250,1088,14663,29317,0,0,1,69066248874,7328,0
+batch_size:,16,timestamp,69066252882,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69066267679,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066282475,latency,14637,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69066297272,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066312071,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066326868,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066341676,latency,14647,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066356473,latency,14634,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69066371269,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066386071,latency,14644,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066400867,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066415662,latency,14630,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066430420,latency,14597,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69066445164,latency,14589,stream_id,0,data_transfer_time,65,instant_thpt,1095,
+batch_size:,16,timestamp,69066459963,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69066474711,latency,14582,stream_id,0,data_transfer_time,67,instant_thpt,1095,
+batch_size:,16,timestamp,69066489518,latency,14647,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14624,29317,0,0,1,69066498882,7600,0
+batch_size:,16,timestamp,69066504322,latency,14644,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69066519120,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066533972,latency,14695,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69066548777,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69066563568,latency,14631,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066578364,latency,14637,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066593162,latency,14640,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066607964,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066622769,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066637580,latency,14648,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066652388,latency,14651,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066667191,latency,14646,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066681985,latency,14635,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69066696785,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066711584,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066726387,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066741188,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14642,29317,0,0,1,69066748850,7872,0
+batch_size:,16,timestamp,69066755987,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066770789,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066785582,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066800326,latency,14585,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69066815125,latency,14635,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69066829923,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066844723,latency,14643,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066859520,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066874323,latency,14648,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69066889126,latency,14645,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69066903929,latency,14643,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69066918730,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69066933478,latency,14590,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69066948278,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69066963077,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69066977826,latency,14590,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69066992628,latency,14643,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14627,29317,0,0,1,69066998860,8144,0
+batch_size:,16,timestamp,69067007425,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69067022226,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69067037025,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69067051822,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067066620,latency,14639,stream_id,0,data_transfer_time,71,instant_thpt,1092,
+batch_size:,16,timestamp,69067081419,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69067096218,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067111016,latency,14639,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067125756,latency,14580,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69067140556,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69067155349,latency,14637,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69067170150,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69067184952,latency,14643,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69067199756,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69067214558,latency,14644,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067229356,latency,14635,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067244100,latency,14583,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+Measurement_interval(ms):,250,1088,14610,29317,0,0,1,69067248849,8416,0
+batch_size:,16,timestamp,69067258892,latency,14631,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69067273636,latency,14588,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69067288433,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69067303228,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69067318021,latency,14636,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69067332818,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69067347612,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69067362409,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69067377210,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067392010,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69067406809,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067421611,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067436414,latency,14647,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69067451215,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067466018,latency,14644,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067480817,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69067495613,latency,14637,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14639,29317,0,0,1,69067498884,8688,0
+batch_size:,16,timestamp,69067510413,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067525210,latency,14643,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067540010,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067554807,latency,14637,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067569606,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69067584463,latency,14696,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+batch_size:,16,timestamp,69067599206,latency,14585,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69067613956,latency,14591,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69067628750,latency,14641,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69067643548,latency,14639,stream_id,0,data_transfer_time,64,instant_thpt,1092,
+batch_size:,16,timestamp,69067658295,latency,14590,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69067673091,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69067687837,latency,14588,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69067702628,latency,14634,stream_id,0,data_transfer_time,73,instant_thpt,1093,
+batch_size:,16,timestamp,69067717426,latency,14636,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69067732227,latency,14635,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69067747021,latency,14634,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14632,29317,0,0,1,69067748865,8960,0
+batch_size:,16,timestamp,69067761813,latency,14631,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69067776559,latency,14590,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69067791358,latency,14639,stream_id,0,data_transfer_time,70,instant_thpt,1093,
+batch_size:,16,timestamp,69067806157,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067820958,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067835756,latency,14642,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067850558,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69067865358,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067880157,latency,14642,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69067894956,latency,14642,stream_id,0,data_transfer_time,64,instant_thpt,1092,
+batch_size:,16,timestamp,69067909754,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067924550,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067939350,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69067954149,latency,14641,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067968949,latency,14642,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69067983747,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69067998547,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14639,29317,0,0,1,69067999131,9232,0
+batch_size:,16,timestamp,69068013349,latency,14646,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068028148,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068042943,latency,14635,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068057740,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068072488,latency,14592,stream_id,0,data_transfer_time,65,instant_thpt,1094,
+batch_size:,16,timestamp,69068087285,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69068102081,latency,14638,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69068116879,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69068131675,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068146477,latency,14643,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69068161278,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068176078,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068190876,latency,14641,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69068205674,latency,14639,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068220475,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068235272,latency,14639,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+Measurement_interval(ms):,250,1024,14640,29317,0,0,1,69068248862,9488,0
+batch_size:,16,timestamp,69068250071,latency,14641,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068264867,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068279663,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69068294463,latency,14640,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69068309261,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068324059,latency,14637,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068338855,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068353654,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068368400,latency,14586,stream_id,0,data_transfer_time,65,instant_thpt,1094,
+batch_size:,16,timestamp,69068383198,latency,14635,stream_id,0,data_transfer_time,70,instant_thpt,1093,
+batch_size:,16,timestamp,69068397995,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068412794,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068427592,latency,14640,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068442391,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068457192,latency,14645,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068471990,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068486819,latency,14667,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+Measurement_interval(ms):,250,1088,14654,29317,0,0,1,69068498875,9760,0
+batch_size:,16,timestamp,69068501622,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69068516423,latency,14645,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69068531222,latency,14640,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+batch_size:,16,timestamp,69068546018,latency,14637,stream_id,0,data_transfer_time,64,instant_thpt,1092,
+batch_size:,16,timestamp,69068560813,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068575610,latency,14638,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068590404,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068605202,latency,14637,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068619995,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068634790,latency,14632,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69068649584,latency,14636,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69068664381,latency,14638,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068679175,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69068693922,latency,14586,stream_id,0,data_transfer_time,69,instant_thpt,1094,
+batch_size:,16,timestamp,69068708769,latency,14686,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69068723510,latency,14580,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69068738305,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14626,29317,0,0,1,69068748874,10032,0
+batch_size:,16,timestamp,69068753102,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068767897,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068782694,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068797495,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068812295,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068827045,latency,14592,stream_id,0,data_transfer_time,65,instant_thpt,1094,
+batch_size:,16,timestamp,69068841851,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69068856654,latency,14639,stream_id,0,data_transfer_time,64,instant_thpt,1092,
+batch_size:,16,timestamp,69068871454,latency,14643,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068886260,latency,14652,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69068901063,latency,14645,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69068915811,latency,14590,stream_id,0,data_transfer_time,65,instant_thpt,1094,
+batch_size:,16,timestamp,69068930613,latency,14642,stream_id,0,data_transfer_time,70,instant_thpt,1093,
+batch_size:,16,timestamp,69068945414,latency,14641,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69068960163,latency,14592,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69068974966,latency,14648,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69068989767,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14634,29317,0,0,1,69068998857,10304,0
+batch_size:,16,timestamp,69069004571,latency,14653,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69069019375,latency,14649,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69069034180,latency,14645,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+batch_size:,16,timestamp,69069048982,latency,14646,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+batch_size:,16,timestamp,69069063782,latency,14641,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+batch_size:,16,timestamp,69069078588,latency,14645,stream_id,0,data_transfer_time,70,instant_thpt,1091,
+batch_size:,16,timestamp,69069093388,latency,14646,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69069108189,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69069122986,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69069137787,latency,14642,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+batch_size:,16,timestamp,69069152588,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69069167384,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069182184,latency,14642,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69069196980,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069211773,latency,14634,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69069226571,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069241371,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14638,29317,0,0,1,69069248866,10576,0
+batch_size:,16,timestamp,69069256117,latency,14586,stream_id,0,data_transfer_time,69,instant_thpt,1094,
+batch_size:,16,timestamp,69069270911,latency,14632,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69069285711,latency,14636,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69069300512,latency,14634,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+batch_size:,16,timestamp,69069315316,latency,14641,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69069330118,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069344971,latency,14691,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69069359768,latency,14633,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69069374569,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69069389370,latency,14641,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69069404174,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69069418928,latency,14593,stream_id,0,data_transfer_time,68,instant_thpt,1094,
+batch_size:,16,timestamp,69069433726,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69069448529,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069463331,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069478128,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069492928,latency,14640,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14638,29317,0,0,1,69069498839,10848,0
+batch_size:,16,timestamp,69069507725,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069522522,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069537319,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069552120,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069566919,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069581723,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069596478,latency,14597,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69069611268,latency,14629,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69069626072,latency,14644,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69069640872,latency,14637,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069655670,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069670467,latency,14640,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69069685262,latency,14633,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69069700064,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069714862,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069729662,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069744464,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14640,29317,0,0,1,69069748839,11120,0
+batch_size:,16,timestamp,69069759268,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069774023,latency,14596,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69069788823,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69069803623,latency,14641,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69069818423,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69069833224,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069848029,latency,14646,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069862829,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069877634,latency,14651,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69069892385,latency,14592,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69069907181,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69069921984,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069936785,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069951581,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69069966326,latency,14578,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69069981126,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69069995877,latency,14594,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+Measurement_interval(ms):,250,1088,14609,29317,0,0,1,69069998867,11392,0
+batch_size:,16,timestamp,69070010670,latency,14631,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69070025471,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070040270,latency,14639,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070055069,latency,14640,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69070069869,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69070084668,latency,14638,stream_id,0,data_transfer_time,70,instant_thpt,1092,
+batch_size:,16,timestamp,69070099466,latency,14636,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070114266,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69070129014,latency,14586,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69070143808,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69070158612,latency,14643,stream_id,0,data_transfer_time,71,instant_thpt,1092,
+batch_size:,16,timestamp,69070173411,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69070188162,latency,14592,stream_id,0,data_transfer_time,69,instant_thpt,1094,
+batch_size:,16,timestamp,69070202952,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69070217747,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69070232545,latency,14636,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69070247341,latency,14637,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14635,29317,0,0,1,69070248857,11664,0
+batch_size:,16,timestamp,69070262138,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69070276934,latency,14640,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69070291727,latency,14632,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69070306578,latency,14691,stream_id,0,data_transfer_time,67,instant_thpt,1090,
+batch_size:,16,timestamp,69070321372,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69070336168,latency,14638,stream_id,0,data_transfer_time,64,instant_thpt,1092,
+batch_size:,16,timestamp,69070350963,latency,14638,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69070365758,latency,14638,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69070380551,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070395342,latency,14633,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69070410139,latency,14634,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69070424881,latency,14587,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69070439619,latency,14581,stream_id,0,data_transfer_time,68,instant_thpt,1095,
+batch_size:,16,timestamp,69070454412,latency,14636,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69070469154,latency,14585,stream_id,0,data_transfer_time,68,instant_thpt,1095,
+batch_size:,16,timestamp,69070483948,latency,14636,stream_id,0,data_transfer_time,69,instant_thpt,1094,
+batch_size:,16,timestamp,69070498745,latency,14634,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14626,29317,0,0,1,69070499341,11936,0
+batch_size:,16,timestamp,69070513541,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69070528339,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070543136,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070557935,latency,14643,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69070572686,latency,14593,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69070587485,latency,14640,stream_id,0,data_transfer_time,70,instant_thpt,1093,
+batch_size:,16,timestamp,69070602232,latency,14586,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69070617031,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69070631825,latency,14634,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69070646626,latency,14648,stream_id,0,data_transfer_time,72,instant_thpt,1092,
+batch_size:,16,timestamp,69070661427,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69070676233,latency,14648,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070691029,latency,14638,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69070705773,latency,14586,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69070720571,latency,14642,stream_id,0,data_transfer_time,68,instant_thpt,1093,
+batch_size:,16,timestamp,69070735370,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+Measurement_interval(ms):,250,1024,14634,29317,0,0,1,69070748849,12192,0
+batch_size:,16,timestamp,69070750168,latency,14637,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69070764966,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69070779770,latency,14646,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070794563,latency,14635,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69070809361,latency,14642,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69070824160,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070838957,latency,14641,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69070853753,latency,14636,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69070868550,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69070883346,latency,14642,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69070898093,latency,14593,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69070912894,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69070927693,latency,14640,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69070942445,latency,14592,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69070957255,latency,14651,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69070972008,latency,14596,stream_id,0,data_transfer_time,66,instant_thpt,1094,
+batch_size:,16,timestamp,69070986806,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+Measurement_interval(ms):,250,1088,14628,29317,0,0,1,69070998860,12464,0
+batch_size:,16,timestamp,69071001607,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071016406,latency,14644,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69071031207,latency,14646,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69071046006,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071060806,latency,14638,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69071075604,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071090401,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071105145,latency,14586,stream_id,0,data_transfer_time,65,instant_thpt,1094,
+batch_size:,16,timestamp,69071119945,latency,14645,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69071134749,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071149546,latency,14643,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071164351,latency,14649,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071179154,latency,14649,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071193955,latency,14647,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69071208751,latency,14640,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69071223546,latency,14636,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071238398,latency,14693,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+Measurement_interval(ms):,250,1088,14666,29317,0,0,1,69071248856,12736,0
+batch_size:,16,timestamp,69071253193,latency,14639,stream_id,0,data_transfer_time,65,instant_thpt,1091,
+batch_size:,16,timestamp,69071267989,latency,14635,stream_id,0,data_transfer_time,64,instant_thpt,1092,
+batch_size:,16,timestamp,69071282787,latency,14634,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071297531,latency,14587,stream_id,0,data_transfer_time,67,instant_thpt,1094,
+batch_size:,16,timestamp,69071312326,latency,14634,stream_id,0,data_transfer_time,65,instant_thpt,1093,
+batch_size:,16,timestamp,69071327119,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69071341913,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69071356711,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071371506,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071386304,latency,14641,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69071401107,latency,14644,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69071415906,latency,14640,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69071430707,latency,14639,stream_id,0,data_transfer_time,68,instant_thpt,1092,
+batch_size:,16,timestamp,69071445511,latency,14648,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071460311,latency,14640,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69071475107,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071489907,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+Measurement_interval(ms):,250,1088,14640,29317,0,0,1,69071498882,13008,0
+batch_size:,16,timestamp,69071504702,latency,14640,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69071519502,latency,14643,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69071534295,latency,14638,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071549097,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071563899,latency,14645,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071578698,latency,14642,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071593499,latency,14645,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071608300,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071623098,latency,14640,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071637897,latency,14632,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071652696,latency,14644,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071667493,latency,14639,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071682288,latency,14636,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071697089,latency,14648,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69071711885,latency,14640,stream_id,0,data_transfer_time,66,instant_thpt,1092,
+batch_size:,16,timestamp,69071726684,latency,14635,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071741537,latency,14700,stream_id,0,data_transfer_time,68,instant_thpt,1090,
+Measurement_interval(ms):,250,1088,14669,29317,0,0,1,69071748867,13280,0
+batch_size:,16,timestamp,69071756337,latency,14644,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69071771131,latency,14638,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071785930,latency,14639,stream_id,0,data_transfer_time,69,instant_thpt,1092,
+batch_size:,16,timestamp,69071800730,latency,14643,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071815483,latency,14599,stream_id,0,data_transfer_time,67,instant_thpt,1093,
+batch_size:,16,timestamp,69071830275,latency,14635,stream_id,0,data_transfer_time,66,instant_thpt,1093,
+batch_size:,16,timestamp,69071845076,latency,14645,stream_id,0,data_transfer_time,65,instant_thpt,1092,
+batch_size:,16,timestamp,69071859872,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1092,
+batch_size:,16,timestamp,69071874725,latency,14692,stream_id,0,data_transfer_time,66,instant_thpt,1090,
+batch_size:,16,timestamp,69071889526,latency,14648,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69071904325,latency,14644,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69071919124,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69071933924,latency,14642,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+batch_size:,16,timestamp,69071948724,latency,14641,stream_id,0,data_transfer_time,66,instant_thpt,1091,
+batch_size:,16,timestamp,69071963522,latency,14646,stream_id,0,data_transfer_time,68,instant_thpt,1091,
+batch_size:,16,timestamp,69071978320,latency,14641,stream_id,0,data_transfer_time,67,instant_thpt,1091,
+APP: Shutting down...
+
+ NF is Exiting...!
+batch_size:,16,timestamp,69071993078,latency,14596,stream_id,0,data_transfer_time,69,instant_thpt,1093,
+Status of 0 image: 0
+Status of 1 image: 0
+Status of 2 image: 0
+Status of 3 image: 0
+Status of 4 image: 0
+Status of 5 image: 0
+Status of 6 image: 0
+Status of 7 image: 0
+Status of 8 image: 0
+Status of 9 image: 0
+Status of 10 image: 0
+Status of 11 image: 0
+Status of 12 image: 0
+Status of 13 image: 0
+Status of 14 image: 2
+Status of 15 image: 2
+Status of 16 image: 2
+Status of 17 image: 2
+Status of 18 image: 2
+Status of 19 image: 2
+Status of 20 image: 2
+Status of 21 image: 2
+Status of 22 image: 2
+Status of 23 image: 2
+Status of 24 image: 2
+Status of 25 image: 2
+Status of 26 image: 2
+Status of 27 image: 2
+Status of 28 image: 2
+Status of 29 image: 2
+Status of 30 image: 0
+Status of 31 image: 0
+Status of 32 image: 2
+Status of 33 image: 2
+Status of 34 image: 2
+Status of 35 image: 2
+Status of 36 image: 2
+Status of 37 image: 2
+Status of 38 image: 2
+Status of 39 image: 2
+Status of 40 image: 2
+Status of 41 image: 2
+Status of 42 image: 2
+Status of 43 image: 2
+Status of 44 image: 2
+Status of 45 image: 2
+Status of 46 image: 2
+Status of 47 image: 2
+Status of 48 image: 2
+Status of 49 image: 2
+Status of 50 image: 2
+Status of 51 image: 2
+Status of 52 image: 2
+Status of 53 image: 2
+Status of 54 image: 2
+Status of 55 image: 2
+Status of 56 image: 2
+Status of 57 image: 2
+Status of 58 image: 2
+Status of 59 image: 2
+Status of 60 image: 2
+Status of 61 image: 2
+Status of 62 image: 2
+Status of 63 image: 2
+The final bitmask 18446744070488309760
+If we reach here, program is ending
+Time this NF died 69071993273
+[E] [TRT] Parameter check failed at: engine.cpp::terminateCommonContext::240, condition: cudaEventDestroy(context.start) failure.
+[E] [TRT] Parameter check failed at: engine.cpp::terminateCommonContext::245, condition: cudaEventDestroy(context.stop) failure.
+[E] [TRT] runtime.cpp (31) - Cuda Error in free: 4 (driver shutting down)
+terminate called after throwing an instance of 'nvinfer1::CudaError'
+  what():  std::exception
