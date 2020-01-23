@@ -71,6 +71,7 @@ stream_tracker *give_stream_v2(void) {
 	}
 	return st;
 }
+int allowed_streams = MAX_STREAMS;
 /* if the stream is available, then the stream will return otherwise it will return NULL, the client need to figure out what to do then */
 stream_tracker *give_stream(void) {
 	int i;
@@ -78,7 +79,8 @@ stream_tracker *give_stream(void) {
 	int index;
 	static long rr_counter = 0;
 	if (PARALLEL_EXECUTION > 0) {
-		for (i = 0; i < MAX_STREAMS; i++) {
+	//	for (i = 0; i < MAX_STREAMS; i++) { //changed to make dynamic stream provision
+		for (i = 0; i < allowed_streams; i++) {
 			if (streams_track[i].status > max) {
 				max = streams_track[i].status;
 				index = i;
@@ -87,6 +89,8 @@ stream_tracker *give_stream(void) {
 
 		if (max) {
 			streams_track[index].status--; //decrement
+			// put in the timestamp
+			clock_gettime(CLOCK_MONOTONIC, &streams_track[index].time_released);
 			return &streams_track[index];
 		} else {
 			return NULL;
@@ -104,6 +108,60 @@ stream_tracker *give_stream(void) {
 	} else {
 		return &streams_track[(rr_counter++) % MAX_STREAMS];
 	}
+	return NULL;
+}
+
+/* new way of giving stream when there are multiple streams and you have to co-ordinate between them
+ *
+ */
+stream_tracker *give_stream_v3(uint32_t observed_latency_us){
+	//so we have to give stream such a way that if there are 2 streams, then, we only release the 2nd stream if the first stream's was released 90% of time of observed latency earlier
+	int i = 0;
+	int max = 0;
+	//int index;
+	static int last_used_index = 0;
+	check_and_release_stream();
+	if(!observed_latency_us){
+		//first initial conditions, only give 1 stream at a time until we profile latency
+		allowed_streams = 1;
+		return give_stream_v2();
+	}
+	else
+	{
+
+		//now we have the latency value.. we should check if any stream is busy...
+		allowed_streams = MAX_STREAMS;
+		//get a timestamp.
+		struct timespec current_time;
+		clock_gettime(CLOCK_MONOTONIC, &current_time);
+
+		//check if any stream are available
+		for (i = 0; i < allowed_streams; i++) {
+			if (streams_track[i].status > max) {
+				max += streams_track[i].status;
+			//	index = i;
+			}
+	}
+		if(max>0){
+		//index of another stream
+			int another_stream = (1-last_used_index);
+			//otherwise check if the timestamp is more than latency
+			uint32_t time_diff = (current_time.tv_sec - streams_track[last_used_index].time_released.tv_sec)*1000000+(current_time.tv_nsec-streams_track[last_used_index].time_released.tv_nsec)/1000;
+			//printf("Observed latency %"PRIu32" and time diff %"PRIu32"\n", observed_latency_us, time_diff);
+			if(time_diff>=(0.75*observed_latency_us)){
+				clock_gettime(CLOCK_MONOTONIC, &streams_track[another_stream].time_released);
+				//printf("give stream\n");
+				streams_track[another_stream].status--;
+				last_used_index++;
+				last_used_index = last_used_index%2;
+				return &streams_track[another_stream];
+
+				}
+			else
+				return NULL;
+			}
+	}
+	//printf("All streams busy latency was %"PRIu32"\n", observed_latency_us);
 	return NULL;
 }
 

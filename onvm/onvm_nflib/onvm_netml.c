@@ -263,7 +263,11 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 //	__attribute__((unused)) static onvm_interval_timer_t end_tsc = 0;
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
 
-	stream_tracker *cuda_stream = give_stream_v2();//give_stream();
+	//stream_tracker *cuda_stream = give_stream_v2();//give_stream();
+
+	//try new stream tracker :)
+	stream_tracker *cuda_stream = give_stream_v3(hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_RUNNING_AVG));
+
 	if(cuda_stream != NULL) {
 
 		uint32_t i;
