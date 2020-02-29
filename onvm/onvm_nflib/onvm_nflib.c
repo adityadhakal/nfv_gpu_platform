@@ -65,7 +65,7 @@
 #ifdef ONVM_GPU
 #include <cuda_runtime.h>
 #include <strings.h> //for ffs
-#endif
+#endif //ONVM_GPU
 #include "onvm_includes.h"
 #include "onvm_sc_common.h"
 #include "clipper_batchsize_extension.h"
@@ -1992,6 +1992,40 @@ void onvm_send_gpu_msg_to_mgr(void *message_to_manager, int message_type) {
  }
  */
 
+void print_gpu_input_output(void * input_ptr, void * output_ptr, int batch_size);
+void print_gpu_input_output(void * input_ptr, void * output_ptr, int batch_size){
+//first check the input...
+	int i =0;
+	void *input = rte_malloc(NULL,sizeof(float)*3*224*224,0);
+	cudaMemcpy(input,input_ptr,sizeof(float)*3*224*224,cudaMemcpyDeviceToHost);
+	//print the input till 1000 places
+	/*
+	printf("Input: \n");
+	for(i = 0; i<(3*224*224); i++){
+		printf("%.8f,",((float*)input)[i]);
+	}
+	*/
+	printf("\n");
+	//now check the output
+	void *output = rte_malloc(NULL,sizeof(float)*1000*batch_size,0);
+	cudaMemcpy(output,output_ptr,sizeof(float)*1000*batch_size,cudaMemcpyDeviceToHost);
+	//FILE *f = fopen("output.txt","w");
+	//if(f ==  NULL){
+	//	printf("Error opening the file\n");
+	//}
+
+	printf("Output: \n");
+	for(i = 0; i<1000*batch_size; i++){
+		printf("%.8f,",((float*)output)[i]);
+		//fprintf(f,"%.8f, ",((float*)output)[i]);
+	}
+	printf("Done.. \n");
+	//fclose(f);
+	rte_free(input);
+	rte_free(output);
+}
+
+
 #define NUM_VIOLATIONS_PRE_GPU_RECOMMENDATION (5)
 uint8_t over_slo_violation = 0;
 uint8_t under_slo_violation = 0;
@@ -2105,13 +2139,13 @@ inline void gpu_recommend_gpu_percentage(struct onvm_nf_info *nf_info, uint32_t 
 }
 
 
+
+
 #define MIN_GAP_THRESHOLD (50)	//Latency gap between SLO and observed latency below which the scaling cannot be performed.
 #define MAX_OVERFLOW_THRESHOLD (5)
 
 #ifdef NEW_LEARNING_BATCH_APPROACH
 #define SLO_OFFSET_THRESHOLD_PERCENTAGE (10)
-
-
 
 //GPU callback function to report after the evaluation is finished...
 inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_inferred, uint32_t cur_lat);
@@ -2296,9 +2330,7 @@ void gpu_image_callback_function(void *data) {
 	int i;
 	int bit_position;
 	uint32_t temp_latency=0, nw_latency=0, cpu_latency=0;
-
 	uint32_t gpu_latency= (call_back_time.tv_sec-callback_data->start_time.tv_sec)*1000000+(call_back_time.tv_nsec-callback_data->start_time.tv_nsec)/1000;
-
 
 	hist_store_v2(&(callback_data->nf_info->gpu_latency),gpu_latency);
 
@@ -2369,21 +2401,25 @@ void gpu_image_callback_function(void *data) {
 		uint32_t throughput = (num_of_images_inferred)*(1000000)/gpu_latency;
 		hist_store_v2(&nf_info->throughput_histogram,throughput); //store the throughput into histogram
 
-		uint32_t arrival_latency = hist_extract_v2(&nf_info->image_arrival_latency,VAL_TYPE_RUNNING_AVG);
+
+
+		number_of_images_since_last_computation += num_of_images_inferred;
+
+		/* extra stats */
+		/*
+		 *
 		//compute the arrival rate.
 		uint32_t arrival_rate = 0;
 		if(arrival_latency>0){
-		arrival_rate = 1000000/arrival_latency;
+			arrival_rate = 1000000/arrival_latency;
 		}
-
-	
-		number_of_images_since_last_computation += num_of_images_inferred;
+		uint32_t arrival_latency = hist_extract_v2(&nf_info->image_arrival_latency,VAL_TYPE_RUNNING_AVG);
 		uint64_t per_batch_timestamp = (call_back_time.tv_sec)*1000000+(call_back_time.tv_nsec)/1000;
 		uint64_t data_transfer_time = (callback_data->end_gpu_transfer.tv_sec-callback_data->start_gpu_transfer.tv_sec)*1000000+(callback_data->end_gpu_transfer.tv_nsec-callback_data->start_gpu_transfer.tv_nsec)/1000;
 		//printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",image_bitmask,%"PRIu64",stream_id,%"PRIu8"\n", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->batch_aggregation->ready_mask,callback_data->stream_track->id);
 		uint32_t instant_thpt = hist_extract_v2(&nf_info->throughput_histogram, VAL_TYPE_RUNNING_AVG);
-		printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",stream_id,%"PRIu8",data_transfer_time,%"PRIu64",instant_thpt,%"PRIu32",arrival_rate,%"PRIu32",", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->stream_track->id,data_transfer_time,instant_thpt,arrival_rate);
-
+		//printf("batch_size:,%d,timestamp,%"PRIu64",latency,%"PRIu32",stream_id,%"PRIu8",data_transfer_time,%"PRIu64",instant_thpt,%"PRIu32",arrival_rate,%"PRIu32",", num_of_images_inferred,per_batch_timestamp,gpu_latency,callback_data->stream_track->id,data_transfer_time,instant_thpt,arrival_rate);
+*/
 		/** Adapt batch size to meet the SLO latency objective **/
 		if((callback_data->nf_info->inference_slo_ms) && (ADAPTIVE_BATCHING_SELF_LEARNING == callback_data->nf_info->enable_adaptive_batching)) {
 			callback_data->nf_info->batches_inferred_per_sec++;
@@ -2485,14 +2521,34 @@ void gpu_image_callback_function(void *data) {
 #endif //NEW_LEARNING_BATCH_APPROACH
 		}
 	}
-	printf("\n");
 	//long timestamp = call_back_time.tv_sec*1000000+call_back_time.tv_nsec/1000;
 	//printf("Timestamp: %ld TotalImages: %d BatchSize: %d LearnedSize: %d CPULatency: %d GPULatency: %d SLO: %d\n",timestamp, number_of_images_since_last_computation, num_of_images_inferred, callback_data->nf_info->learned_max_batch_size, cpu_latency, gpu_latency,(callback_data->nf_info->inference_slo_ms*1000));
 	return_device_buffer(callback_data->stream_track->id);
-//#ifndef ENABLE_GPU_NETML
+	//#ifndef ENABLE_GPU_NETML
 	return_cpu_buffer(callback_data->stream_track->id);
-//#endif
+	//#endif
 	return_stream(callback_data->stream_track);
+
+	//Display the GPU input and output: Only to be used for verification of the output
+	//print_gpu_input_output(callback_data->input_data, callback_data->output_data,num_of_images_inferred );
+
+	// for fixed workload tests
+	if(callback_data->batch_aggregation->num_of_requests_inferred == 0){
+		callback_data->batch_aggregation->first_execution = callback_data->start_time;
+	}
+	callback_data->batch_aggregation->num_of_requests_inferred += num_of_images_inferred;
+	if(callback_data->batch_aggregation->num_of_requests_inferred >= 10000){
+		//if we hit 10,000 images, we should stop the NF
+		struct timespec current_time;
+		clock_gettime(CLOCK_MONOTONIC, &current_time);
+
+		double time_taken_10k = (current_time.tv_sec-callback_data->batch_aggregation->first_execution.tv_sec)*1000.0+(current_time.tv_nsec-callback_data->batch_aggregation->first_execution.tv_nsec)/1000000.0;
+		printf("Time taken to finish inferring 10,000 requests is : %f ms",time_taken_10k);
+
+		//time to shutdown the NF
+		onvm_nflib_stop( nf_info);
+	}
+	//printf("\n");
 }
 
 

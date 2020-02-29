@@ -64,7 +64,7 @@
 //#include "tensorrt_api.h"
 //#include "onvm_cntk_api.h"
 #include "onvm_gpu_buffer_factory.h"
-//#define HOLD_PACKETS_TILL_CALLBACK
+#define HOLD_PACKETS_TILL_CALLBACK
 #define NEW_LEARNING_BATCH_APPROACH
 //#define CLIPPER_ADAPTIVE_BATCHING
 #endif //ONVM_GPU

@@ -60,7 +60,7 @@ void init_ml_models(void) {
 	//models[5] = "SRGAN.model";
 	models[5] = "AlexNet_ImageNet_CNTK.model";
 	models[6] = "resnet50_batch64.trt";
-	models[7] = "alexnet_batch128.trt";
+	models[7] = "alexnet_batch64.trt";
 	//	models[8] = "resnet152_batch128.trt";
 	models[8] = "mobilenet_batch64.trt";
 	//models[8] = "super_resolution.trt";
@@ -81,7 +81,7 @@ void init_ml_models(void) {
 	models_runtime[5] = "alexnet_cntk_runtime.txt";
 	models_runtime[6] = "resnet50_tensorrt.txt";
 	models_runtime[7] = "alexnet_tensorrt.txt";
-	models_runtime[8] = "resnet152_tensorrt.txt";
+	models_runtime[8] = "mobilenet_tensorrt.txt";
 	models_runtime[9] = "vgg19_tensorrt.txt";
 	models_runtime[10] = "resnet34_tensorrt.txt";
 	models_runtime[11] = "vgg16_tensorrt.txt";
@@ -464,8 +464,10 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 	}
 
 	//IF NF already has percentage set, then ignore the call :: Double check what should be done here.. not clear yet!
-	if((nf->gpu_percentage) /*&& (GPU_RA_IS_SET == gpu_ra_mgt.ra_status[nf->instance_id])*/) return 0;
-
+	if((nf->gpu_percentage) /*&& (GPU_RA_IS_SET == gpu_ra_mgt.ra_status[nf->instance_id])*/){
+	  onvm_gpu_set_gpu_percentage(nf,nf->gpu_percentage);
+	  return 0;
+	}
 	//IF NF is marked for readjustment or is marked to relinquish its GPU resource then ignore.
 	if(GPU_RA_NEEDS_READJUSTMENT == gpu_ra_mgt.ra_status[nf->instance_id] || GPU_RA_NEED_TO_RELINQUISH == gpu_ra_mgt.ra_status[nf->instance_id]) return 0;
 
@@ -542,7 +544,7 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 }
 
 
-#define READJUSTMENT_DUE_TO_RATE
+//#define READJUSTMENT_DUE_TO_RATE
 /* this function will be called peridically by a thread to re-allocate the GPU percentage for NFs */
 int onvm_gpu_check_gpu_ra_mgt(void) {
 	uint8_t act_nfs;
@@ -616,10 +618,10 @@ int onvm_gpu_check_gpu_ra_mgt(void) {
 #endif //readjustment_due_to_rates
 
 
+	if(gpu_ra_available <5)
+		gpu_ra_available =0;
 
 	printf("GPU Resource available %d (percent), Number of NFs currently using GPU %"PRIu8"\n",gpu_ra_available, act_nfs);
-
-
 
 	printf("The number of NFs we need to re-adjust or reallocate %d\n", readjust_or_allocate);
 
@@ -721,6 +723,8 @@ for(i=0; i<MAX_NFS; i++) {
 	//algorithm here...
 	//first see if we can give the knee to all NFs
 	gpu_percentage_in_play = MAX_GPU_OVERPRIVISION_VALUE - sum_of_all_knees;
+	if(gpu_percentage_in_play<5)
+		gpu_percentage_in_play=0;
 	printf("GPU Percentage left beyond all Knees %d, high priority nf demand %d, low priority demand %d \n", gpu_percentage_in_play,sum_h_p_knee,sum_l_p_knee);
 	//if positive... we can allocate Knee for everyone
 	//then we can share rest proportionally

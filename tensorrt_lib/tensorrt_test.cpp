@@ -258,9 +258,11 @@ cudaStreamCallback_t callback_function(void* a){
 void callback_function(cudaStream_t stream, cudaError_t status, void* a);
 void callback_function(cudaStream_t stream, cudaError_t status, void* a){
   printf("Callback called...\n");
-  
-  
+
 }
+
+
+
 
 
 void test_infer(IExecutionContext *context, void *bindings[2],cudaStream_t *stream){
@@ -381,7 +383,6 @@ int tensorrt_infer_batch(nflib_ml_fw_infer_params_t *infer_params, void *aio){
     //cudaLaunchHostFunc(0, infer_params->callback_function, infer_params->callback_data);
   }
 */
-  
 
   return 0;
 }
