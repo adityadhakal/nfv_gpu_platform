@@ -55,7 +55,8 @@
 //Enable GPU
 #define ONVM_GPU 1
 #define ONVM_GPU_SAME_SIZE_PKTS 1
-#define ONVM_GPU_TEST 1
+//#define ONVM_GPU_TEST 1
+#define NUM_GPUS 8
 
 #ifdef ONVM_GPU
 #include "onvm_netml.h"
@@ -1105,7 +1106,7 @@ struct onvm_nf_info {
 	int ring_flag; //if 1 then NF can access the ring, otherwise no.
 
 	ml_model_info *model_info; //model information
-	void * ml_model_handle; //the ML function for CPU side.
+	void * ml_model_handle[NUM_GPUS]; //the ML function for CPU side.
 	int adaptive_cur_batch_size; //user can define the batch size.
 	int enable_adaptive_batching; //user can choose to use adaptive batching or not {0=Disable Adaptive batching;1=Basic (No learning/no cap on max);2=Self Learning (SLO based cap max batch size)
 	uint32_t fixed_batch_size;		  //user can specify fixed batch size.

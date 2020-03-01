@@ -61,11 +61,10 @@
 
 #ifdef ONVM_GPU
 #include "onvm_ml_libraries.h"
-//#include "tensorrt_api.h"
-//#include "onvm_cntk_api.h"
 #include "onvm_gpu_buffer_factory.h"
 #define HOLD_PACKETS_TILL_CALLBACK
 #define NEW_LEARNING_BATCH_APPROACH
+
 //#define CLIPPER_ADAPTIVE_BATCHING
 #endif //ONVM_GPU
 //aditya
@@ -294,9 +293,9 @@ onvm_nflib_get_default_chain(void);
 image_batched_aggregation_info_t *batch_agg_info;
 
 /* declare the structs for the arguments for ml libraries functions */
-nflib_ml_fw_load_params_t ml_load_params; //loading parameters
-nflib_ml_fw_link_params_t ml_link_params;//linking parameters
-nflib_ml_fw_infer_params_t ml_infer_params;//inferring parameters
+nflib_ml_fw_load_params_t ml_load_params[NUM_GPUS]; //loading parameters
+nflib_ml_fw_link_params_t ml_link_params[NUM_GPUS];//linking parameters
+nflib_ml_fw_infer_params_t ml_infer_params[NUM_GPUS];//inferring parameters
 
 /* the pointer to the ml framework operations
  *
@@ -306,7 +305,7 @@ nflib_ml_fw_infer_params_t ml_infer_params;//inferring parameters
 ml_framework_operations_t *ml_operations;
 
 /* function to initialize GPU in the NF */
-void initialize_gpu(struct onvm_nf_info *nf_info);
+void initialize_gpu(struct onvm_nf_info *nf_info,int gpu_id);
 
 /* =================== below functions need rethinking... all need to be removed or aggregated into more logical functions ========= */
 

@@ -20,7 +20,10 @@
 #define SIZE_OF_AN_IMAGE_BYTES (SIZE_OF_EACH_ELEMENT*3*224*224)
 #define IMAGE_BATCH_DEV_BUFFER_SIZE (MAX_IMAGES_BATCH_SIZE*SIZE_OF_AN_IMAGE_BYTES)
 
+//for the GNMT algorithm
 #define SIZE_OF_SENTENCE_BATCH 10000 //set this to large value for images execution
+
+
 
 /* structure that defines a chunk of data included in a packet*/
 typedef struct __attribute__ ((packed)) chunk_info_t {
@@ -115,7 +118,7 @@ void gpu_image_callback_function(void *data);
 
 /* this function initializes the number of streams desired by the program */
 // providing functionality for stream priority
-int init_streams(uint8_t priority);
+int init_streams(uint8_t priority, int gpu_id);
 
 /* this function provides an empty stream */
 stream_tracker *give_stream_v3(uint32_t observed_latency_us);

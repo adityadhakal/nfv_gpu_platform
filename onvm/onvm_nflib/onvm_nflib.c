@@ -155,7 +155,7 @@ int cuda_register_shared_memory(void);
 void gpu_image_callback_function(void *data);
 
 //following are utilized while parsing the NF arguments so should stay
-static char *ml_model_file;//filename of model
+//static char *ml_model_file;//filename of model
 static uint16_t ml_model_number;//ml model number
 static uint16_t ml_priority;//ml priority
 
@@ -997,7 +997,11 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 	if (nf_info->gpu_percentage > 0) {
 
 		//call a function to initialize GPU
-		initialize_gpu(nf_info);
+		//let's initialize it in all GPUs for now
+		int k = 0;
+		for(k = 0; k<NUM_GPUS;k++){
+			initialize_gpu(nf_info,k);
+		}
 	}
 
 	void *pkts[NF_PKT_BATCH_SIZE]; //better to use (NF_PKT_BATCH_SIZE*2)
@@ -1298,7 +1302,7 @@ case MSG_NF_TRIGGER_ECB:
 	case MSG_GET_GPU_READY:
 	//initialize the GPU for this NF
 	printf("Initializing the GPU for this NF\n");
-	initialize_gpu(nf_info);
+	initialize_gpu(nf_info,0);
 	//Now let the manager know the GPU has been up and it is time to switch the ring flag
 	struct onvm_nf_msg *reply_msg;
 	int ret = rte_mempool_get(nf_msg_pool,(void **)(&reply_msg));
@@ -1483,7 +1487,7 @@ static int onvm_nflib_parse_args(int argc, char *argv[]) {
 #endif
 		switch (c) {
 #ifdef ENABLE_STATIC_ID
-#ifdef ONVM_GPU
+#ifdef ONVM_GPUuint8_t
 		case 'n':
 		initial_instance_id = (uint16_t) strtoul(optarg, NULL, 10);
 		break;
@@ -1661,7 +1665,7 @@ static inline int onvm_nflib_notify_ready(struct onvm_nf_info *nf_info) {
 #ifdef ONVM_GPU
 
 /* the function to initialize things on GPU */
-void initialize_gpu(struct onvm_nf_info *nf_info) {
+void initialize_gpu(struct onvm_nf_info *nf_info, int gpu_id) {
 
 	nf_info->learned_max_batch_size=0;
 	nf_info->adaptive_cur_batch_size=0;
@@ -1680,18 +1684,20 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	//nflib_ml_fw_link_params_t ml_link_params;
 
 	//these things don't change once set so we can just set it here
-	ml_link_params.file_path = nf_info->model_info->model_file_path;
-	ml_link_params.model_handle = nf_info->ml_model_handle;
-	ml_link_params.cuda_handles_for_gpu_data = nf_info->model_info->model_handles.cuda_handles;
-	ml_link_params.number_of_parameters = nf_info->model_info->model_handles.number_of_parameters;
-	ml_link_params.gpu_side_input_pointer = NULL;
-	ml_link_params.gpu_side_output_pointer = NULL;
-	ml_link_params.link_options = 0; //do not link the model
-	printf("Linking the cuda memhandles from %p \n", ml_link_params.cuda_handles_for_gpu_data);
-	printf("pointer to gpu agg buffer %p\n",nf_info->image_info);
+	ml_link_params[gpu_id].file_path = nf_info->model_info->model_file_path;
+	ml_link_params[gpu_id].model_handle = nf_info->ml_model_handle[gpu_id];
+	ml_link_params[gpu_id].cuda_handles_for_gpu_data = nf_info->model_info->model_handles.cuda_handles;
+	ml_link_params[gpu_id].number_of_parameters = nf_info->model_info->model_handles.number_of_parameters;
+	ml_link_params[gpu_id].gpu_side_input_pointer = NULL;
+	ml_link_params[gpu_id].gpu_side_output_pointer = NULL;
+	ml_link_params[gpu_id].link_options = 0; //do not link the model
+	printf("Linking the CUDA memhandles from %p \n", ml_link_params[gpu_id].cuda_handles_for_gpu_data);
+	printf("pointer to GPU agg buffer %p\n",nf_info->image_info);
 	int retval;
 
 	// 1. set the user defined GPU percentage
+	// We will be performing CUDA INIT here so, we should choose the GPU.
+	cudaGetDevice(&gpu_id);
 
 	char gpu_percent[4];
 	sprintf(gpu_percent,"%d", nf_info->gpu_percentage);
@@ -1700,25 +1706,24 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 
 	int num_sms = 0;
 	cudaDeviceGetAttribute(&num_sms, cudaDevAttrMultiProcessorCount, 0);
-	printf("Number of sms %d\n", num_sms);
+	printf("GPU ID: %"PRIu8" Number of SMs: %d\n", gpu_id,num_sms);
 	// 2. Create all streams
 	// current priority is set as a GPU model, higher the GPU model number, higher the priority... there should be another metric for this
-	retval = init_streams(nf_info->gpu_model);
+	retval = init_streams(nf_info->gpu_model, gpu_id);
 	if(retval)
 	printf("Error while creating CUDA streams \n");
 
 	// 3. Pin required memories
-
 	retval = cuda_register_shared_memory();
 	if(retval)
 	printf("Could not pin the memory \n");
 
 	// 4. Put the GPU model to GPU
 	//retval = (*(ml_functions.get_gpu_ready))(nf_info->ml_model_handle, nf_info->model_info.model_handles->cuda_handles, nf_info->gpu_model_info.model_handles->number_of_parameters, nf_info->user_batch_size);
-	retval = (*(ml_operations->link_model_fptr))(&ml_link_params,status);
+	retval = (*(ml_operations->link_model_fptr))(&(ml_link_params[gpu_id]),status);
 
-	if(ml_link_params.gpu_side_input_pointer != NULL) {
-		resolve_gpu_dev_buffer_pointer(ml_link_params.gpu_side_input_pointer, ml_link_params.gpu_side_output_pointer);
+	if(ml_link_params[gpu_id].gpu_side_input_pointer != NULL) {
+		resolve_gpu_dev_buffer_pointer(ml_link_params[gpu_id].gpu_side_input_pointer, ml_link_params[gpu_id].gpu_side_output_pointer);
 	}
 	else {
 		//convert all the gpu side buffers from cudaIPC handles to cuda pointers..
@@ -1773,6 +1778,14 @@ int nflib_register_ml_fw_operations(ml_framework_operations_t *ops) {
 
 /* function that pins all the shared memory... Necessary for NetML approach to work */
 int cuda_register_shared_memory(void) {
+	//flag variable to let it happen only once
+	static int flag = 0;
+
+	//this is a one time operation. Therefore ignore it if it happens again
+	if(flag){
+		printf("Memory area already pinned for this application \n");
+		return 0;
+	}
 
 	//get the memory config
 	struct rte_config * rte_config = rte_eal_get_configuration();
@@ -1796,6 +1809,7 @@ int cuda_register_shared_memory(void) {
 			printf("registered cuda memory mem-addr %p size %ld cuda error %d \n", memseg_ptr->base_va, memseg_ptr->page_sz, cuda_err);
 		}
 	}
+	flag = flag+1;
 	clock_gettime(CLOCK_MONOTONIC, &end);
 	double time_taken_to_register = (end.tv_sec-begin.tv_sec)*1000000.0 + (end.tv_nsec-begin.tv_nsec)/1000.0;
 	printf("Total time taken to register the mempages to cuda is %f micro-seconds \n",time_taken_to_register);
@@ -2545,8 +2559,8 @@ void gpu_image_callback_function(void *data) {
 		double time_taken_10k = (current_time.tv_sec-callback_data->batch_aggregation->first_execution.tv_sec)*1000.0+(current_time.tv_nsec-callback_data->batch_aggregation->first_execution.tv_nsec)/1000000.0;
 		printf("Time taken to finish inferring 10,000 requests is : %f ms",time_taken_10k);
 
-		//time to shutdown the NF
-		onvm_nflib_stop( nf_info);
+		//time to shutdown the NF--- do not stop when you don't need to.
+		//onvm_nflib_stop( nf_info);
 	}
 	//printf("\n");
 }
@@ -2757,17 +2771,25 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 
 		int retval;
 		void * status = NULL;
-		/* create the argument list for loading the ml model */
-		ml_load_params.file_path = nf_info->model_info->model_file_path;
-		ml_load_params.load_options = 1; //For CPU side loading = 0, for gpu = 1
+		/* load the model in all GPUs for now...
+		 * also change the GPU each time when you load
+		 */
 
-		/* in both NF running and pause case, we might need to load the ML model from disk to CPU */
-		//ml_functions.load_model(nf_info->model_info.model_file_path, 0 /*load in CPU */, &(nf_info->ml_model_handle), &(nf_info->ml_model_handle), nf_info->model_info.model_handles.number_of_parameters);
-		retval = (*(ml_operations->load_model_fptr))(&ml_load_params,status);
-		nf_info->ml_model_handle = ml_load_params.model_handle;
-		if(retval != 0)
-		printf("Error while loading the model \n");
+		int g = 0;
+		for(g = 0; g<NUM_GPUS; g++){
+			/* select the GPU */
+			cudaGetDevice(&g);
+			/* create the argument list for loading the ml model */
+			ml_load_params[g].file_path = nf_info->model_info->model_file_path;
+			ml_load_params[g].load_options = 1; //For CPU side loading = 0, for gpu = 1
 
+			/* in both NF running and pause case, we might need to load the ML model from disk to CPU */
+			//ml_functions.load_model(nf_info->model_info.model_file_path, 0 /*load in CPU */, &(nf_info->ml_model_handle), &(nf_info->ml_model_handle), nf_info->model_info.model_handles.number_of_parameters);
+			retval = (*(ml_operations->load_model_fptr))(&ml_load_params[g],status);
+			nf_info->ml_model_handle[g] = ml_load_params[g].model_handle;
+			if(retval != 0)
+			printf("Error while loading the model \n");
+		}
 	}
 #endif //onvm_gpu
 

@@ -8,15 +8,19 @@
 
 //#define STREAM_PRIORITY_TEST
 
-//Remove the below array.. and make an array that will rather store the pair of image data and nf_info pointers
-struct gpu_callback gpu_callbacks[MAX_STREAMS * PARALLEL_EXECUTION];
-
+//stream tracker apparatus
 stream_tracker streams_track[MAX_STREAMS];
 
 /* initialize the streams  with no flags */
-int init_streams(uint8_t priority) {
-	int i;
+int init_streams(uint8_t priority, int gpu_id) {
 	cudaError_t cuda_error;
+	//choose the GPU
+	cuda_error = cudaGetDevice(&gpu_id);
+	if(cuda_error!= cudaSuccess){
+		printf("Problem selecting %"PRIu8" GPU.\n",gpu_id);
+	}
+
+	int i;
 	for (i = 0; i < MAX_STREAMS; i++) {
 		if (!DEFAULT_STREAM) {
 #ifdef STREAM_PRIORITY_TEST
@@ -63,8 +67,6 @@ int check_and_release_stream(void) {
 //int status_tracker[MAX_STREAMS];
 stream_tracker *give_stream_v2(void) {
 	stream_tracker *st = give_stream();
-	//int i = 0;
-	//
 	if (!st) {
 		check_and_release_stream();
 		st = give_stream();
