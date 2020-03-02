@@ -76,11 +76,11 @@ LDFLAGS += -L/usr/local/lib
 CFLAGS += -I$(SRCDIR)/../../tensorrt_lib/
 LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so 
 LDLIBS += -lzmq -lstdc++ -lm 
-LDLIBS += -lonvm_cntk -lcudart
+#LDLIBS += -lonvm_cntk -lcudart
+LDLIBS += -lcudart
 
-
-CFLAGS += -I$(SRCDIR)/../../cntk_lib/ #-Wl, #-Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
-LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
+#CFLAGS += -I$(SRCDIR)/../../cntk_lib/ #-Wl, #-Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
+#LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
 
 
 LDFLAGS += ./libzmq.a

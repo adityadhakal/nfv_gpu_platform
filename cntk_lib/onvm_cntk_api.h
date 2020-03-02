@@ -1,6 +1,6 @@
 #ifndef ONVM_CNTK_API_H
 #define ONVM_CNTK_API_H
-#include "/home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_ml_libraries.h"
+#include "/home/adhak001/dev/nfv_gpu_platform/onvm/onvm_nflib/onvm_ml_libraries.h"
 
 #include <cuda_runtime.h>
 

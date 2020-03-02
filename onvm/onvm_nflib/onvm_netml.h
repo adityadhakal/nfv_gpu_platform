@@ -71,6 +71,7 @@ typedef struct image_batched_aggregation_info_t {
 	uint32_t num_of_requests_inferred;
 } image_batched_aggregation_info_t;
 
+inline int get_recent_ts(struct timespec smaller, struct timespec bigger);
 inline int get_recent_ts(struct timespec smaller, struct timespec bigger) {
 	if (smaller.tv_sec < bigger.tv_sec)
 		return 0; //bigger is the recent one

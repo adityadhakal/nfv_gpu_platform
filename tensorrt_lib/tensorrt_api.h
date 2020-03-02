@@ -1,6 +1,6 @@
 #ifndef _TENSORRT_API_
 #define _TENSORRT_API_
-#include "/home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_ml_libraries.h"
+#include "/home/adhak001/dev/nfv_gpu_platform/onvm/onvm_nflib/onvm_ml_libraries.h"
 #ifdef __cplusplus
 extern "C"{
 

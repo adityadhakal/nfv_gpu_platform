@@ -71,18 +71,18 @@ CFLAGS += -I$(SRCDIR)/../onvm_nflib/
 
 LDFLAGS += $(SRCDIR)/../lib/$(RTE_TARGET)/libonvmhelper.a
 LDFLAGS += $(SRCDIR)/../onvm_nflib/$(RTE_TARGET)/libonvm.a -lstdc++
-CFLAGS += -I/usr/local/cuda/include
+CFLAGS += -I/usr/local/cuda/include -std=c99
 #LDFLAGS += $(SRCDIR)/../shared/shared/$(RTE_TARGET)/onvm_shared.a
 
 LDFLAGS += -L/usr/local/lib
 LDFLAGS += -L/usr/local/cuda/lib64
-CFLAGS += -I$(SRCDIR)/../../cntk_lib/ #-Wl, #-Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
+#CFLAGS += -I$(SRCDIR)/../../cntk_lib/ #-Wl, #-Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
 #CLFAGS += -I/home/adhak001/microsoft/cntk/Source/CNTKv2LibraryDll/API/
-LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
+#LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
 
 CFLAGS += -I$(SRCDIR)/../../tensorrt_lib/
 LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so
-LDLIBS += -lonvm_cntk
+#LDLIBS += -lonvm_cntk
 LDLIBS += -lcudart -lstdc++ -lcuda
 
 

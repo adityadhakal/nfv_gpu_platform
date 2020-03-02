@@ -6,7 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "onvm_cntk_api.h"
+//#include "onvm_cntk_api.h"
 
 //GPU Resource allocation flags and data structure 
 #define GPU_MAX_RA_PER_NF	(100)			// indictes max % that can be allocated to an NF

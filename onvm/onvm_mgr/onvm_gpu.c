@@ -13,7 +13,7 @@
 #ifdef ONVM_GPU
 #include <cuda.h>
 #include <cuda_runtime.h>
-#include "onvm_cntk_api.h"
+//#include "onvm_cntk_api.h"
 #include "tensorrt_api.h"
 #include "onvm_ml_libraries.h"
 
@@ -167,6 +167,8 @@ void init_ml_models(void) {
 /* loads the model for the manager */
 void load_gpu_model(struct gpu_file_listing *ml_file) {
 
+
+#ifdef LOAD_CNTK
 	int flag = 1; //all models are loaded to GPU, flag = 0 cpu only, flag = 1 gpu only
 	int num_of_parameters = 0;//the number of parameters of a GPU side function
 
@@ -216,6 +218,7 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 	if(ml_file->model_info.platform == tensorrt) {
 		printf("Loading tensorrt model \n");
 	}
+#endif //LOAD_CNTK
 	// load the csv file for data
 	load_old_profiler_data(ml_file->attributes.profile_data.file_path,ml_file->model_info.file_index);
 }
@@ -375,6 +378,7 @@ inline int onvm_gpu_set_gpu_percentage(struct onvm_nf_info *nf, uint16_t gpu_per
 	gpu_ra_mgt.ra_status[nf->instance_id] = GPU_RA_IS_SET;
 	return 0;
 }
+inline int onvm_gpu_set_wt_list_gpu_percentage(struct onvm_nf_info *nf, uint16_t gpu_percent);
 inline int onvm_gpu_set_wt_list_gpu_percentage(struct onvm_nf_info *nf, uint16_t gpu_percent) {
 	nf->gpu_percentage = gpu_percent;
 	gpu_ra_mgt.nf_gpu_ra_list[nf->instance_id] = gpu_percent;
@@ -383,6 +387,7 @@ inline int onvm_gpu_set_wt_list_gpu_percentage(struct onvm_nf_info *nf, uint16_t
 	gpu_ra_mgt.ra_status[nf->instance_id] = GPU_RA_IS_WAITLISTED;
 	return 0;
 }
+inline int compute_current_gpu_ra_stats(uint8_t *num_act_nfs, uint16_t *gpu_ra_avl_pct);
 inline int compute_current_gpu_ra_stats(uint8_t *num_act_nfs, uint16_t *gpu_ra_avl_pct) {
 	int i = 0;
 	uint8_t act_nfs_count=0;
