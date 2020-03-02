@@ -81,16 +81,16 @@ LDFLAGS += -L/usr/local/cuda/lib64
 #LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
 
 CFLAGS += -I$(SRCDIR)/../../tensorrt_lib/
-<<<<<<< Updated upstream
+#<<<<<<< Updated upstream
 LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so
 #LDLIBS += -lonvm_cntk
 LDLIBS += -lcudart -lstdc++ -lcuda
 
-=======
+#=======
 LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so 
 #LDLIBS += -lonvm_cntk
 LDLIBS += -lcudart -lstdc++ -lcuda -lnvinfer
->>>>>>> Stashed changes
+#>>>>>>> Stashed changes
 
 LDLIBS += -lzmq 
 LDFLAGS += -L/usr/lib/x86_64-linux-gnu

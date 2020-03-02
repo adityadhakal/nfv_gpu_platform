@@ -167,14 +167,14 @@ void init_ml_models(void) {
 /* loads the model for the manager */
 void load_gpu_model(struct gpu_file_listing *ml_file) {
 
-<<<<<<< Updated upstream
+
 
 #ifdef LOAD_CNTK
-=======
-#ifdef LOAD_CNTK_MODELS
 
 
->>>>>>> Stashed changes
+
+
+
 	int flag = 1; //all models are loaded to GPU, flag = 0 cpu only, flag = 1 gpu only
 	int num_of_parameters = 0;//the number of parameters of a GPU side function
 
@@ -228,12 +228,10 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 	if(ml_file->model_info.platform == tensorrt) {
 		printf("Loading tensorrt model \n");
 	}
-<<<<<<< Updated upstream
-#endif //LOAD_CNTK
-=======
 
-#endif //LOAD_CNTK_MODEL
->>>>>>> Stashed changes
+#endif //LOAD_CNTK
+
+
 	// load the csv file for data
 	load_old_profiler_data(ml_file->attributes.profile_data.file_path,ml_file->model_info.file_index);
 }
