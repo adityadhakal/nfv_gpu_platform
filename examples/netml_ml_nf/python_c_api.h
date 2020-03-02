@@ -7,7 +7,7 @@
 
 #ifndef EXAMPLES_NETML_ML_NF_PYTHON_C_API_H_
 #define EXAMPLES_NETML_ML_NF_PYTHON_C_API_H_
-#include "/home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_ml_libraries.h"
+#include "../../onvm/onvm_nflib/onvm_ml_libraries.h"
 #ifdef __cplusplus
 extern "C"{
 #endif

@@ -4,7 +4,7 @@
  *  Created on: Dec 23, 2019
  *      Author: root
  */
-#include "/root/anaconda3/include/python3.7m/Python.h"
+#include "/home/adhak001/anaconda3/include/python3.7m/Python.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -14,7 +14,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "/home/adhak001/dev/openNetVM_sameer/onvm/onvm_nflib/onvm_ml_libraries.h"
+#include "/home/adhak001/dev/nfv_gpu_platform/onvm/onvm_nflib/onvm_ml_libraries.h"
 #include "onvm_netml.h"
 
 #include "python_c_api.h"

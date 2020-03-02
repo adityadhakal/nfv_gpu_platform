@@ -37,7 +37,7 @@
  *
  * bridge.c - send all packets from one port out the other.
  ********************************************************************/
-#include "/root/anaconda3/include/python3.7m/Python.h"
+#include "/home/adhak001/anaconda3/include/python3.7m/Python.h"
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -330,7 +330,7 @@ int main(int argc, char *argv[]) {
 	//initializing GPU for test
 	//initialize_gpu(nf_info);
 
-	int answer2;
+	int answer2 = 0;
 	//cudaDeviceGetAttribute(&answer2,cudaDevAttrCanUseHostPointerForRegisteredMem, 0);
 	printf("Can use host pointer for registered mem %d\n", answer2);
 	onvm_nflib_run(nf_info, &packet_handler);

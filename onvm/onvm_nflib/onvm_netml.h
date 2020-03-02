@@ -71,7 +71,11 @@ typedef struct image_batched_aggregation_info_t {
 	uint32_t num_of_requests_inferred;
 } image_batched_aggregation_info_t;
 
+<<<<<<< Updated upstream
 inline int get_recent_ts(struct timespec smaller, struct timespec bigger);
+=======
+/*
+>>>>>>> Stashed changes
 inline int get_recent_ts(struct timespec smaller, struct timespec bigger) {
 	if (smaller.tv_sec < bigger.tv_sec)
 		return 0; //bigger is the recent one
@@ -80,6 +84,7 @@ inline int get_recent_ts(struct timespec smaller, struct timespec bigger) {
 		return 0; //bigger (Second) is the recent.
 	return 1; //smaller (first) is the recent
 }
+*/
 
 struct stream_tracker;
 //callback struct, for GPU callback

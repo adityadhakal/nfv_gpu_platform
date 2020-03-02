@@ -46,7 +46,7 @@ static inline struct onvm_nf_info *shadow_nf(int instance_id) {
 /* this function is called by the main so that the ML models can be loaded to manager */
 void init_ml_models(void) {
 	/* the directory where the model is put */
-	const char *model_dir = "/home/adhak001/openNetVM-dev/ml_models/";
+	const char *model_dir = "/home/adhak001/ml_models/";
 
 	/* the file name of ml models */
 	const char *models[NUMBER_OF_MODELS];
@@ -69,7 +69,7 @@ void init_ml_models(void) {
 	models[11] = "super_resolutions.trt";
 
 	/*the file name of historical runtime data */
-	const char *models_historical_dir = "/home/adhak001/openNetVM-dev/models_data/";
+	const char *models_historical_dir = "/home/adhak001/ml_models/models_data/";
 	const char *models_runtime[NUMBER_OF_MODELS];
 	models_runtime[0] = "alexnet_cntk_runtime.txt";
 	models_runtime[1] = "resnet50_cntk_runtime.txt";
@@ -167,8 +167,14 @@ void init_ml_models(void) {
 /* loads the model for the manager */
 void load_gpu_model(struct gpu_file_listing *ml_file) {
 
+<<<<<<< Updated upstream
 
 #ifdef LOAD_CNTK
+=======
+#ifdef LOAD_CNTK_MODELS
+
+
+>>>>>>> Stashed changes
 	int flag = 1; //all models are loaded to GPU, flag = 0 cpu only, flag = 1 gpu only
 	int num_of_parameters = 0;//the number of parameters of a GPU side function
 
@@ -182,6 +188,9 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 	/* load the ml model onto GPU */
 	struct timespec begin,end;
 	clock_gettime(CLOCK_MONOTONIC, &begin);
+
+
+	//let's not load the model
 	if(ml_file->model_info.platform == cntk) {
 
 		cntk_load_model(&load_model_params, aio); //loads the model
@@ -215,10 +224,16 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 			ml_file->model_info.model_handles.number_of_parameters = num_of_parameters;
 		}
 	}
+
 	if(ml_file->model_info.platform == tensorrt) {
 		printf("Loading tensorrt model \n");
 	}
+<<<<<<< Updated upstream
 #endif //LOAD_CNTK
+=======
+
+#endif //LOAD_CNTK_MODEL
+>>>>>>> Stashed changes
 	// load the csv file for data
 	load_old_profiler_data(ml_file->attributes.profile_data.file_path,ml_file->model_info.file_index);
 }

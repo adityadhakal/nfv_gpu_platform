@@ -415,10 +415,15 @@ inline void monitor_nf_node_liveliness_via_pid_monitoring(void) {
 }
 
 #ifdef ONVM_GPU
+<<<<<<< Updated upstream
 inline int onvm_nf_is_valid_for_gpu(struct onvm_nf *cl);
+=======
+/*
+>>>>>>> Stashed changes
 inline int onvm_nf_is_valid_for_gpu(struct onvm_nf *cl){
 	return cl->info &&((cl->info->status & NF_RUNNING) || (cl->info->status & NF_STARTING)); //NF starting should also be a valid condition for GPU
 }
+*/
 #endif //ONVM_GPU
 
 inline int onvm_nf_is_valid(struct onvm_nf *cl) {

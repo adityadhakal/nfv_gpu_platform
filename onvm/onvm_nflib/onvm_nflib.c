@@ -2544,9 +2544,10 @@ void gpu_image_callback_function(void *data) {
 	return_stream(callback_data->stream_track);
 
 	//Display the GPU input and output: Only to be used for verification of the output
-	//print_gpu_input_output(callback_data->input_data, callback_data->output_data,num_of_images_inferred );
+	print_gpu_input_output(callback_data->input_data, callback_data->output_data,num_of_images_inferred );
 
 	// for fixed workload tests
+	/*
 	if(callback_data->batch_aggregation->num_of_requests_inferred == 0){
 		callback_data->batch_aggregation->first_execution = callback_data->start_time;
 	}
@@ -2562,6 +2563,7 @@ void gpu_image_callback_function(void *data) {
 		//time to shutdown the NF--- do not stop when you don't need to.
 		//onvm_nflib_stop( nf_info);
 	}
+	*/
 	//printf("\n");
 }
 

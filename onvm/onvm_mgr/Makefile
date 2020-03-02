@@ -64,7 +64,7 @@ INC += onvm_zookeeper.h onvm_zk_watch.h onvm_zk_common.h onvm_vxlan.h zoo_queue.
 INC += onvm_gpu.h
 
 LDFLAGS += -L/usr/lib
-CFLAGS += $(WERROR_FLAGS) -O3 -g $(USER_FLAGS)
+CFLAGS += $(WERROR_FLAGS) -O3 -std=c99 -g $(USER_FLAGS)
 CFLAGS += -I$(SRCDIR)/../
 CFLAGS += -I$(SRCDIR)/../lib/
 CFLAGS += -I$(SRCDIR)/../onvm_nflib/
@@ -74,17 +74,23 @@ LDFLAGS += $(SRCDIR)/../onvm_nflib/$(RTE_TARGET)/libonvm.a -lstdc++
 CFLAGS += -I/usr/local/cuda/include -std=c99
 #LDFLAGS += $(SRCDIR)/../shared/shared/$(RTE_TARGET)/onvm_shared.a
 
-LDFLAGS += -L/usr/local/lib
+LDFLAGS += -L/usr/local/lib -L/home/adhak001/Downloads/TensorRT-7.0.0.11/lib/ -rpath,/home/adhak001/Downloads/TensorRT-7.0.0.11/lib
 LDFLAGS += -L/usr/local/cuda/lib64
 #CFLAGS += -I$(SRCDIR)/../../cntk_lib/ #-Wl, #-Wl,-rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/
 #CLFAGS += -I/home/adhak001/microsoft/cntk/Source/CNTKv2LibraryDll/API/
 #LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
 
 CFLAGS += -I$(SRCDIR)/../../tensorrt_lib/
+<<<<<<< Updated upstream
 LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so
 #LDLIBS += -lonvm_cntk
 LDLIBS += -lcudart -lstdc++ -lcuda
 
+=======
+LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so 
+#LDLIBS += -lonvm_cntk
+LDLIBS += -lcudart -lstdc++ -lcuda -lnvinfer
+>>>>>>> Stashed changes
 
 LDLIBS += -lzmq 
 LDFLAGS += -L/usr/lib/x86_64-linux-gnu
