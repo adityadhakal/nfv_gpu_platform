@@ -9,13 +9,13 @@
 //#define STREAM_PRIORITY_TEST
 
 //stream tracker apparatus
-stream_tracker streams_track[MAX_STREAMS];
+stream_tracker streams_track[NUM_GPUS][MAX_STREAMS];
 
 /* initialize the streams  with no flags */
 int init_streams(uint8_t priority, int gpu_id) {
 	cudaError_t cuda_error;
 	//choose the GPU
-	cuda_error = cudaGetDevice(&gpu_id);
+	cuda_error = cudaSetDevice(gpu_id);
 	if(cuda_error!= cudaSuccess){
 		printf("Problem selecting %"PRIu8" GPU.\n",gpu_id);
 	}
@@ -25,10 +25,10 @@ int init_streams(uint8_t priority, int gpu_id) {
 		if (!DEFAULT_STREAM) {
 #ifdef STREAM_PRIORITY_TEST
 
-			cuda_error = cudaStreamCreateWithPriority(&(streams_track[i].stream),
+			cuda_error = cudaStreamCreateWithPriority(&(streams_track[gpu_id][i].stream),
 								cudaStreamNonBlocking, (i+1));
 #else
-			cuda_error = cudaStreamCreateWithFlags(&(streams_track[i].stream),
+			cuda_error = cudaStreamCreateWithFlags(&(streams_track[gpu_id][i].stream),
 					cudaStreamNonBlocking);
 #endif
 			if (cuda_error != cudaSuccess) {
@@ -36,26 +36,26 @@ int init_streams(uint8_t priority, int gpu_id) {
 				return -1;
 			}
 		} else {
-			streams_track[0].stream = 0;
+			streams_track[gpu_id][0].stream = 0;
 		}
-		streams_track[i].status = PARALLEL_EXECUTION;
-		streams_track[i].id = i;
-		cudaEventCreate(&streams_track[i].event);
+		streams_track[gpu_id][i].status = PARALLEL_EXECUTION;
+		streams_track[gpu_id][i].id = i;
+		cudaEventCreate(&streams_track[gpu_id][i].event);
 	}
 	return 0;
 }
 
 /* return 0=all_released_and_free; 1=stream_still_busy_and_pending_to_complete */
-int check_and_release_stream(void) {
+int check_and_release_stream(int gpu_id) {
 	//check and return null of retry give_stream();
 	int i;
 	cudaError_t cuda_ret;
 	for (i = 0; i < MAX_STREAMS; i++) {
-		if (PARALLEL_EXECUTION > streams_track[i].status) {
-			cuda_ret = cudaEventQuery(streams_track[i].event);
+		if (PARALLEL_EXECUTION > streams_track[gpu_id][i].status) {
+			cuda_ret = cudaEventQuery(streams_track[gpu_id][i].event);
 			if (cuda_ret == cudaSuccess) {
 				//we can run callback here.
-				gpu_image_callback_function(&streams_track[i].callback_info);
+				gpu_image_callback_function(&streams_track[gpu_id][i].callback_info);
 			} else {
 				//	printf("CUDA error at give_stream_v2 error: %d \n",cuda_ret);
 				return 1;
@@ -66,16 +66,25 @@ int check_and_release_stream(void) {
 }
 //int status_tracker[MAX_STREAMS];
 stream_tracker *give_stream_v2(void) {
-	stream_tracker *st = give_stream();
-	if (!st) {
-		check_and_release_stream();
-		st = give_stream();
+	//check all GPUs. Give one that is free
+	int i = 0;
+	stream_tracker *st = NULL;
+	for(i = 0;i<NUM_GPUS;i++){
+		st = give_stream(i);
+		if (!st) {
+			check_and_release_stream(i);
+			st = give_stream(i);
+		}
+		else{
+			st->gpu_id = i;
+			break;
+		}
 	}
 	return st;
 }
 int allowed_streams = MAX_STREAMS;
 /* if the stream is available, then the stream will return otherwise it will return NULL, the client need to figure out what to do then */
-stream_tracker *give_stream(void) {
+stream_tracker *give_stream(int gpu_id) {
 	int i;
 	int max = 0;
 	int index;
@@ -83,17 +92,17 @@ stream_tracker *give_stream(void) {
 	if (PARALLEL_EXECUTION > 0) {
 	//	for (i = 0; i < MAX_STREAMS; i++) { //changed to make dynamic stream provision
 		for (i = 0; i < allowed_streams; i++) {
-			if (streams_track[i].status > max) {
-				max = streams_track[i].status;
+			if (streams_track[gpu_id][i].status > max) {
+				max = streams_track[gpu_id][i].status;
 				index = i;
 			}
 		}
 
 		if (max) {
-			streams_track[index].status--; //decrement
+			streams_track[gpu_id][index].status--; //decrement
 			// put in the timestamp
-			clock_gettime(CLOCK_MONOTONIC, &streams_track[index].time_released);
-			return &streams_track[index];
+			clock_gettime(CLOCK_MONOTONIC, &streams_track[gpu_id][index].time_released);
+			return &streams_track[gpu_id][index];
 		} else {
 			return NULL;
 		}
@@ -108,7 +117,7 @@ stream_tracker *give_stream(void) {
 		 
 		 } */
 	} else {
-		return &streams_track[(rr_counter++) % MAX_STREAMS];
+		return &streams_track[gpu_id][(rr_counter++) % MAX_STREAMS];
 	}
 	return NULL;
 }
@@ -116,13 +125,13 @@ stream_tracker *give_stream(void) {
 /* new way of giving stream when there are multiple streams and you have to co-ordinate between them
  *
  */
-stream_tracker *give_stream_v3(uint32_t observed_latency_us){
+stream_tracker *give_stream_v3(uint32_t observed_latency_us, int gpu_id){
 	//so we have to give stream such a way that if there are 2 streams, then, we only release the 2nd stream if the first stream's was released 90% of time of observed latency earlier
 	int i = 0;
 	int max = 0;
 	//int index;
 	static int last_used_index = 0;
-	check_and_release_stream();
+	check_and_release_stream(gpu_id);
 	if(!observed_latency_us){
 		//first initial conditions, only give 1 stream at a time until we profile latency
 		allowed_streams = 1;
@@ -139,8 +148,8 @@ stream_tracker *give_stream_v3(uint32_t observed_latency_us){
 
 		//check if any stream are available
 		for (i = 0; i < allowed_streams; i++) {
-			if (streams_track[i].status > max) {
-				max += streams_track[i].status;
+			if (streams_track[gpu_id][i].status > max) {
+				max += streams_track[gpu_id][i].status;
 			//	index = i;
 			}
 	}
@@ -148,15 +157,15 @@ stream_tracker *give_stream_v3(uint32_t observed_latency_us){
 		//index of another stream
 			int another_stream = (1-last_used_index);
 			//otherwise check if the timestamp is more than latency
-			uint32_t time_diff = (current_time.tv_sec - streams_track[last_used_index].time_released.tv_sec)*1000000+(current_time.tv_nsec-streams_track[last_used_index].time_released.tv_nsec)/1000;
+			uint32_t time_diff = (current_time.tv_sec - streams_track[gpu_id][last_used_index].time_released.tv_sec)*1000000+(current_time.tv_nsec-streams_track[gpu_id][last_used_index].time_released.tv_nsec)/1000;
 			//printf("Observed latency %"PRIu32" and time diff %"PRIu32"\n", observed_latency_us, time_diff);
 			if(time_diff>=(0.75*observed_latency_us)){
-				clock_gettime(CLOCK_MONOTONIC, &streams_track[another_stream].time_released);
+				clock_gettime(CLOCK_MONOTONIC, &streams_track[gpu_id][another_stream].time_released);
 				//printf("give stream\n");
-				streams_track[another_stream].status--;
+				streams_track[gpu_id][another_stream].status--;
 				last_used_index++;
 				last_used_index = last_used_index%2;
-				return &streams_track[another_stream];
+				return &streams_track[gpu_id][another_stream];
 
 				}
 			else

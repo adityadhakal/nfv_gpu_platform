@@ -1583,10 +1583,14 @@ static inline void onvm_nflib_cleanup(
 	//check if streams are all done. wait for at least 1 second, at most 2 before getting out of loop otherwise NF will be stuck for ever
 	//int j = 0;
 	while(nf_info->image_info->ready_mask){
-
-			if(!check_and_release_stream()){
-				break;
-			}
+		//we have to check all the GPUs
+		int ii = 0;
+		int retval = 0;
+		for(ii = 0; ii<NUM_GPUS;ii++){
+			retval += check_and_release_stream(ii);
+		}
+		if(!retval)
+			break;
 			//clock_gettime(CLOCK_MONOTONIC, &later_time);
 			//if(later_time.tv_sec > (current_time.tv_sec+2)){
 			//	break;
@@ -1723,11 +1727,11 @@ void initialize_gpu(struct onvm_nf_info *nf_info, int gpu_id) {
 	retval = (*(ml_operations->link_model_fptr))(&(ml_link_params[gpu_id]),status);
 
 	if(ml_link_params[gpu_id].gpu_side_input_pointer != NULL) {
-		resolve_gpu_dev_buffer_pointer(ml_link_params[gpu_id].gpu_side_input_pointer, ml_link_params[gpu_id].gpu_side_output_pointer);
+		resolve_gpu_dev_buffer_pointer(ml_link_params[gpu_id].gpu_side_input_pointer, ml_link_params[gpu_id].gpu_side_output_pointer, gpu_id);
 	}
 	else {
 		//convert all the gpu side buffers from cudaIPC handles to cuda pointers..
-		resolve_gpu_dev_buffer(nf_info->gpu_input_buffer, nf_info->gpu_output_buffer);
+		resolve_gpu_dev_buffer(nf_info->gpu_input_buffer, nf_info->gpu_output_buffer, gpu_id);
 	}
 
 	if(retval != 0)
@@ -2328,13 +2332,13 @@ inline void gpu_compute_batch_size_for_slo(void *data, uint32_t num_of_images_in
 #endif //NEW_LEARNING_BATCH_APPROACH
 void gpu_image_callback_function(void *data) {
 
-	//printf("GPU Image Callback Called ------ \n");
+
 	//just update the stats here for now...
 	struct timespec call_back_time, image_start_aggr_timestamp, image_ready_timestamp;
 	clock_gettime(CLOCK_MONOTONIC, &call_back_time);
 
 	struct gpu_callback *callback_data = (struct gpu_callback *) data;
-
+	printf("----- GPU Image Callback Called ------ \n *** Inference Conducted in GPU %d ***\n",callback_data->stream_track->gpu_id);
 	callback_data->status = 0;
 
 	/* we also have to clear the images status as inferred */
@@ -2537,7 +2541,7 @@ void gpu_image_callback_function(void *data) {
 	}
 	//long timestamp = call_back_time.tv_sec*1000000+call_back_time.tv_nsec/1000;
 	//printf("Timestamp: %ld TotalImages: %d BatchSize: %d LearnedSize: %d CPULatency: %d GPULatency: %d SLO: %d\n",timestamp, number_of_images_since_last_computation, num_of_images_inferred, callback_data->nf_info->learned_max_batch_size, cpu_latency, gpu_latency,(callback_data->nf_info->inference_slo_ms*1000));
-	return_device_buffer(callback_data->stream_track->id);
+	return_device_buffer(callback_data->stream_track->id, callback_data->stream_track->gpu_id);
 	//#ifndef ENABLE_GPU_NETML
 	return_cpu_buffer(callback_data->stream_track->id);
 	//#endif

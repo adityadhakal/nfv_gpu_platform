@@ -239,24 +239,6 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggregation_info_t * batch_agg_info, ml_framework_operations_t *ml_operations, cudaHostFn_t callback_function, uint64_t new_images) {
 	int ret = 0;
 
-	//check what time this function is called
-	//struct timespec load_data;
-	//clock_gettime(CLOCK_MONOTONIC, &load_data);
-	//long time_in_ns = load_data.tv_sec*1000000000+load_data.tv_nsec;
-	//printf("************ Time load_data function was called %ld\n",time_in_ns);
-
-	//prepare callback arguments
-	//first find the callback
-	//batch_agg_info->temp_mask = 0;
-	//check if GPU is available
-	/*
-	 static int how_many_times_called = 0;
-
-	 how_many_times_called++;
-
-	 printf("This function is called %d many times --------\n",how_many_times_called);
-	 */
-
 	//printf("The bitmask %"PRIu32"\n",nf_info->image_info->ready_mask);
 	__attribute__((unused)) static uint64_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
 //	__attribute__((unused)) static onvm_interval_timer_t start_tsc = 0;
@@ -264,9 +246,8 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
 
 	stream_tracker *cuda_stream = give_stream_v2();//give_stream();
-
-	//try new stream tracker :)
-	//stream_tracker *cuda_stream = give_stream_v3(hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_RUNNING_AVG));
+	int gpu_id = cuda_stream->gpu_id;
+	cudaSetDevice(gpu_id);
 
 	if(cuda_stream != NULL) {
 
@@ -367,7 +348,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		for(i=0; i< num_of_images; i++) {
 			//now get the GPU buffer for each image
-			give_device_addresses(cuda_stream->id, &input_dev_buffer, &output_dev_buffer);
+			give_device_addresses(cuda_stream->id, &input_dev_buffer, &output_dev_buffer, gpu_id);
 			if(NULL == input_dev_buffer || NULL == output_dev_buffer) break;
 			//last_processed_index=0;
 			int index = ffsll(temp_bitmask);
@@ -479,7 +460,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		infer_params.callback_data = callback_args;
 		infer_params.callback_function = callback_function;
 		infer_params.stream = &(cuda_stream->stream);
-		infer_params.model_handle = nf_info->ml_model_handle;
+		infer_params.model_handle = nf_info->ml_model_handle[gpu_id];
 
 		//this path is different for CNTK and Tensorrt. CNTK only takes CPU side buffer not GPU side buffer so will only
 		if(nf_info->gpu_model>5){

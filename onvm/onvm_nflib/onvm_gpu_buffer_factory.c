@@ -5,7 +5,7 @@
 #include <cuda_runtime.h>
 
 /* Function to resolve the cpu or GPU buffer */
-void resolve_gpu_dev_buffer(void *input_ptr, void * output_ptr) {
+void resolve_gpu_dev_buffer(void *input_ptr, void * output_ptr, int gpu_id) {
 #define OLD_GPU_ALLOCATION
 #ifdef OLD_GPU_ALLOCATION
 	cudaError_t cuda_return;
@@ -27,9 +27,9 @@ void resolve_gpu_dev_buffer(void *input_ptr, void * output_ptr) {
 	int i,j;
 	for(i = 0; i < DEV_BUFFER_PARTITIONS; i++) {
 		for(j = 0; j<MAX_IMAGES_PER_PARTITION;j++) {
-			buffer_state[i].occupancy_indicator = 0;
-			buffer_state[i].dev_buffers[j] = (char *)input_dev_buffer+(i*SIZE_OF_AN_IMAGE_BYTES); //this offsets the pointer with byte size to fit half the MAX_IMAGES_BATCH
-			buffer_state[i].output_dev_buffers[j] = (char *)output_dev_buffer+(i*1000*sizeof(float));
+			buffer_state[gpu_id][i].occupancy_indicator = 0;
+			buffer_state[gpu_id][i].dev_buffers[j] = (char *)input_dev_buffer+(i*SIZE_OF_AN_IMAGE_BYTES); //this offsets the pointer with byte size to fit half the MAX_IMAGES_BATCH
+			buffer_state[gpu_id][i].output_dev_buffers[j] = (char *)output_dev_buffer+(i*1000*sizeof(float));
 		}
 	}
 #else
@@ -95,7 +95,7 @@ void return_cpu_buffer(uint8_t batch_id) {
 	return;
 }
 
-void resolve_gpu_dev_buffer_pointer(void *input_dev_buffer, void *output_dev_buffer) {
+void resolve_gpu_dev_buffer_pointer(void *input_dev_buffer, void *output_dev_buffer, int gpu_id) {
 
 	/* also initialize the data structure which checks if the dev buffer is full or not
 	 * initialize it to 0s meaning they are empty
@@ -104,9 +104,9 @@ void resolve_gpu_dev_buffer_pointer(void *input_dev_buffer, void *output_dev_buf
 	int i,j;
 	for(i = 0; i < DEV_BUFFER_PARTITIONS; i++) {
 		for(j = 0; j<MAX_IMAGES_PER_PARTITION;j++) {
-			buffer_state[i].occupancy_indicator = 0;
-			buffer_state[i].dev_buffers[j] = (char *)input_dev_buffer+(i*SIZE_OF_AN_IMAGE_BYTES); //this offsets the pointer with byte size to fit half the MAX_IMAGES_BATCH
-			buffer_state[i].output_dev_buffers[j] = (char *)output_dev_buffer+(i*1000*sizeof(float));
+			buffer_state[gpu_id][i].occupancy_indicator = 0;
+			buffer_state[gpu_id][i].dev_buffers[j] = (char *)input_dev_buffer+(i*SIZE_OF_AN_IMAGE_BYTES); //this offsets the pointer with byte size to fit half the MAX_IMAGES_BATCH
+			buffer_state[gpu_id][i].output_dev_buffers[j] = (char *)output_dev_buffer+(i*1000*sizeof(float));
 		}
 	}
 	printf("Resolved GPU Dev Buffer \n");
@@ -114,14 +114,14 @@ void resolve_gpu_dev_buffer_pointer(void *input_dev_buffer, void *output_dev_buf
 }
 
 /* the function that provides the GPU address */
-void give_device_addresses(uint8_t batch_id, void ** input_buffer, void ** output_buffer) {
+void give_device_addresses(uint8_t batch_id, void ** input_buffer, void ** output_buffer, int gpu_id) {
 	/* check through the buffers to see which one are empty and provide.. otherwise send NULL*/
 
 	//printf("Device address called \n");
-	if(buffer_state[batch_id].occupancy_indicator < MAX_IMAGES_PER_PARTITION ) {
+	if(buffer_state[gpu_id][batch_id].occupancy_indicator < MAX_IMAGES_PER_PARTITION ) {
 		//good, we have found a buffer which already belongs to this batch and have some space left.
-		*input_buffer = buffer_state[batch_id].dev_buffers[buffer_state[batch_id].occupancy_indicator];
-		*output_buffer = buffer_state[batch_id].output_dev_buffers[buffer_state[batch_id].occupancy_indicator++];
+		*input_buffer = buffer_state[gpu_id][batch_id].dev_buffers[buffer_state[gpu_id][batch_id].occupancy_indicator];
+		*output_buffer = buffer_state[gpu_id][batch_id].output_dev_buffers[buffer_state[gpu_id][batch_id].occupancy_indicator++];
 	}
 	else {
 		//unfortunately either there is no buffer for this batch or the buffer is full. so we need to give address from empty buffer
@@ -130,16 +130,16 @@ void give_device_addresses(uint8_t batch_id, void ** input_buffer, void ** outpu
 
 		//ADITYA's MOD
 		//TODO: REmove this part as this part gives some buffer to program all the time.
-		*input_buffer = buffer_state[batch_id].dev_buffers[0];
-		*output_buffer = buffer_state[batch_id].dev_buffers[0];
+		*input_buffer = buffer_state[gpu_id][batch_id].dev_buffers[0];
+		*output_buffer = buffer_state[gpu_id][batch_id].dev_buffers[0];
 	}
 }
 
 /* the function that makes available the device buffer after it is used.. typically called by the callback function */
-void return_device_buffer(uint8_t batch_id) {
+void return_device_buffer(uint8_t batch_id, int gpu_id) {
 
 	if(batch_id<DEV_BUFFER_PARTITIONS) {
-		buffer_state[batch_id].occupancy_indicator = 0;
+		buffer_state[gpu_id][batch_id].occupancy_indicator = 0;
 		return;
 	}
 	else
