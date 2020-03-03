@@ -238,6 +238,15 @@ int tensorrt_link_model(nflib_ml_fw_link_params_t *link_params, void *ml)
     std::cout<<" "<<outputTensor[i]<<std::endl;
   }
   */
+  
+  //allocate buffer in the GPU and return it..
+  void *gpu_input_buffer, *gpu_output_buffer;
+  cudaMalloc(&gpu_input_buffer, sizeof(float)*3*224*224*MAX_IMAGES_BATCH_SIZE);
+  cudaMalloc(&gpu_output_buffer, 1000*MAX_IMAGES_BATCH_SIZE*sizeof(float));
+  link_params->gpu_side_input_pointer = gpu_input_buffer;
+  link_params->gpu_side_output_pointer = gpu_output_buffer;
+  
+  
   clock_gettime(CLOCK_MONOTONIC, &end);
   float time_spent = (end.tv_sec-begin.tv_sec)*1000+(end.tv_nsec-begin.tv_nsec)/1000000;
   printf("Time taken to load the model is %f milliseconds\n", time_spent);

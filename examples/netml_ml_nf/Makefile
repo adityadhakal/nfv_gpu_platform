@@ -93,8 +93,6 @@ LDLIBS += -lnvinfer -lcudart_static -lrt -ldl -lpthread -lstdc++ -lm -lcudart
 
 LDFLAGS += -lpython3.7m
 
-
-
 LDFLAGS += $(RTE_SDK)/$(RTE_TARGET)/lib/librte_timer.a
 CFLAGS += $(WERROR_FLAGS) -O3 -g -fPIC $(USER_FLAGS)
 

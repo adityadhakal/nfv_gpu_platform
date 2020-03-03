@@ -155,7 +155,7 @@ int cuda_register_shared_memory(void);
 void gpu_image_callback_function(void *data);
 
 //following are utilized while parsing the NF arguments so should stay
-//static char *ml_model_file;//filename of model
+static char *ml_model_file;//filename of model
 static uint16_t ml_model_number;//ml model number
 static uint16_t ml_priority;//ml priority
 
@@ -1487,7 +1487,7 @@ static int onvm_nflib_parse_args(int argc, char *argv[]) {
 #endif
 		switch (c) {
 #ifdef ENABLE_STATIC_ID
-#ifdef ONVM_GPUuint8_t
+#ifdef ONVM_GPU
 		case 'n':
 		initial_instance_id = (uint16_t) strtoul(optarg, NULL, 10);
 		break;
@@ -1697,7 +1697,7 @@ void initialize_gpu(struct onvm_nf_info *nf_info, int gpu_id) {
 
 	// 1. set the user defined GPU percentage
 	// We will be performing CUDA INIT here so, we should choose the GPU.
-	cudaGetDevice(&gpu_id);
+	cudaSetDevice(gpu_id);
 
 	char gpu_percent[4];
 	sprintf(gpu_percent,"%d", nf_info->gpu_percentage);
@@ -2779,8 +2779,9 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 
 		int g = 0;
 		for(g = 0; g<NUM_GPUS; g++){
+		  printf("Intializing GPU %d\n",g);
 			/* select the GPU */
-			cudaGetDevice(&g);
+			cudaSetDevice(g);
 			/* create the argument list for loading the ml model */
 			ml_load_params[g].file_path = nf_info->model_info->model_file_path;
 			ml_load_params[g].load_options = 1; //For CPU side loading = 0, for gpu = 1
