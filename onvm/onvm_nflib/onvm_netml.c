@@ -246,10 +246,11 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
 
 	stream_tracker *cuda_stream = give_stream_v2();//give_stream();
-	int gpu_id = cuda_stream->gpu_id;
-	cudaSetDevice(gpu_id);
 
 	if(cuda_stream != NULL) {
+	  	int gpu_id = cuda_stream->gpu_id;
+		cudaSetDevice(gpu_id);
+
 
 		uint32_t i;
 
@@ -272,7 +273,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			return_stream(cuda_stream);
 			return 2;
 		}
-#endif
+#endif //0
 
 		//Check if images were remaining last time; then pick them.
 		//if(unlikely(0 == last_processed_index)) {last_processed_index = new_images;}
@@ -349,6 +350,8 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		for(i=0; i< num_of_images; i++) {
 			//now get the GPU buffer for each image
 			give_device_addresses(cuda_stream->id, &input_dev_buffer, &output_dev_buffer, gpu_id);
+			printf("GPU device input we got %p and device output buffer we got %p\n",input_dev_buffer,output_dev_buffer); 
+			
 			if(NULL == input_dev_buffer || NULL == output_dev_buffer) break;
 			//last_processed_index=0;
 			int index = ffsll(temp_bitmask);
@@ -387,7 +390,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			//find which image is ready
 			int image_index = ffsll(actual_images_in_batch_bitmask);// ffs(new_images);
 			image_index -= 1;
-			//printf("%d ",image_index);
+			printf("Image INDEX : %d ",image_index);
 			//printf("images ready %d index %d \n",num_of_images, image_index);
 			if(batch_agg_info->images[image_index].usage_status == 2) {
 

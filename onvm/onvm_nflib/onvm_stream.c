@@ -179,5 +179,11 @@ stream_tracker *give_stream_v3(uint32_t observed_latency_us, int gpu_id){
 /* makes stream available for use again */
 void return_stream(stream_tracker * stream) {
 	stream->status++;
+
+	//now also check for all other GPU's work progress
+	int i = 0;
+	for(i = 0; i<NUM_GPUS ;i++){
+	  check_and_release_stream(i);
+	}
 }
 

@@ -2338,7 +2338,7 @@ void gpu_image_callback_function(void *data) {
 	clock_gettime(CLOCK_MONOTONIC, &call_back_time);
 
 	struct gpu_callback *callback_data = (struct gpu_callback *) data;
-	printf("----- GPU Image Callback Called ------ \n *** Inference Conducted in GPU %d ***\n",callback_data->stream_track->gpu_id);
+
 	callback_data->status = 0;
 
 	/* we also have to clear the images status as inferred */
@@ -2350,9 +2350,10 @@ void gpu_image_callback_function(void *data) {
 	uint32_t temp_latency=0, nw_latency=0, cpu_latency=0;
 	uint32_t gpu_latency= (call_back_time.tv_sec-callback_data->start_time.tv_sec)*1000000+(call_back_time.tv_nsec-callback_data->start_time.tv_nsec)/1000;
 
-	hist_store_v2(&(callback_data->nf_info->gpu_latency),gpu_latency);
+	
 
 	for( i = 0; i<num_of_images_inferred; i++) {
+	  	printf("----- GPU Image Callback Called ------ \n *** Inference Conducted in GPU %d ***\n",callback_data->stream_track->gpu_id);
 		//printf("Image ID %d \n", i);
 		bit_position = ffsll(callback_data->bitmask_images);
 		//printf("image being processed in callback %d\n",bit_position);
@@ -2413,6 +2414,7 @@ void gpu_image_callback_function(void *data) {
 	//printf("Callback ended, we inferred %d images \n", num_of_images_inferred);
 	//if we had any images inferred, we need to collect statistics for them
 	if(num_of_images_inferred) {
+	  hist_store_v2(&(callback_data->nf_info->gpu_latency),gpu_latency);
 		hist_store_v2(&(callback_data->nf_info->cpu_latency),cpu_latency);
 
 		//uint32_t latency = (call_back_time.tv_sec-callback_data->start_time.tv_sec)*1000000+(call_back_time.tv_nsec - callback_data->start_time.tv_nsec)/1000;

@@ -117,7 +117,7 @@ void resolve_gpu_dev_buffer_pointer(void *input_dev_buffer, void *output_dev_buf
 void give_device_addresses(uint8_t batch_id, void ** input_buffer, void ** output_buffer, int gpu_id) {
 	/* check through the buffers to see which one are empty and provide.. otherwise send NULL*/
 
-	//printf("Device address called \n");
+        printf("Device address called for GPU address: %d\n",gpu_id);
 	if(buffer_state[gpu_id][batch_id].occupancy_indicator < MAX_IMAGES_PER_PARTITION ) {
 		//good, we have found a buffer which already belongs to this batch and have some space left.
 		*input_buffer = buffer_state[gpu_id][batch_id].dev_buffers[buffer_state[gpu_id][batch_id].occupancy_indicator];
@@ -133,6 +133,7 @@ void give_device_addresses(uint8_t batch_id, void ** input_buffer, void ** outpu
 		*input_buffer = buffer_state[gpu_id][batch_id].dev_buffers[0];
 		*output_buffer = buffer_state[gpu_id][batch_id].dev_buffers[0];
 	}
+	printf("Input buffer %p and output buffer %p \n",*input_buffer, *output_buffer);
 }
 
 /* the function that makes available the device buffer after it is used.. typically called by the callback function */
