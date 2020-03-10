@@ -70,7 +70,7 @@ __global__ void transfer_data_light(void * data_ptrs, void *destination){
   //printf("ptr of data %p \t",data_chunk);
 
   //now find the bytes of the packet.
-  //int size2 = data_chunk.image_chunk.size_in_bytes;//data_chunk->src_cpy_ptr;
+  //  int size2 = data_chunk.image_chunk.size_in_bytes;//data_chunk->src_cpy_ptr;
   //printf("Size of data %d \n",size2);
 
   uint32_t size = data_chunk.image_chunk.size_in_bytes;
@@ -157,9 +157,9 @@ void transfer_to_gpu_copy(void * data_ptrs, int num_of_payload_data, void *cpu_d
     uint32_t size = data_chunk.image_chunk.size_in_bytes;
     uint32_t offset = data_chunk.image_chunk.start_offset;
 
-    //#ifdef NO_IMAGE_ID
-    //offset = size*i;
-  //#endif
+    #ifdef NO_IMAGE_ID
+    offset = size*i;
+  #endif
     
     total_bytes += size;
     char *empty_buffer = ((char *) cpu_destination)+offset;
@@ -207,7 +207,10 @@ void transfer_to_gpu(void *data_ptrs,  int num_of_payload_data,void *destination
     printf("the pointer to chunk copy info %p \n",data_ptrs[i]);
   }
   */
-
+	//printf("--- GPU Address to transfer data %p ----\n",destination);
+	int gpu_check;
+	cudaGetDevice(&gpu_check);
+	//printf("--- GPU Device %d ----- \n",gpu_check);
   
   //let's get 1 block for every packet.
   //struct timespec begin_kernel, end_kernel;

@@ -8,7 +8,7 @@
 #include "onvm_stream.h"
 #include "histogram.h"
 
-#define ENABLE_GPU_NETML
+//#define ENABLE_GPU_NETML
 //#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 

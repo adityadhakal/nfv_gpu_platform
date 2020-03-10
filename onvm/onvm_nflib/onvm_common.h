@@ -56,7 +56,7 @@
 #define ONVM_GPU 1
 #define ONVM_GPU_SAME_SIZE_PKTS 1
 //#define ONVM_GPU_TEST 1
-#define NUM_GPUS 4
+#define NUM_GPUS 8
 
 #ifdef ONVM_GPU
 #include "onvm_netml.h"

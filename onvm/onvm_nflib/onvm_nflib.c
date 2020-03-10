@@ -113,7 +113,8 @@ void register_explicit_callback_function(nf_explicit_callback_function ecb) {
 	return;
 }
 /******************************************************************************/
-/*                        HISTOGRAM DETAILS                                   */
+/*                        HISTOGRAM DETAILS                            CUDNN_STATUS_MAPPING_ERROR)
+ *        */
 /******************************************************************************/
 
 /*********************** ADITYA'S CODE ****************************************/
@@ -1695,6 +1696,7 @@ void initialize_gpu(struct onvm_nf_info *nf_info, int gpu_id) {
 	ml_link_params[gpu_id].gpu_side_input_pointer = NULL;
 	ml_link_params[gpu_id].gpu_side_output_pointer = NULL;
 	ml_link_params[gpu_id].link_options = 0; //do not link the model
+	ml_link_params[gpu_id].gpu_id = gpu_id;
 	printf("Linking the CUDA memhandles from %p \n", ml_link_params[gpu_id].cuda_handles_for_gpu_data);
 	printf("pointer to GPU agg buffer %p\n",nf_info->image_info);
 	int retval;
@@ -2353,7 +2355,7 @@ void gpu_image_callback_function(void *data) {
 	
 
 	for( i = 0; i<num_of_images_inferred; i++) {
-	  	printf("----- GPU Image Callback Called ------ \n *** Inference Conducted in GPU %d ***\n",callback_data->stream_track->gpu_id);
+	  //printf("----- GPU Image Callback Called ------ \n *** Inference Conducted in GPU %d ***\n",callback_data->stream_track->gpu_id);
 		//printf("Image ID %d \n", i);
 		bit_position = ffsll(callback_data->bitmask_images);
 		//printf("image being processed in callback %d\n",bit_position);
@@ -2541,8 +2543,8 @@ void gpu_image_callback_function(void *data) {
 #endif //NEW_LEARNING_BATCH_APPROACH
 		}
 	}
-	//long timestamp = call_back_time.tv_sec*1000000+call_back_time.tv_nsec/1000;
-	//printf("Timestamp: %ld TotalImages: %d BatchSize: %d LearnedSize: %d CPULatency: %d GPULatency: %d SLO: %d\n",timestamp, number_of_images_since_last_computation, num_of_images_inferred, callback_data->nf_info->learned_max_batch_size, cpu_latency, gpu_latency,(callback_data->nf_info->inference_slo_ms*1000));
+	long timestamp = call_back_time.tv_sec*1000000+call_back_time.tv_nsec/1000;
+	printf("Timestamp:,%ld,TotalImages:,%d,BatchSize:,%d,LearnedSize:,%d,CPULatency:,%d,GPULatency:,%d,SLO:,%d,GPU_ID:,%d\n",timestamp, number_of_images_since_last_computation, num_of_images_inferred, callback_data->nf_info->learned_max_batch_size, cpu_latency, gpu_latency,(callback_data->nf_info->inference_slo_ms*1000),callback_data->stream_track->gpu_id);
 	return_device_buffer(callback_data->stream_track->id, callback_data->stream_track->gpu_id);
 	//#ifndef ENABLE_GPU_NETML
 	return_cpu_buffer(callback_data->stream_track->id);
@@ -2550,7 +2552,7 @@ void gpu_image_callback_function(void *data) {
 	return_stream(callback_data->stream_track);
 
 	//Display the GPU input and output: Only to be used for verification of the output
-	print_gpu_input_output(callback_data->input_data, callback_data->output_data,num_of_images_inferred );
+	//print_gpu_input_output(callback_data->input_data, callback_data->output_data,num_of_images_inferred );
 
 	// for fixed workload tests
 	/*

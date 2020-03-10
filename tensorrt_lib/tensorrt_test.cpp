@@ -19,7 +19,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-
+#define NUM_GPUS 8
 extern "C"{
 #include "tensorrt_api.h"
 
@@ -29,11 +29,14 @@ using namespace cudawrapper;
 
 
 // important file wide variables
+ICudaEngine* engines[NUM_GPUS]={nullptr};
 ICudaEngine* engine{nullptr};
 
 Logger gLogger;
 // Declaring execution context.
 unique_ptr<IExecutionContext, Destroy<IExecutionContext>> context{nullptr};
+IExecutionContext* contexts[NUM_GPUS] = {nullptr};
+
 unique_ptr<IExecutionContext, Destroy<IExecutionContext>> context2{nullptr};
 IExecutionContext *exe_context;
 
@@ -155,6 +158,7 @@ int tensorrt_link_model(nflib_ml_fw_link_params_t *link_params, void *ml)
   //string buffer = readBuffer("/usr/src/tensorrt/bin/resnet50_batch64.trt");
   string buffer = readBuffer(link_params->file_path);
   std::cout<<"Buffer size "<<buffer.size()<<std::endl;
+  engine = engines[link_params->gpu_id];
 
   if (buffer.size())
     {
@@ -163,6 +167,7 @@ int tensorrt_link_model(nflib_ml_fw_link_params_t *link_params, void *ml)
       runtime_ptr = runtime.get();
       engine = runtime->deserializeCudaEngine(buffer.data(), buffer.size(), nullptr);
     }
+  engines[link_params->gpu_id] = engine;
   
   // Assume networks takes exactly 1 input tensor and outputs 1 tensor.
   assert(engine->getNbBindings() == 2);
@@ -201,11 +206,13 @@ int tensorrt_link_model(nflib_ml_fw_link_params_t *link_params, void *ml)
     
     */
   // Create Execution Context.
+
   context.reset(engine->createExecutionContext());
   context2.reset(engine->createExecutionContext());
   /* return the context created so it can be stored for future inferences */
   exe_context = context.get();
-
+  //contexts[link_params->gpu_id] = context.get();
+  (contexts[link_params->gpu_id])= engine->createExecutionContext();
 /*
   int inputId = getBindingInputIndex(exe_context);
   //cudaMemcpy(bindings[inputId],inputTensor.data(), (inputTensor.size() * sizeof(float)), cudaMemcpyHostToDevice);
@@ -320,6 +327,7 @@ int tensorrt_infer_batch(nflib_ml_fw_infer_params_t *infer_params, void *aio){
   bindings[0] = infer_params->input_data;
   bindings[1] = infer_params->output;
 
+
   //  printf("size of input %ld and size of batch %d n",infer_params->input_size, infer_params->batch_size);
   
  /*
@@ -366,16 +374,11 @@ int tensorrt_infer_batch(nflib_ml_fw_infer_params_t *infer_params, void *aio){
   //cudaMemcpyAsync(bindings[inputId], inputTensor, inputTensorSize* sizeof(float), cudaMemcpyHostToDevice, stream);
   //cudaMemcpy(bindings[inputId], inputTensor.data(), inputTensor.size() * sizeof(float), cudaMemcpyHostToDevice);
    
-  //static int a = 0;
-  /* the execution part */
-  //if(a %2 == 0){
-    context->enqueue(infer_params->batch_size, bindings, *(infer_params->stream), nullptr);
-  //}
-  //if(a %2 == 1){
-  //  context2->enqueue(infer_params->batch_size, bindings, *(infer_params->stream), nullptr);
-  //}
+  //printf("Creating new context\n");
+  //context.reset(engines[infer_params->gpu_id]->createExecutionContext());
+  contexts[infer_params->gpu_id]->enqueue(infer_params->batch_size, bindings, *(infer_params->stream), nullptr);
+  //contexts[infer_params->gpu_id]->enqueue(infer_params->batch_size, bindings, *(infer_params->stream), nullptr);
 
-//  a++;
   //context2.get()->enqueue(infer_params->batch_size, bindings2, 0, nullptr);
   //context.get()->execute(1,bindings);
   //cudaMemcpyAsync(outputTensor, bindings[1 - inputId], outputTensorSize * sizeof(float), cudaMemcpyDeviceToHost, stream);
@@ -392,6 +395,9 @@ int tensorrt_infer_batch(nflib_ml_fw_infer_params_t *infer_params, void *aio){
     //cudaLaunchHostFunc(0, infer_params->callback_function, infer_params->callback_data);
   }
 */
+
+  //cudaError_t error = cudaGetLastError();
+  //printf("Last error inference function %d \n",error);
 
   return 0;
 }

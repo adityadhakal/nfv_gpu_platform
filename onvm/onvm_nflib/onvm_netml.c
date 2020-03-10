@@ -50,13 +50,14 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 			//first find which image this packet belongs to
 			payload = (void *)rte_pktmbuf_mtod_offset(pkt, void *, (sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr)));
 			chunk_header =(image_chunk_header_t *)( (char * )payload + 2);// 2bytes offset to make it 4byte aligned address.
-			//printf("  ID %d start offset %"PRIu32" bytes length %"PRIu32" \n",  chunk_header->image_id, chunk_header->image_chunk.start_offset, chunk_header->image_chunk.size_in_bytes);
+//printf("  ID %d start offset %"PRIu32" bytes length %"PRIu32" \n",  chunk_header->image_id, chunk_header->image_chunk.start_offset, chunk_header->image_chunk.size_in_bytes);
 			image_id = (chunk_header->image_id);//*2;//TODO: hack to fix odd numbered image. DONE: Buffer overwriting incorrect index!
+
 
 #ifdef NO_IMAGE_ID
 			static uint current_image = 0;
 			image_id = current_image;
-			//printf("Image ID to be referred to is %d \n",image_id);
+			printf("Image ID to be referred to is %d \n",image_id);
 #endif //NO_IMAGE_ID
 
 			image_aggregation_info_t *image = &(image_agg->images[image_id]); //(image_agg->images[chunk_header->image_id]);
@@ -115,6 +116,12 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 				/*duplicate pkt for image that is already aggregated */
 				onvm_get_pkt_meta(pkt)->action = ONVM_NF_ACTION_DROP;
 				drop_pkts[(*db_pkts)++] = pkt;
+
+				/* check if any GPU is free
+				int k = 0;
+				for(k = 0; k < NUM_GPUS; k++)
+					check_and_release_stream(k);
+					*/
 			}
 
 			//see if we have seen the number of packets that can make one image
@@ -175,7 +182,7 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 		image->packets_count=0;
 		image->usage_status = 1;
 		clock_gettime(CLOCK_MONOTONIC, &image->first_packet_time);
-	}
+}
 
 	if(1 == image->usage_status) {
 
@@ -249,6 +256,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 	if(cuda_stream != NULL) {
 	  	int gpu_id = cuda_stream->gpu_id;
+		//printf("Load and execute got GPU number %d \n",gpu_id);
 		cudaSetDevice(gpu_id);
 
 
@@ -350,7 +358,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		for(i=0; i< num_of_images; i++) {
 			//now get the GPU buffer for each image
 			give_device_addresses(cuda_stream->id, &input_dev_buffer, &output_dev_buffer, gpu_id);
-			printf("GPU device input we got %p and device output buffer we got %p\n",input_dev_buffer,output_dev_buffer); 
+			//printf("GPU device input we got %p and device output buffer we got %p\n",input_dev_buffer,output_dev_buffer); 
 			
 			if(NULL == input_dev_buffer || NULL == output_dev_buffer) break;
 			//last_processed_index=0;
@@ -390,7 +398,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			//find which image is ready
 			int image_index = ffsll(actual_images_in_batch_bitmask);// ffs(new_images);
 			image_index -= 1;
-			printf("Image INDEX : %d ",image_index);
+			//printf("Image INDEX : %d ",image_index);
 			//printf("images ready %d index %d \n",num_of_images, image_index);
 			if(batch_agg_info->images[image_index].usage_status == 2) {
 
@@ -431,7 +439,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 				}
 				else
 				{
-					//batch_agg_info->images[image_index].usage_status = 0;
+				  //batch_agg_info->images[image_index].usage_status = 0;
 					printf("we could not get the GPU buffer\n");
 					//break;
 
@@ -464,6 +472,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		infer_params.callback_function = callback_function;
 		infer_params.stream = &(cuda_stream->stream);
 		infer_params.model_handle = nf_info->ml_model_handle[gpu_id];
+		infer_params.gpu_id = gpu_id;
 
 		//this path is different for CNTK and Tensorrt. CNTK only takes CPU side buffer not GPU side buffer so will only
 		if(nf_info->gpu_model>5){
@@ -492,6 +501,9 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		//struct timespec begin_infer, end_infer;
 		//clock_gettime(CLOCK_MONOTONIC, &begin_infer);
 		//printf("Before infering the images \n");
+		int check_gpu;
+		cudaGetDevice(&check_gpu);
+		//printf("****----- Inferring the image in GPU %d ------ *** \n", check_gpu);
 		ml_operations->infer_batch_fptr(&infer_params,aio );
 		cudaEventRecord(cuda_stream->event,cuda_stream->stream);
 

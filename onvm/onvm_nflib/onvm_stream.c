@@ -41,6 +41,7 @@ int init_streams(uint8_t priority, int gpu_id) {
 		streams_track[gpu_id][i].status = PARALLEL_EXECUTION;
 		streams_track[gpu_id][i].id = i;
 		cudaEventCreate(&streams_track[gpu_id][i].event);
+		streams_track[gpu_id][i].gpu_id = gpu_id;
 	}
 	return 0;
 }
@@ -49,12 +50,15 @@ int init_streams(uint8_t priority, int gpu_id) {
 int check_and_release_stream(int gpu_id) {
 	//check and return null of retry give_stream();
 	int i;
+	//printf("Checking device %d for free stream\n",gpu_id);
+	cudaSetDevice(gpu_id);
 	cudaError_t cuda_ret;
 	for (i = 0; i < MAX_STREAMS; i++) {
 		if (PARALLEL_EXECUTION > streams_track[gpu_id][i].status) {
 			cuda_ret = cudaEventQuery(streams_track[gpu_id][i].event);
 			if (cuda_ret == cudaSuccess) {
 				//we can run callback here.
+			  //printf("Calling gpu callback on GPU: %d\n",gpu_id);
 				gpu_image_callback_function(&streams_track[gpu_id][i].callback_info);
 			} else {
 				//	printf("CUDA error at give_stream_v2 error: %d \n",cuda_ret);
@@ -68,18 +72,30 @@ int check_and_release_stream(int gpu_id) {
 stream_tracker *give_stream_v2(void) {
 	//check all GPUs. Give one that is free
 	int i = 0;
+	//int j = 0;
 	stream_tracker *st = NULL;
 	for(i = 0;i<NUM_GPUS;i++){
+		check_and_release_stream(i);
 		st = give_stream(i);
-		if (!st) {
-			check_and_release_stream(i);
-			st = give_stream(i);
-		}
-		else{
-			st->gpu_id = i;
-			break;
-		}
+		if (st) {
+		    //printf("Stream available for GPU %d \n",i);
+		    return st;
+		  }
+
 	}
+	/*
+	for (j = 0; j < NUM_GPUS;j++){
+	  check_and_release_stream(j);
+	}
+	int k = 0;
+	for ( k = 0; k<NUM_GPUS;k++){
+	    st = give_stream(k);
+	    if(st){
+	      //printf("Stream available in GPU %d --\n",k);
+	      break;
+	    }
+	}
+	*/
 	return st;
 }
 int allowed_streams = MAX_STREAMS;
@@ -88,13 +104,13 @@ stream_tracker *give_stream(int gpu_id) {
 	int i;
 	int max = 0;
 	int index;
-	static long rr_counter = 0;
+	static long rr_counter[NUM_GPUS];
 	if (PARALLEL_EXECUTION > 0) {
 	//	for (i = 0; i < MAX_STREAMS; i++) { //changed to make dynamic stream provision
 		for (i = 0; i < allowed_streams; i++) {
 			if (streams_track[gpu_id][i].status > max) {
-				max = streams_track[gpu_id][i].status;
-				index = i;
+			  max = streams_track[gpu_id][i].status;
+			  index = i;
 			}
 		}
 
@@ -117,7 +133,7 @@ stream_tracker *give_stream(int gpu_id) {
 		 
 		 } */
 	} else {
-		return &streams_track[gpu_id][(rr_counter++) % MAX_STREAMS];
+		return &streams_track[gpu_id][(rr_counter[gpu_id]++) % MAX_STREAMS];
 	}
 	return NULL;
 }
@@ -181,9 +197,9 @@ void return_stream(stream_tracker * stream) {
 	stream->status++;
 
 	//now also check for all other GPU's work progress
-	int i = 0;
-	for(i = 0; i<NUM_GPUS ;i++){
-	  check_and_release_stream(i);
-	}
+	//int i = 0;
+	//for(i = 0; i<NUM_GPUS ;i++){
+	//  check_and_release_stream(i);
+	//}
 }
 

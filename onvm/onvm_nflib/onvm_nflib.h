@@ -62,7 +62,7 @@
 #ifdef ONVM_GPU
 #include "onvm_ml_libraries.h"
 #include "onvm_gpu_buffer_factory.h"
-#define HOLD_PACKETS_TILL_CALLBACK
+//#define HOLD_PACKETS_TILL_CALLBACK
 #define NEW_LEARNING_BATCH_APPROACH
 
 //#define CLIPPER_ADAPTIVE_BATCHING
