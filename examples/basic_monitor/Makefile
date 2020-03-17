@@ -54,7 +54,7 @@ ONVM= $(SRCDIR)/../../onvm
 CFLAGS += $(WERROR_FLAGS) -O3 $(USER_FLAGS)
 
 CFLAGS += -I$(ONVM)/onvm_nflib
-CFLAGS += -I$(ONVM)/lib
+CFLAGS += -I$(ONVM)/lib -I/usr/local/cuda/include
 #CFLAGS += -I$(ONVM)/shared
 LDFLAGS += $(ONVM)/onvm_nflib/$(RTE_TARGET)/libonvm.a
 LDFLAGS += $(ONVM)/lib/$(RTE_TARGET)/lib/libonvmhelper.a -lm
