@@ -102,6 +102,7 @@ typedef struct stream_tracker {
 	uint8_t id;	  //0 - id of the stream
 	cudaEvent_t event;
 	gpu_callback callback_info; //information for callback.
+	struct timespec time_released; //timestamp of last "give_stream"
 } stream_tracker;
 
 extern struct gpu_callback gpu_callbacks[MAX_STREAMS * PARALLEL_EXECUTION];
@@ -114,6 +115,7 @@ void gpu_image_callback_function(void *data);
 int init_streams(uint8_t priority);
 
 /* this function provides an empty stream */
+stream_tracker *give_stream_v3(uint32_t observed_latency_us);
 stream_tracker *give_stream_v2(void);
 stream_tracker *give_stream(void);
 int check_and_release_stream(void);
