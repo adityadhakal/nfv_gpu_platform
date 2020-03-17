@@ -47,11 +47,12 @@ static inline struct onvm_nf_info *shadow_nf(int instance_id) {
 void init_ml_models(void) {
 	/* the directory where the model is put */
 	const char *model_dir = "/home/adhak001/openNetVM-dev/ml_models/";
+        //const char *model_dir = "/tmp/";
 
 	/* the file name of ml models */
 	const char *models[NUMBER_OF_MODELS];
-	//models[0] = "AlexNet_ImageNet_CNTK.model";
-	models[0] = "resnet50_batch64.trt";
+	models[0] = "AlexNet_ImageNet_CNTK.model";
+	//models[0] = "resnet50_batch64.trt";
 	models[1] = "ResNet50_ImageNet_CNTK.model";
 	models[2] = "VGG19_ImageNet_Caffe.model";
 	models[3] = "ResNet152_ImageNet_CNTK.model";
@@ -103,6 +104,7 @@ void init_ml_models(void) {
 	/* now after setting all that up, let's allocate one information at a time and fill that up */
 	struct rte_mempool *ml_model_mempool = rte_mempool_lookup(_GPU_MODELS_POOL_NAME);
 
+
 	/* now let's loop over mempool and get one model at a time and fill up the details as well as load it up */
 	//struct gpu_file_listing *ml_file2 = (struct gpu_file_listing *)rte_malloc(NULL,sizeof(struct gpu_file_listing)*7, 0);
 	int i;
@@ -122,8 +124,6 @@ void init_ml_models(void) {
 		strncpy(ml_file->attributes.profile_data.file_path, models_historical_dir, strlen(models_historical_dir));
 		strncat(ml_file->attributes.profile_data.file_path, models_runtime[i], strlen(models_runtime[i]));
 		/* now we can send this model to be populated with the load model function */
-
-
 
 		//if(i>6)
 		load_gpu_model(ml_file);
@@ -197,7 +197,6 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 
 		if(flag== 1)//gpu model
 		{
-
 			/* getting cuda handles */
 			cudaIpcMemHandle_t * mem_handles= (cudaIpcMemHandle_t *) rte_malloc(NULL, ((sizeof(cudaIpcMemHandle_t))*(ml_file->model_info.model_handles.number_of_parameters)),0);
 
@@ -215,6 +214,52 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 	}
 	if(ml_file->model_info.platform == tensorrt) {
 		printf("Loading tensorrt model \n");
+		ml_file->model_info.model_size = 0;
+		if(ml_file->model_info.file_index == 6){
+
+			/*special case for resnet */
+			load_model_params.load_options = 1;
+			load_model_params.ml_file_buffer = rte_malloc(NULL,124346720,512);
+			if(load_model_params.ml_file_buffer)
+				printf("Created file buffer successfully \n");
+			else
+				printf("Cannot create file buffer successfully\n");
+			load_model_params.model_buffer_size = 124346720;
+			ml_file->model_info.model_cpu_address = load_model_params.ml_file_buffer;
+			ml_file->model_info.model_size = load_model_params.model_buffer_size;
+
+			tensorrt_load_model(&load_model_params,aio);
+		}
+		if(ml_file->model_info.file_index == 9){
+
+			/*special case for resnet */
+			load_model_params.load_options = 1;
+			load_model_params.ml_file_buffer = rte_malloc(NULL,629282648,512);
+			if(load_model_params.ml_file_buffer)
+				printf("Created file buffer successfully \n");
+			else
+				printf("Cannot create file buffer successfully\n");
+			load_model_params.model_buffer_size = 629282648;
+			ml_file->model_info.model_cpu_address = load_model_params.ml_file_buffer;
+			ml_file->model_info.model_size = load_model_params.model_buffer_size;
+
+			tensorrt_load_model(&load_model_params,aio);
+	}
+if(ml_file->model_info.file_index == 7){
+
+			/*special case for resnet */
+			load_model_params.load_options = 1;
+			load_model_params.ml_file_buffer = rte_malloc(NULL,247054120,512);
+			if(load_model_params.ml_file_buffer)
+				printf("Created file buffer successfully \n");
+			else
+				printf("Cannot create file buffer successfully\n");
+			load_model_params.model_buffer_size = 247054120;
+			ml_file->model_info.model_cpu_address = load_model_params.ml_file_buffer;
+			ml_file->model_info.model_size = load_model_params.model_buffer_size;
+
+			tensorrt_load_model(&load_model_params,aio);
+	}
 	}
 	// load the csv file for data
 	load_old_profiler_data(ml_file->attributes.profile_data.file_path,ml_file->model_info.file_index);
@@ -464,7 +509,10 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 	}
 
 	//IF NF already has percentage set, then ignore the call :: Double check what should be done here.. not clear yet!
-	if((nf->gpu_percentage) /*&& (GPU_RA_IS_SET == gpu_ra_mgt.ra_status[nf->instance_id])*/) return 0;
+	if((nf->gpu_percentage) /*&& (GPU_RA_IS_SET == gpu_ra_mgt.ra_status[nf->instance_id])*/) {
+		onvm_gpu_set_gpu_percentage(nf,nf->gpu_percentage);
+		return 0;
+	}
 
 	//IF NF is marked for readjustment or is marked to relinquish its GPU resource then ignore.
 	if(GPU_RA_NEEDS_READJUSTMENT == gpu_ra_mgt.ra_status[nf->instance_id] || GPU_RA_NEED_TO_RELINQUISH == gpu_ra_mgt.ra_status[nf->instance_id]) return 0;
@@ -542,7 +590,7 @@ inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 }
 
 
-#define READJUSTMENT_DUE_TO_RATE
+//#define READJUSTMENT_DUE_TO_RATE
 /* this function will be called peridically by a thread to re-allocate the GPU percentage for NFs */
 int onvm_gpu_check_gpu_ra_mgt(void) {
 	uint8_t act_nfs;

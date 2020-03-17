@@ -969,6 +969,8 @@ typedef struct ml_model_info {
 	int file_index; //just plain indexing 0-NUMBER_OF_MODELS
 	char model_file_path[150]; //path to the model's file
 	model_gpu_handles model_handles; //cuda handles and other GPU concerning thing 
+	void * model_cpu_address;//address of model in CPU side shared memory
+	size_t model_size; //model size in bytes
 } ml_model_info;
 
 /* struct that defines the model attribute we know from previous off-line execution */

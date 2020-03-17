@@ -8,8 +8,8 @@
 #include "onvm_stream.h"
 #include "histogram.h"
 
-//#define ENABLE_GPU_NETML
-#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
+#define ENABLE_GPU_NETML
+//#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 
 #define MAX_CHUNKS_PER_IMAGE 2352
@@ -62,8 +62,10 @@ typedef struct image_aggregation_info_t {
 /* the struct that NF really accesses */
 typedef struct image_batched_aggregation_info_t {
 	uint64_t ready_mask;
-	//uint32_t temp_mask;
 	image_aggregation_info_t images[MAX_IMAGES_BATCH_SIZE];
+	//additional info for counting number of images
+	struct timespec first_execution;
+	uint32_t num_of_requests_inferred;
 } image_batched_aggregation_info_t;
 
 inline int get_recent_ts(struct timespec smaller, struct timespec bigger) {

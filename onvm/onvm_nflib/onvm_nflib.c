@@ -1687,6 +1687,8 @@ void initialize_gpu(struct onvm_nf_info *nf_info) {
 	ml_link_params.gpu_side_input_pointer = NULL;
 	ml_link_params.gpu_side_output_pointer = NULL;
 	ml_link_params.link_options = 0; //do not link the model
+	ml_link_params.ml_file_buffer = nf_info->model_info->model_cpu_address; //cpu side address of model
+	ml_link_params.model_buffer_size = nf_info->model_info->model_size; //model size in CPU
 	printf("Linking the cuda memhandles from %p \n", ml_link_params.cuda_handles_for_gpu_data);
 	printf("pointer to gpu agg buffer %p\n",nf_info->image_info);
 	int retval;
@@ -2493,6 +2495,29 @@ void gpu_image_callback_function(void *data) {
 	return_cpu_buffer(callback_data->stream_track->id);
 //#endif
 	return_stream(callback_data->stream_track);
+
+
+	// for fixed workload tests
+	uint32_t workload_images = 0;
+	if(callback_data->nf_info->gpu_model == 9)
+		    	workload_images = 5000;
+		    else
+		    	workload_images = 25000;
+	  if(callback_data->batch_aggregation->num_of_requests_inferred == 0){
+	    callback_data->batch_aggregation->first_execution = callback_data->start_time;
+
+	  }
+	  callback_data->batch_aggregation->num_of_requests_inferred += num_of_images_inferred;
+	  if(callback_data->batch_aggregation->num_of_requests_inferred >= workload_images){
+	    //if we hit 10,000 images, we should stop the NF
+	    struct timespec current_time;
+	    clock_gettime(CLOCK_MONOTONIC, &current_time);
+	    double time_taken_10k = (current_time.tv_sec-callback_data->batch_aggregation->first_execution.tv_sec)*1000.0+(current_time.tv_nsec-callback_data->batch_aggregation->first_execution.tv_nsec)/1000000.0;
+	    printf("Time taken to finish inferring %d requests is : %f ms.\n",workload_images,time_taken_10k);
+	  //time to shutdown the NF--- do not stop when you don't need to.
+	    onvm_nflib_stop( nf_info);
+	  }
+	
 }
 
 
@@ -2522,7 +2547,7 @@ static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_time
 	uint64_t timestamp_64 = timestamp.tv_sec*1000000+timestamp.tv_nsec/1000;
 
 	total_images_processed += number_of_images_since_last_computation;
-	printf("Measurement_interval(ms):,%d,%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64",%"PRIu64",%"PRIu64"\n",NF_INFERENCE_PERIOD_MS,throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64,total_images_processed,total_slo_violations);
+	printf("Measurement_interval(ms):,%d,Throughput:,%"PRIu32",gpu_latency:,%"PRIu32",cpu_latency,%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64",%"PRIu64",%"PRIu64",Images_procssed,%"PRIu32"\n",NF_INFERENCE_PERIOD_MS,throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64,total_images_processed,total_slo_violations, nf_info->image_info->num_of_requests_inferred);
 	//printf("Arrival Rate,%"PRIu32",images_seen,%"PRIu64"\n",arrival_rate,number_of_images_arrived_since_last_computation);
 	number_of_images_since_last_computation = 0;
 	number_of_images_arrived_since_last_computation = 0;
@@ -2703,7 +2728,7 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 		void * status = NULL;
 		/* create the argument list for loading the ml model */
 		ml_load_params.file_path = nf_info->model_info->model_file_path;
-		ml_load_params.load_options = 1; //For CPU side loading = 0, for gpu = 1
+		ml_load_params.load_options = 0; //For CPU side loading = 0, for gpu = 1
 
 		/* in both NF running and pause case, we might need to load the ML model from disk to CPU */
 		//ml_functions.load_model(nf_info->model_info.model_file_path, 0 /*load in CPU */, &(nf_info->ml_model_handle), &(nf_info->ml_model_handle), nf_info->model_info.model_handles.number_of_parameters);
