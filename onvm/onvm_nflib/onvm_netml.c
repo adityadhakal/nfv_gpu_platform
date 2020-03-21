@@ -263,12 +263,20 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 //	__attribute__((unused)) static onvm_interval_timer_t end_tsc = 0;
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
 
-	//stream_tracker *cuda_stream = give_stream_v2();//give_stream();
+	//if we have some new image... try to get a stream... but if we do not.. then try to have a callback
+	stream_tracker *cuda_stream = NULL;
+	if(new_images)
+		cuda_stream = give_stream_v2();//give_stream();
+	else
+		check_and_release_stream();
 
-	//try new stream tracker :)
-	stream_tracker *cuda_stream = give_stream_v3(hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_RUNNING_AVG));
+	//try new stream tracker :) NOTE: DOn't try this, it has bugs
+	//stream_tracker *cuda_stream = give_stream_v3(hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_RUNNING_AVG));
 
 	if(cuda_stream != NULL) {
+
+		//update the active stream
+		nf_info->num_active_streams++;
 
 		uint32_t i;
 
@@ -448,7 +456,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 				else
 				{
 					//batch_agg_info->images[image_index].usage_status = 0;
-					printf("we could not get the GPU buffer\n");
+					printf("We could not get the GPU buffer\n");
 					//break;
 
 					//if we fail to secure a buffer, we need to clear the image and just proceed with next one

@@ -263,7 +263,7 @@ int data_aggregation_lb(uint32_t image_id,image_batched_aggregation_info_t *imag
 			}
 
 			//Make destination NF check that it has an image pending
-			check_and_wakeup_if(dest_nf_id);
+			//check_and_wakeup_if(dest_nf_id);
 			return 1; //return if we could not put the packet in there.
 }
 

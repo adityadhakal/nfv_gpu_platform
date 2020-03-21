@@ -1124,6 +1124,7 @@ struct onvm_nf_info {
 	void * cpu_result_buffer; //the CPU side where the data is copied after processing
 	void * gpu_input_buffer; //the buffer where input for images are stored
 	void * gpu_output_buffer; //the buffer where output for images are stored
+	uint8_t num_active_streams; //a variable to know how many streams are still awaiting processing completion and callback
 
 	enum ml_platform platform; //cntk, pytorch or tensorrt
 

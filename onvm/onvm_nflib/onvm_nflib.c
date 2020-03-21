@@ -608,7 +608,14 @@ static inline int onvm_nflib_fetch_packets(void **pkts, unsigned max_packets) {
 	} else { //if(0 == max_packets){
 #ifdef INTERRUPT_SEM
 	//printf("\n Yielding till Rx Ring has Packets to process \n");
-	onvm_nf_yeild(nf_info,YIELD_DUE_TO_EMPTY_RX_RING);
+		/* previously, NF yeilded whenever there was no packets coming in.
+		 * Aditya made changes so the NF will yeild only when there are no packets and
+		 * there is no image to infer.
+		 */
+		if(!nf_info->num_active_streams){
+			//printf("#### Yeilding the IF as the active stream is 0 ####\n");
+			onvm_nf_yeild(nf_info,YIELD_DUE_TO_EMPTY_RX_RING);
+		}
 	//printf("\n Resuming from Rx Ring has Packets to process \n");
 #endif
 	}
@@ -928,7 +935,8 @@ static inline int onvm_nflib_process_packets_batch_gpu_v2(struct onvm_nf_info *n
 
 
 	data_aggregation_bulk_v2(pkts,nb_pkts, nf_info->image_info, pktsTX, &tx_batch_size,&nf_info->image_arrival_latency);
-	if(nf_info->image_info->ready_mask) {
+	//load onto GPU if the ready mask is on.. also check if some images are waiting for the callback
+	if(nf_info->image_info->ready_mask || nf_info->num_active_streams) {
 		load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, nf_info->image_info->ready_mask);
 	}
 
@@ -1086,7 +1094,8 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 		}
 		else
 		{
-			if(nf_info->image_info->ready_mask) {
+			//even if we do not have packets we might have
+			if(nf_info->image_info->ready_mask || nf_info->num_active_streams) {
 					load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, nf_info->image_info->ready_mask);
 				}
 		}
@@ -2537,8 +2546,10 @@ void gpu_image_callback_function(void *data) {
 //#endif
 	return_stream(callback_data->stream_track);
 
-
-	// for fixed workload tests
+	callback_data->batch_aggregation->num_of_requests_inferred += num_of_images_inferred;
+	/* Fixed Workload experiment
+	 *
+	 *
 	uint32_t workload_images = 0;
 	if(callback_data->nf_info->gpu_model == 9)
 		    	workload_images = 5000;
@@ -2548,7 +2559,7 @@ void gpu_image_callback_function(void *data) {
 	    callback_data->batch_aggregation->first_execution = callback_data->start_time;
 
 	  }
-	  callback_data->batch_aggregation->num_of_requests_inferred += num_of_images_inferred;
+
 	  if(callback_data->batch_aggregation->num_of_requests_inferred >= workload_images){
 	    //if we hit 10,000 images, we should stop the NF
 	    struct timespec current_time;
@@ -2558,7 +2569,11 @@ void gpu_image_callback_function(void *data) {
 	  //time to shutdown the NF--- do not stop when you don't need to.
 	    onvm_nflib_stop( nf_info);
 	  }
-	
+	*/
+	//reduce the number of active streams.
+	if(nf_info->num_active_streams>0)
+		nf_info->num_active_streams--;
+	printf("Callback... number of images inferred %d, number of active stream %d \n",callback_data->batch_aggregation->num_of_requests_inferred, nf_info->num_active_streams);
 }
 
 
@@ -2588,7 +2603,7 @@ static void conduct_inference(__attribute__((unused)) struct rte_timer *ptr_time
 	uint64_t timestamp_64 = timestamp.tv_sec*1000000+timestamp.tv_nsec/1000;
 
 	total_images_processed += number_of_images_since_last_computation;
-	printf("Measurement_interval(ms):,%d,Throughput:,%"PRIu32",gpu_latency:,%"PRIu32",cpu_latency,%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64",%"PRIu64",%"PRIu64",Images_procssed,%"PRIu32"\n",NF_INFERENCE_PERIOD_MS,throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64,total_images_processed,total_slo_violations, nf_info->image_info->num_of_requests_inferred);
+	printf("Measurement_interval(ms):,%d,Throughput:,%"PRIu32",gpu_latency:,%"PRIu32",cpu_latency,%"PRIu32",%"PRIu32",%"PRIu32",%d,%"PRIu64",%"PRIu64",%"PRIu64",Images_procssed,%"PRIu32",active inferences,%"PRIu8"\n",NF_INFERENCE_PERIOD_MS,throughput,gpu_latency,cpu_latency, batches_computed, batches_above_slo,nf_info->ring_flag,timestamp_64,total_images_processed,total_slo_violations, nf_info->image_info->num_of_requests_inferred, nf_info->num_active_streams);
 	//printf("Arrival Rate,%"PRIu32",images_seen,%"PRIu64"\n",arrival_rate,number_of_images_arrived_since_last_computation);
 	number_of_images_since_last_computation = 0;
 	number_of_images_arrived_since_last_computation = 0;
