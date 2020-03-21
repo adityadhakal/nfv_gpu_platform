@@ -723,6 +723,53 @@ inline int onvm_nflib_post_process_packets_batch(struct onvm_nf_info *nf_info,
 	//}
 	return ret;
 }
+
+//this function returns nfs variable
+struct onvm_nf * get_nfs(void){
+	return nfs;
+}
+
+
+/* This callback function helps with load balancer NF */
+static inline int onvm_nflib_process_packets_batch_lb(struct onvm_nf_info *nf_info,
+		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
+		__attribute__ ((unused)) pkt_handler_func handler);
+
+static inline int onvm_nflib_process_packets_batch_lb(struct onvm_nf_info *nf_info,
+		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
+		__attribute__ ((unused)) pkt_handler_func handler) {
+
+	/* pass the incoming packets to the packet handler function in NF
+	 * We do not need to TX the packet as the IF will TX it. However,
+	 * if we do not find a place to keep the packet in the IF's data structure
+	 * we need to free the packet to avoid running out of mbufs
+	 */
+
+	int ret = 0;
+	//__attribute__ ((unused)) unsigned tx_batch_size = 0;
+	void *pktsTX[NF_PKT_BATCH_SIZE];
+	unsigned i = 0;
+	uint16_t tx_batch_size = 0;
+	for(i = 0; i<nb_pkts; i++){
+		ret = (*handler)((struct rte_mbuf*) pkts[i],
+					onvm_get_pkt_meta((struct rte_mbuf*) pkts[i]), nf_info);
+		/* returns 0 if it is successful otherwise returns 1 */
+		if(unlikely(ret)){
+			pktsTX[tx_batch_size++] = pkts[i];
+		}
+	}
+	if( unlikely(0 == rte_ring_enqueue_bulk(tx_ring, pktsTX, tx_batch_size, NULL)))
+		{
+			nfs[nf_info->instance_id].stats.tx_drop += tx_batch_size;
+			for (i = 0; i < tx_batch_size; i++) {
+				rte_pktmbuf_free(pktsTX[i]);
+			}
+		}
+
+	return 0;
+}
+
+/* regular callback function that sends one packet at a time to packet_handler function */
 static inline int onvm_nflib_process_packets_batch(struct onvm_nf_info *nf_info,
 		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
 		__attribute__ ((unused)) pkt_handler_func handler);
@@ -984,7 +1031,7 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 
 	//if we have no GPU % by now, we should yeild the NF at this point.
 	//manager will wake up the NF eventually and proceed from here
-	if (!nf_info->gpu_percentage) {
+	if (!nf_info->gpu_percentage && nf_info->gpu_model) {
 		printf("Stopping to receive GPU percentage\n");
 		onvm_nflib_wait_till_notification(nf_info);
 	}
@@ -1032,24 +1079,19 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 		nb_pkts = onvm_nflib_fetch_packets(pkts, NF_PKT_BATCH_SIZE);
 		if (likely(nb_pkts)) {
 			/* Give each packet to the user processing function */
-			//nb_pkts = onvm_nflib_process_packets_batch(nf_info, pkts, nb_pkts,handler);
-			//struct timespec current_time;
-			//clock_gettime(CLOCK_MONOTONIC, &current_time);
-			//long curr_time = current_time.tv_sec*1000000000+current_time.tv_nsec;
-			//printf("packet access at %ld \n", curr_time);
+
 			nb_pkts = (*current_packet_processing_batch)(nf_info, pkts, nb_pkts,
 					handler);
 
 		}
+		else
+		{
+			if(nf_info->image_info->ready_mask) {
+					load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, nf_info->image_info->ready_mask);
+				}
+		}
 #ifdef ONVM_GPU
 	} //if(nf_info->ring_flag == 1)
-		else
-			{
-				//struct timespec current_time;
-				//clock_gettime(CLOCK_MONOTONIC, &current_time);
-				//long curr_time = current_time.tv_sec*1000000000+current_time.tv_nsec;
-				//printf("No ring access at %ld \n", curr_time);
-			}
 #endif//onvm_gpu
 
 #ifdef ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
@@ -2349,9 +2391,8 @@ void gpu_image_callback_function(void *data) {
 				//printf("%p\n",callback_data->batch_aggregation->images[bit_position].image_packets[j]);
 				//	onvm_nflib_drop_pkt(callback_data->batch_aggregation->images[bit_position].image_packets[j]);
 			}
-			//printf("\n\n\n");
 		}
-#endif
+#endif //HOLD_PACKETS
 
 		callback_data->batch_aggregation->images[bit_position].bytes_count = 0;
 		callback_data->batch_aggregation->images[bit_position].packets_count = 0;
@@ -2716,6 +2757,11 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 		//in this case there will be no GPU loaded
 		//we have to provide different data path
 		current_packet_processing_batch = onvm_nflib_process_packets_batch;
+		printf("NF TAG IS: %s\n",nf_info->tag);
+		if(!strcmp(nf_info->tag, "ml_load_balancer")){
+			current_packet_processing_batch = onvm_nflib_process_packets_batch_lb;
+			printf("Using ML Load Balancer\n");
+		}
 		printf("NF is NOT using GPU\n");
 	}
 	else

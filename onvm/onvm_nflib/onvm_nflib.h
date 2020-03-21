@@ -59,12 +59,13 @@
 #include "onvm_common.h"
 #include "onvm_pkt_common.h"
 
+#define ONVM_GPU_LB
 #ifdef ONVM_GPU
 #include "onvm_ml_libraries.h"
 //#include "tensorrt_api.h"
 //#include "onvm_cntk_api.h"
 #include "onvm_gpu_buffer_factory.h"
-//#define HOLD_PACKETS_TILL_CALLBACK
+#define HOLD_PACKETS_TILL_CALLBACK
 #define NEW_LEARNING_BATCH_APPROACH
 //#define CLIPPER_ADAPTIVE_BATCHING
 #endif //ONVM_GPU
@@ -283,6 +284,11 @@ onvm_nflib_scale(struct onvm_nf_scale_info *scale_info);
 
 struct onvm_service_chain *
 onvm_nflib_get_default_chain(void);
+
+#ifdef ONVM_GPU_LB
+//provide nfs variable with descriptor of all NFs
+struct onvm_nf * get_nfs(void);
+#endif //ONVM_GPU_LB
 
 #ifdef ONVM_GPU
 /* a struct with function pointers that each NF will populate while 

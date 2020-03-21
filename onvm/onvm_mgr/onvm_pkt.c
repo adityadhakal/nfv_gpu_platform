@@ -71,6 +71,7 @@ static inline int get_flow_entry(struct rte_mbuf *pkt,
 	ret = onvm_flow_dir_get_key(&fk, flow_entry);
 #else  // #elif defined (USE_KEY_MODE_FOR_FLOW_ENTRY)
 	ret = onvm_flow_dir_get_pkt(pkt, flow_entry);
+	//printf("flow entry %p\n",flow_entry);
 #endif
 	return ret;
 }

@@ -64,12 +64,8 @@ LDFLAGS += -L/usr/local/cuda/lib64/stubs
 CFLAGS += -I/root/anaconda3/include/python3.7m
 LDFLAGS += -L/root/anaconda3/lib/ -rpath,/root/anaconda3/lib/ -rpath,/root/anaconda3/lib/python37/
 
-
-
 CFLAGS += -I/$(SRCDIR)/../../tensorrt_lib/
-
 CFLAGS += -I/$(SRCDIR)/../../tensorrt_lib/common
-
 LDFLAGS += $(SRCDIR)/../../tensorrt_lib/libtensorrt.so -rpath-link,/home/adhak001/dev/openNetVM_sameer/tensorrt_lib
 
 CFLAGS += -I/usr/lib64
@@ -88,10 +84,7 @@ LDFLAGS += -ldlib -lX11
 #CFLAGS += -I$(SRCDIR)/../../cntk_lib/ 
 #LDFLAGS += -L$(SRCDIR)/../../cntk_lib -L/home/adhak001/microsoft/cntk/build/release/lib -rpath-link,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath-link,/home/adhak001/microsoft/cntk/build/release/lib/ -rpath,/home/adhak001/dev/openNetVM_sameer/cntk_lib -rpath,/home/adhak001/microsoft/cntk/build/release/lib
 LDLIBS += -lnvinfer -lcudart_static -lrt -ldl -lpthread -lstdc++ -lm -lcudart
-
 LDFLAGS += -lpython3.7m
-
-
 
 LDFLAGS += $(RTE_SDK)/$(RTE_TARGET)/lib/librte_timer.a
 CFLAGS += $(WERROR_FLAGS) -O3 -g -fPIC $(USER_FLAGS)

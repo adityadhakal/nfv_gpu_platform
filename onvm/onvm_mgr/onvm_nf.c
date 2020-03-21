@@ -906,10 +906,12 @@ int onvm_nf_start(struct onvm_nf_info *nf_info) {
 
 		if(nf_info->gpu_model && nf_info->gpu_percentage==0)
 		{
+			//If the NF needs GPU, then proceed with waiting for signal from manager
 			printf("Halting the NF ---- until signal from manager \n");
 			//this NF did not get GPU percentage, so we will just put it in suspended state..
 			gpu_state_and_percentage_check(nf_info);
 		}
+
 
 	}
 	else

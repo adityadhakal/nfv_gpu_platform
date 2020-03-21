@@ -502,6 +502,10 @@ inline int onvm_gpu_release_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 inline int onvm_gpu_get_gpu_percentage_for_nf(struct onvm_nf_info *nf) {
 	if(!nf) return (0);
 
+	//if the NF does not need GPU. We need to let it progress
+	if(nf->gpu_model == 0)
+		return 0;
+
 	//check for valid gpu model
 	if( (0>= nf->gpu_model) || (ONVM_MAX_GPU_ML_MODELS <= nf->gpu_model)){
 		check_and_wakeup_nf(nf->instance_id);
