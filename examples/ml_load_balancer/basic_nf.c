@@ -35,6 +35,7 @@
 #include <rte_mbuf.h>
 #include <rte_ip.h>
 #include <rte_atomic.h>
+#include <rte_memzone.h>
 
 #include "onvm_nflib.h"
 #include "onvm_pkt_helper.h"
@@ -370,8 +371,47 @@ void initialize_if_mempools(void){
 	for(i = 0; i< MAX_IMAGES_BATCH_SIZE ;i++){
 		image_to_instance_mapping[i] = 2;
 	}
+
+	const struct rte_memzone * services_memzone, *service_count_memzone;
+	void *svr_addr;
+
+	//attach to the services list from manager
+	const char * services_info_mempool_name = "MProc_services_info";
+	//open the mempool and extract 2 dimensional array.
+	services_memzone = rte_memzone_lookup(services_info_mempool_name);
+
+	svr_addr = services_memzone->addr;
+
+	services = (uint16_t **) svr_addr;
+
+	const char *services_count_address = "MProc_nf_per_service_info";
+	service_count_memzone = rte_memzone_lookup(services_count_address);
+	services_count = (uint16_t*)service_count_memzone->addr;
 }
 
+int preffered_service = 3;
+
+/* discover new services */
+int discover_services(uint16_t** service_list, uint16_t* services_count);
+int discover_services(uint16_t** service_list, uint16_t* services_count){
+	int number_of_services_registered = services_count[preffered_service];
+	uint8_t i = 0;
+	printf("Number of Services: %d\n",number_of_services_registered);
+	//now check which services are registered to our preferred service
+	for(i=0; i<number_of_services_registered; i++){
+		registered_services[i] = service_list[preffered_service][i];
+	}
+	return 0;
+}
+
+//Special message handling function for loadbalancer
+int check_load_balancing_messages(__attribute__((unused)) struct onvm_nf_msg *message_from_manager);
+int check_load_balancing_messages(__attribute__((unused)) struct onvm_nf_msg *message_from_manager){
+
+	//check and update the services
+	discover_services(services, services_count);
+	return 0;
+}
 
 /* main function */
 int main(int argc, char *argv[]) {
@@ -390,6 +430,7 @@ int main(int argc, char *argv[]) {
 
         // Load the inference function mempools and put the address in the
         nfs = get_nfs(); //get all nfs variable
+        register_gpu_msg_handling_function(check_load_balancing_messages); //registering a GPU msg handling function
         initialize_if_mempools();
 
         onvm_nflib_run(nf_info, &packet_handler);

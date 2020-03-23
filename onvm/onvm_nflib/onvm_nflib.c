@@ -1338,9 +1338,9 @@ case MSG_NF_TRIGGER_ECB:
 
 	/* Aditya's edit ONVM_GPU*/
 #ifdef ONVM_GPU
-	case MSG_GPU_MODEL_PRI:
+	case MSG_ML_LOADBALANCER:
 	if((*nf_gpu_func)(msg))
-	printf("The NF didn't process GPU_MODEL message well \n");
+	printf("The NF didn't process Load Balancer message well \n");
 	break;
 	case MSG_GPU_MODEL_SEC:
 	if((*nf_gpu_func)(msg))
