@@ -2372,6 +2372,10 @@ void gpu_image_callback_function(void *data) {
 		temp_latency = (image_ready_timestamp.tv_sec - image_start_aggr_timestamp.tv_sec)*1000000+(image_ready_timestamp.tv_nsec - image_start_aggr_timestamp.tv_nsec)/1000;
 		if(temp_latency>nw_latency) nw_latency = temp_latency;
 
+		//zero the image to buffer mapping and buffer to image mapping
+		callback_data->batch_aggregation->image_to_buffer_mapping[callback_data->batch_aggregation->buffer_to_image_mapping[bit_position]] = 0;
+		callback_data->batch_aggregation->buffer_to_image_mapping[bit_position] = 0;
+
 
 #ifdef HOLD_PACKETS_TILL_CALLBACK
 		//REVERT FOR HOLDING THE PACKETS
@@ -2536,6 +2540,7 @@ void gpu_image_callback_function(void *data) {
 			}
 #endif //NEW_LEARNING_BATCH_APPROACH
 		}
+
 	}
 	printf("\n");
 	//long timestamp = call_back_time.tv_sec*1000000+call_back_time.tv_nsec/1000;
@@ -2574,6 +2579,8 @@ void gpu_image_callback_function(void *data) {
 	if(nf_info->num_active_streams>0)
 		nf_info->num_active_streams--;
 	printf("Callback... number of images inferred %d, number of active stream %d \n",callback_data->batch_aggregation->num_of_requests_inferred, nf_info->num_active_streams);
+
+
 }
 
 

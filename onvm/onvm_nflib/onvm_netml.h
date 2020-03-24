@@ -63,9 +63,12 @@ typedef struct image_aggregation_info_t {
 typedef struct image_batched_aggregation_info_t {
 	uint64_t ready_mask;
 	image_aggregation_info_t images[MAX_IMAGES_BATCH_SIZE];
+	uint32_t queue_occupancy; //the number of request aggregating + ready + sent to inference (status 1,2 and 3)
+	uint8_t image_to_buffer_mapping[MAX_IMAGES_BATCH_SIZE]; //image_ID->buffer_index mapping (Buffer Index offset by 1 to accommodate buffer index -0) i.e. buffer 1 is really buffer 0.
+	uint8_t buffer_to_image_mapping[MAX_IMAGES_BATCH_SIZE]; //bufferID->image_ID mapping (opposite of above mapping)
 	//additional info for counting number of images
-	struct timespec first_execution;
-	uint32_t num_of_requests_inferred;
+	struct timespec first_execution; //time of first execution
+	uint32_t num_of_requests_inferred; //total number of request inferred till now
 } image_batched_aggregation_info_t;
 
 inline int get_recent_ts(struct timespec smaller, struct timespec bigger) {

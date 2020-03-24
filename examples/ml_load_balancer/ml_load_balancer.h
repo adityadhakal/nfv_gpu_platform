@@ -27,12 +27,18 @@ uint16_t * services_count;
 uint16_t registered_services[MAX_NFS];
 
 //a function that returns which IF this packet should go to: packet to IF mapping
-uint8_t pkt_to_if(uint16_t packet_id);
+uint8_t pkt_to_if(uint32_t packet_id);
 
-//where should be packet be placed
-uint8_t pkt_to_request(image_batched_aggregation_info_t *image_agg);
 
-//for already committed images
-uint8_t committed_request[MAX_IMAGES_BATCH_SIZE][MAX_NFS];
+//IF's load balancing data
+typedef struct if_stats{
+	uint8_t rate_of_request; // 1 sec / running average of latency
+	struct timespec last_posting;//the time last image was posted
+	histogram_v2_t latency_of_posting; // Running average of posting latency
+	uint8_t weight; //how many percentage of request should go to this IF
+};
+
+//for images that are already committeed to some IF
+uint8_t committed_request[MAX_IMAGES_BATCH_SIZE];
 
 #endif /* EXAMPLES_ML_LOAD_BALANCER_ML_LOAD_BALANCER_H_ */

@@ -44,6 +44,8 @@
 
 #define NF_TAG "ml_load_balancer"
 
+
+
 //#define FAKE_COMPUTE
 #define FACT_VALUE 30
 long factorial(int n);
@@ -64,6 +66,10 @@ long factorial(int n)
 struct onvm_nf_info *nf_info;
 int data_aggregation_lb(uint32_t image_id,image_batched_aggregation_info_t *image_agg,image_chunk_header_t *chunk_header, struct rte_mbuf* pkt, uint8_t dest_nf_id);
 
+//where should be packet be placed
+static inline int pkt_to_request(image_batched_aggregation_info_t *image_agg, uint32_t image_id);
+
+
 /* number of package between each print */
 static uint32_t print_delay = 1000000;
 static uint32_t destination = 0;
@@ -73,6 +79,8 @@ static uint16_t dst_flag = 0;
 void *if_data[MAX_NFS/2];
 struct onvm_nf *nfs;
 
+// the service we will be load balancing for
+int preffered_service = 3;
 /*
  * Print a usage message
  */
@@ -249,11 +257,13 @@ int data_aggregation_lb(uint32_t image_id,image_batched_aggregation_info_t *imag
 				if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)||(image->packets_count >= SIZE_OF_SENTENCE_BATCH))  //use for sentences NFs
 				  {
 					image->usage_status = 2;
-					printf("making IF %d infer the image %d.\n",dest_nf_id,image_id);
+					printf("making IF %d infer the image %d.\n",dest_nf_id,chunk_header->image_id);
 
 					SET_BIT(image_agg->ready_mask,(image_id+1));
 					clock_gettime(CLOCK_MONOTONIC, &image->last_packet_time);
 
+					committed_request[chunk_header->image_id] = 0;
+					printf("waking up the IF %"PRIu8"\n",dest_nf_id);
 					//Make destination NF check that it has an image pending
 					check_and_wakeup_if(dest_nf_id);
 #ifdef NO_IMAGE_ID
@@ -288,13 +298,26 @@ packet_handler(struct rte_mbuf* pkt, __attribute__((unused)) struct onvm_pkt_met
 	//first find which image this packet belongs to
 	payload = (void *)rte_pktmbuf_mtod_offset(pkt, void *, (sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr)));
 	chunk_header =(image_chunk_header_t *)( (char * )payload + 2);// 2bytes offset to make it 4byte aligned address.
-	image_id = (chunk_header->image_id);
+
+	//image_id = (chunk_header->image_id);
 
 	//find the mapping of image ID to NF instance
-	uint8_t nf_instance = image_to_instance_mapping[image_id];
+	uint8_t nf_instance = committed_request[chunk_header->image_id];
+
+	//if this request is not committed yet
+	if(nf_instance == 0){
+		//get which nf_instance this request has to be directed
+		nf_instance = pkt_to_if(chunk_header->image_id);
+		if(nf_instance == nf_info->instance_id)
+			return 1;
+	}
 
 	//check where this image can be placed in the data structure;
 	image_batched_aggregation_info_t *image_agg = (image_batched_aggregation_info_t *) if_data[nf_instance];
+
+	//Image ID and buffer ID are decoupled
+	image_id = pkt_to_request(image_agg,image_id);
+
 
 	//put the image in the right data structure
 	retval =  data_aggregation_lb(image_id, image_agg,chunk_header,pkt, nf_instance);
@@ -304,6 +327,50 @@ packet_handler(struct rte_mbuf* pkt, __attribute__((unused)) struct onvm_pkt_met
 	}
 	*/
 	return retval;
+
+}
+
+uint8_t pkt_to_if(uint32_t image_id){
+	// commit this image to IF
+	//let's just round robin this for now
+
+	//if we have no services, return the instance ID of loadbalancer, so the packet can be dropped
+	if(*services == 0)
+		return nf_info->instance_id;
+
+	static int counter = 0;
+	uint16_t num_services =  *services_count;
+
+	//this is where we check the each instance's stats to make decision on where to commit this image
+	committed_request[image_id] = registered_services[(counter++)% num_services];
+	return committed_request[image_id];
+
+	//check all the services and their
+}
+
+//where should be packet be placed
+static inline int pkt_to_request(image_batched_aggregation_info_t *image_agg, uint32_t image_id){
+	//if image/request already has a buffer return it
+	if(image_agg->image_to_buffer_mapping[image_id]>0)
+	{
+		return (image_agg->image_to_buffer_mapping[image_id]-1);
+	}
+	else
+	{
+		//if the image/request doesn't have a buffer commit it to one
+		int i = 0;
+		for(i = 0; i<MAX_IMAGES_BATCH_SIZE; i++){
+			if(image_agg->images[i].usage_status==0){
+				//commit the new image to that buffer ID
+				image_agg->image_to_buffer_mapping[image_id] = i+1;
+				return i;
+			}
+
+		}
+
+	}
+	//if there is no buffer left... we have a full queue
+	return -1;
 
 }
 
@@ -389,7 +456,7 @@ void initialize_if_mempools(void){
 	services_count = (uint16_t*)service_count_memzone->addr;
 }
 
-int preffered_service = 3;
+
 
 /* discover new services */
 int discover_services(uint16_t** service_list, uint16_t* services_count);
@@ -400,7 +467,10 @@ int discover_services(uint16_t** service_list, uint16_t* services_count){
 	//now check which services are registered to our preferred service
 	for(i=0; i<number_of_services_registered; i++){
 		registered_services[i] = service_list[preffered_service][i];
+		attach_to_shm(service_list[preffered_service][i]);
+		open_mutex(service_list[preffered_service][i]);
 	}
+	//
 	return 0;
 }
 
