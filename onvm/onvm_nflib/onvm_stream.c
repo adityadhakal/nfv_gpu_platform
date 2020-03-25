@@ -69,14 +69,14 @@ int check_and_release_stream(int gpu_id) {
 	return 0;
 }
 //int status_tracker[MAX_STREAMS];
-stream_tracker *give_stream_v2(void) {
+stream_tracker *give_stream_v2(struct onvm_nf_info * nf_info) {
 	//check all GPUs. Give one that is free
 	int i = 0;
 	//int j = 0;
 	stream_tracker *st = NULL;
-	for(i = 0;i<NUM_GPUS;i++){
-		check_and_release_stream(i);
-		st = give_stream(i);
+	for(i = 0;i<nf_info->num_gpus;i++){
+		check_and_release_stream(nf_info->gpu_list[i]);
+		st = give_stream(nf_info->gpu_list[i]);
 		if (st) {
 		    //printf("Stream available for GPU %d \n",i);
 		    return st;
@@ -151,7 +151,7 @@ stream_tracker *give_stream_v3(uint32_t observed_latency_us, int gpu_id){
 	if(!observed_latency_us){
 		//first initial conditions, only give 1 stream at a time until we profile latency
 		allowed_streams = 1;
-		return give_stream_v2();
+		return give_stream_v2(0);
 	}
 	else
 	{

@@ -66,6 +66,9 @@ typedef struct image_aggregation_info_t {
 typedef struct image_batched_aggregation_info_t {
 	uint64_t ready_mask;
 	image_aggregation_info_t images[MAX_IMAGES_BATCH_SIZE];
+	uint32_t queue_occupancy; //the number of request aggregating + ready + sent to inference (status 1,2 and 3)
+	uint8_t image_to_buffer_mapping[MAX_IMAGES_BATCH_SIZE]; //image_ID->buffer_index mapping (Buffer Index offset by 1 to accommodate buffer index -0) i.e. buffer 1 is really buffer 0.
+	uint8_t buffer_to_image_mapping[MAX_IMAGES_BATCH_SIZE]; //bufferID->image_ID mapping (opposite of above mapping)
 	//additional info for counting number of images
 	struct timespec first_execution;
 	uint32_t num_of_requests_inferred;
@@ -129,7 +132,7 @@ int init_streams(uint8_t priority, int gpu_id);
 
 /* this function provides an empty stream */
 stream_tracker *give_stream_v3(uint32_t observed_latency_us, int gpu_id);
-stream_tracker *give_stream_v2(void);
+stream_tracker *give_stream_v2(struct onvm_nf_info * nf_info);
 stream_tracker *give_stream(int gpu_id);
 int check_and_release_stream(int gpu_id);
 /* this function returns stream */

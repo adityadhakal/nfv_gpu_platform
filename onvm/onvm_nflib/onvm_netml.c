@@ -246,19 +246,32 @@ uint32_t data_aggregation(struct rte_mbuf *pkt, image_batched_aggregation_info_t
 int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggregation_info_t * batch_agg_info, ml_framework_operations_t *ml_operations, cudaHostFn_t callback_function, uint64_t new_images) {
 	int ret = 0;
 
-	//printf("The bitmask %"PRIu32"\n",nf_info->image_info->ready_mask);
+	//printf("The bitmask %"PRIu64"\n",nf_info->image_info->ready_mask);
 	__attribute__((unused)) static uint64_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
 //	__attribute__((unused)) static onvm_interval_timer_t start_tsc = 0;
 //	__attribute__((unused)) static onvm_interval_timer_t end_tsc = 0;
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
 
-	stream_tracker *cuda_stream = give_stream_v2();//give_stream();
+	//if we have some new image... try to get a stream... but if we do not.. then try to have a callback
+	stream_tracker *cuda_stream = NULL;
+	if(new_images)
+		cuda_stream = give_stream_v2(nf_info);//give_stream();
+	else{
+		int i = 0;
+		for(i = 0; i<nf_info->num_gpus; i++){
+			check_and_release_stream(nf_info->gpu_list[i]);
+		}
+	}
+	//try new stream tracker :) NOTE: DOn't try this, it has bugs
+	//stream_tracker *cuda_stream = give_stream_v3(hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_RUNNING_AVG));
 
 	if(cuda_stream != NULL) {
 	  	int gpu_id = cuda_stream->gpu_id;
 		//printf("Load and execute got GPU number %d \n",gpu_id);
 		cudaSetDevice(gpu_id);
 
+		//update the active stream
+		nf_info->num_active_streams++;
 
 		uint32_t i;
 
@@ -398,6 +411,8 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			//find which image is ready
 			int image_index = ffsll(actual_images_in_batch_bitmask);// ffs(new_images);
 			image_index -= 1;
+
+
 			//printf("Image INDEX : %d ",image_index);
 			//printf("images ready %d index %d \n",num_of_images, image_index);
 			if(batch_agg_info->images[image_index].usage_status == 2) {

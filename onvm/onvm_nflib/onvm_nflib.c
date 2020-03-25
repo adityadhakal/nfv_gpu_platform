@@ -160,6 +160,9 @@ static char *ml_model_file;//filename of model
 static uint16_t ml_model_number;//ml model number
 static uint16_t ml_priority;//ml priority
 
+static int num_of_usable_gpu; //the number of usable GPU
+static int list_of_usable_gpu[NUM_GPUS];//the list of usable GPU
+
 /* A wrapper to replace NF callback */
 typedef int (*process_batch_NF)(struct onvm_nf_info *nf_info,
 		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
@@ -609,7 +612,14 @@ static inline int onvm_nflib_fetch_packets(void **pkts, unsigned max_packets) {
 	} else { //if(0 == max_packets){
 #ifdef INTERRUPT_SEM
 	//printf("\n Yielding till Rx Ring has Packets to process \n");
-	onvm_nf_yeild(nf_info,YIELD_DUE_TO_EMPTY_RX_RING);
+		/* previously, NF yeilded whenever there was no packets coming in.
+		 * Aditya made changes so the NF will yeild only when there are no packets and
+		 * there is no image to infer.
+		 */
+		if(!nf_info->num_active_streams){
+			//printf("#### Yeilding the IF as the active stream is 0 ####\n");
+			onvm_nf_yeild(nf_info,YIELD_DUE_TO_EMPTY_RX_RING);
+		}
 	//printf("\n Resuming from Rx Ring has Packets to process \n");
 #endif
 	}
@@ -724,6 +734,53 @@ inline int onvm_nflib_post_process_packets_batch(struct onvm_nf_info *nf_info,
 	//}
 	return ret;
 }
+
+//this function returns nfs variable
+struct onvm_nf * get_nfs(void){
+	return nfs;
+}
+
+
+/* This callback function helps with load balancer NF */
+static inline int onvm_nflib_process_packets_batch_lb(struct onvm_nf_info *nf_info,
+		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
+		__attribute__ ((unused)) pkt_handler_func handler);
+
+static inline int onvm_nflib_process_packets_batch_lb(struct onvm_nf_info *nf_info,
+		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
+		__attribute__ ((unused)) pkt_handler_func handler) {
+
+	/* pass the incoming packets to the packet handler function in NF
+	 * We do not need to TX the packet as the IF will TX it. However,
+	 * if we do not find a place to keep the packet in the IF's data structure
+	 * we need to free the packet to avoid running out of mbufs
+	 */
+
+	int ret = 0;
+	//__attribute__ ((unused)) unsigned tx_batch_size = 0;
+	void *pktsTX[NF_PKT_BATCH_SIZE];
+	unsigned i = 0;
+	uint16_t tx_batch_size = 0;
+	for(i = 0; i<nb_pkts; i++){
+		ret = (*handler)((struct rte_mbuf*) pkts[i],
+					onvm_get_pkt_meta((struct rte_mbuf*) pkts[i]), nf_info);
+		/* returns 0 if it is successful otherwise returns 1 */
+		if(unlikely(ret)){
+			pktsTX[tx_batch_size++] = pkts[i];
+		}
+	}
+	if( unlikely(0 == rte_ring_enqueue_bulk(tx_ring, pktsTX, tx_batch_size, NULL)))
+		{
+			nfs[nf_info->instance_id].stats.tx_drop += tx_batch_size;
+			for (i = 0; i < tx_batch_size; i++) {
+				rte_pktmbuf_free(pktsTX[i]);
+			}
+		}
+
+	return 0;
+}
+
+/* regular callback function that sends one packet at a time to packet_handler function */
 static inline int onvm_nflib_process_packets_batch(struct onvm_nf_info *nf_info,
 		void **pkts, __attribute__ ((unused)) unsigned nb_pkts,
 		__attribute__ ((unused)) pkt_handler_func handler);
@@ -880,9 +937,11 @@ static inline int onvm_nflib_process_packets_batch_gpu_v2(struct onvm_nf_info *n
 	__attribute__ ((unused)) void *pktsTX[NF_PKT_BATCH_SIZE];
 	unsigned i = 0;
 
-
+	printf("Awake.....\n");
 	data_aggregation_bulk_v2(pkts,nb_pkts, nf_info->image_info, pktsTX, &tx_batch_size,&nf_info->image_arrival_latency);
-	if(nf_info->image_info->ready_mask) {
+	//load onto GPU if the ready mask is on.. also check if some images are waiting for the callback
+	if(nf_info->image_info->ready_mask || nf_info->num_active_streams) {
+		printf("More awake...\n");
 		load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, nf_info->image_info->ready_mask);
 	}
 
@@ -985,7 +1044,7 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 
 	//if we have no GPU % by now, we should yeild the NF at this point.
 	//manager will wake up the NF eventually and proceed from here
-	if (!nf_info->gpu_percentage) {
+	if (!nf_info->gpu_percentage && nf_info->gpu_model) {
 		printf("Stopping to receive GPU percentage\n");
 		onvm_nflib_wait_till_notification(nf_info);
 	}
@@ -1000,8 +1059,8 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 		//call a function to initialize GPU
 		//let's initialize it in all GPUs for now
 		int k = 0;
-		for(k = 0; k<NUM_GPUS;k++){
-			initialize_gpu(nf_info,k);
+		for(k = 0; k<nf_info->num_gpus;k++){
+			initialize_gpu(nf_info,nf_info->gpu_list[k]);
 		}
 	}
 
@@ -1033,6 +1092,7 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 		rte_timer_manage();
 		//block the access to ring unless the NF have ring flag set
 		if(nf_info->ring_flag) {
+			//printf("load data to gpu and execute: readymask %"PRIu64" and active streams :%"PRIu8"\n",nf_info->image_info->ready_mask ,nf_info->num_active_streams);
 #endif //onvm_gpu
 		nb_pkts = onvm_nflib_fetch_packets(pkts, NF_PKT_BATCH_SIZE);
 		if (likely(nb_pkts)) {
@@ -1046,15 +1106,17 @@ int onvm_nflib_run_callback(struct onvm_nf_info* nf_info,
 					handler);
 
 		}
+		else
+				{
+					//even if we do not have packets we might have
+					if(nf_info->image_info->ready_mask || nf_info->num_active_streams) {
+							load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, nf_info->image_info->ready_mask);
+						}
+				}
+		
 #ifdef ONVM_GPU
 	} //if(nf_info->ring_flag == 1)
-		else
-			{
-				//struct timespec current_time;
-				//clock_gettime(CLOCK_MONOTONIC, &current_time);
-				//long curr_time = current_time.tv_sec*1000000000+current_time.tv_nsec;
-				//printf("No ring access at %ld \n", curr_time);
-			}
+
 #endif//onvm_gpu
 
 #ifdef ENABLE_TIMER_BASED_NF_CYCLE_COMPUTATION
@@ -1292,9 +1354,9 @@ case MSG_NF_TRIGGER_ECB:
 
 	/* Aditya's edit ONVM_GPU*/
 #ifdef ONVM_GPU
-	case MSG_GPU_MODEL_PRI:
+	case MSG_ML_LOADBALANCER:
 	if((*nf_gpu_func)(msg))
-	printf("The NF didn't process GPU_MODEL message well \n");
+	printf("The NF didn't process Load Balancer message well \n");
 	break;
 	case MSG_GPU_MODEL_SEC:
 	if((*nf_gpu_func)(msg))
@@ -1475,11 +1537,12 @@ static void onvm_nflib_usage(const char *progname) {
 static int onvm_nflib_parse_args(int argc, char *argv[]) {
 	const char *progname = argv[0];
 	int c;
+	char * tok;
 
 	opterr = 0;
 #ifdef ENABLE_STATIC_ID
 #ifdef ONVM_GPU
-	while((c = getopt (argc, argv, "n:r:f:m:i:")) != -1)
+	while((c = getopt (argc, argv, "n:r:f:m:i:c:")) != -1)
 #else
 	while ((c = getopt (argc, argv, "n:r:")) != -1)
 #endif //onvm_gpu
@@ -1499,6 +1562,18 @@ static int onvm_nflib_parse_args(int argc, char *argv[]) {
 		case 'm':
 		ml_model_number = (uint16_t) strtoul(optarg, NULL, 10);
 		break;
+		case 'c':
+		// the GPU list this NF has to deal with
+		tok = strtok(optarg,",");
+
+		while(tok != NULL){
+			list_of_usable_gpu[num_of_usable_gpu] = atoi(tok);
+			num_of_usable_gpu++;
+			tok = strtok(NULL,",");
+		}
+		printf("Number of Usable GPU %d\n",num_of_usable_gpu);
+		break;
+
 		case 'i':
 			if(optarg != NULL){
 				ml_priority = (uint16_t) strtoul(optarg, NULL, 10);
@@ -1587,8 +1662,8 @@ static inline void onvm_nflib_cleanup(
 		//we have to check all the GPUs
 		int ii = 0;
 		int retval = 0;
-		for(ii = 0; ii<NUM_GPUS;ii++){
-			retval += check_and_release_stream(ii);
+		for(ii = 0; ii<nf_info->num_gpus;ii++){
+			retval += check_and_release_stream(nf_info->gpu_list[ii]);
 		}
 		if(!retval)
 			break;
@@ -2404,7 +2479,7 @@ void gpu_image_callback_function(void *data) {
 			}
 			//printf("\n\n\n");
 		}
-#endif
+#endif //HOLD_PACKETS
 
 		callback_data->batch_aggregation->images[bit_position].bytes_count = 0;
 		callback_data->batch_aggregation->images[bit_position].packets_count = 0;
@@ -2562,19 +2637,35 @@ void gpu_image_callback_function(void *data) {
 		callback_data->batch_aggregation->first_execution = callback_data->start_time;
 	}
 	callback_data->batch_aggregation->num_of_requests_inferred += num_of_images_inferred;
-	if(callback_data->batch_aggregation->num_of_requests_inferred >= 10000){
-		//if we hit 10,000 images, we should stop the NF
-		struct timespec current_time;
-		clock_gettime(CLOCK_MONOTONIC, &current_time);
+		//Fixed Workload experiment
+	 
+	 
+	uint32_t workload_images = 0;
+	if(callback_data->nf_info->gpu_model == 9)
+		    	workload_images = 5000;
+		    else
+		    	workload_images = 25000;
+	  if(callback_data->batch_aggregation->num_of_requests_inferred == 0){
+	    callback_data->batch_aggregation->first_execution = callback_data->start_time;
 
-		double time_taken_10k = (current_time.tv_sec-callback_data->batch_aggregation->first_execution.tv_sec)*1000.0+(current_time.tv_nsec-callback_data->batch_aggregation->first_execution.tv_nsec)/1000000.0;
-		printf("Time taken to finish inferring 10,000 requests is : %f ms",time_taken_10k);
+	  }
 
-		//time to shutdown the NF--- do not stop when you don't need to.
-		//onvm_nflib_stop( nf_info);
-	}
+	  if(callback_data->batch_aggregation->num_of_requests_inferred >= workload_images){
+	    //if we hit 10,000 images, we should stop the NF
+	    struct timespec current_time;
+	    clock_gettime(CLOCK_MONOTONIC, &current_time);
+	    double time_taken_10k = (current_time.tv_sec-callback_data->batch_aggregation->first_execution.tv_sec)*1000.0+(current_time.tv_nsec-callback_data->batch_aggregation->first_execution.tv_nsec)/1000000.0;
+	    printf("Time taken to finish inferring %d requests is : %f ms.\n",workload_images,time_taken_10k);
+	  //time to shutdown the NF--- do not stop when you don't need to.
+	    onvm_nflib_stop( nf_info);
+	  }
 	*/
-	//printf("\n");
+	//reduce the number of active streams.
+	if(nf_info->num_active_streams>0)
+		nf_info->num_active_streams--;
+	printf("Callback... number of images inferred %d, number of active stream %d \n",num_of_images_inferred, nf_info->num_active_streams);
+
+
 }
 
 
@@ -2773,11 +2864,20 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 		//in this case there will be no GPU loaded
 		//we have to provide different data path
 		current_packet_processing_batch = onvm_nflib_process_packets_batch;
+		printf("NF TAG IS: %s\n",nf_info->tag);
+		if(!strcmp(nf_info->tag, "ml_load_balancer")){
+			current_packet_processing_batch = onvm_nflib_process_packets_batch_lb;
+			printf("Using ML Load Balancer\n");
+		}
 		printf("NF is NOT using GPU\n");
 	}
 	else
 	{
 		printf("NF is using GPU\n");
+
+		//copy the GPU attributes
+		nf_info->num_gpus = num_of_usable_gpu;
+		memcpy(nf_info->gpu_list,list_of_usable_gpu,sizeof(list_of_usable_gpu));
 		//our function to process the batch of packets
 		current_packet_processing_batch = onvm_nflib_process_packets_batch_gpu_v2;//onvm_nflib_process_packets_batch_gpu;
 
@@ -2788,18 +2888,18 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 		 */
 
 		int g = 0;
-		for(g = 0; g<NUM_GPUS; g++){
-		  printf("Intializing GPU %d\n",g);
+		for(g = 0; g<nf_info->num_gpus; g++){
+		  printf("Intializing GPU %d\n",nf_info->gpu_list[g]);
 			/* select the GPU */
-			cudaSetDevice(g);
+			cudaSetDevice(nf_info->gpu_list[g]);
 			/* create the argument list for loading the ml model */
-			ml_load_params[g].file_path = nf_info->model_info->model_file_path;
-			ml_load_params[g].load_options = 0; //For CPU side loading = 0, for gpu = 1 //for Tensorrt, 0 will reuse manager memory
+			ml_load_params[nf_info->gpu_list[g]].file_path = nf_info->model_info->model_file_path;
+			ml_load_params[nf_info->gpu_list[g]].load_options = 0; //For CPU side loading = 0, for gpu = 1 //for Tensorrt, 0 will reuse manager memory
 
 			/* in both NF running and pause case, we might need to load the ML model from disk to CPU */
 			//ml_functions.load_model(nf_info->model_info.model_file_path, 0 /*load in CPU */, &(nf_info->ml_model_handle), &(nf_info->ml_model_handle), nf_info->model_info.model_handles.number_of_parameters);
-			retval = (*(ml_operations->load_model_fptr))(&ml_load_params[g],status);
-			nf_info->ml_model_handle[g] = ml_load_params[g].model_handle;
+			retval = (*(ml_operations->load_model_fptr))(&ml_load_params[nf_info->gpu_list[g]],status);
+			nf_info->ml_model_handle[nf_info->gpu_list[g]] = ml_load_params[nf_info->gpu_list[g]].model_handle;
 			if(retval != 0)
 			printf("Error while loading the model \n");
 		}

@@ -765,6 +765,16 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 	// Register this NF running within its service
 	services[nf_info->service_id][service_count] = nf_info->instance_id;
 
+	//ML Load Balancer
+	// here the nf has been inserted into a service. <-> we should let the load balancer know that this service has been added
+	// first we should know which load balancer to send information to.
+	// Load balancers are fixed: NF 1 and NF 2 for now. All other NF's information will be sent to these NFs
+	if(nf_info->service_id > 2)
+	{
+		//send message to NF 1 (most likely a load balancer)
+		onvm_nf_send_msg(1, MSG_ML_LOADBALANCER, 0, NULL);
+	}
+
 #else //ONVM_GPU
 
 #ifdef ENABLE_NFV_RESL

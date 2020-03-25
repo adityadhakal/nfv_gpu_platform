@@ -1100,6 +1100,8 @@ struct onvm_nf_info {
 
 #ifdef ONVM_GPU
 	int gpu_model;      //GPU model number
+	int num_gpus; //number of GPU this NF have access to
+	int gpu_list[NUM_GPUS];// the list of GPU this NF will be able to access
 	uint8_t gpu_percentage; //the NF percentage
 	uint8_t gpu_priority;	// Low=0; High=1
 	uint8_t gpu_monitor_lat; // Monitor latency (when there is no knee data, set arbitrarty GPU\% and monitor latency to make changes)
@@ -1125,6 +1127,7 @@ struct onvm_nf_info {
 	void * cpu_result_buffer; //the CPU side where the data is copied after processing
 	void * gpu_input_buffer; //the buffer where input for images are stored
 	void * gpu_output_buffer; //the buffer where output for images are stored
+	uint8_t num_active_streams; //a variable to know how many streams are still awaiting processing completion and callback
 
 	enum ml_platform platform; //cntk, pytorch or tensorrt
 

@@ -53,7 +53,7 @@
 #define MSG_RUN             (MSG_RESUME)
 #define MAX_MSG_FROM_MGR    (0x0F)
 
-#define MSG_GPU_MODEL_PRI   (8|MSG_FROM_MGR) //provide GPU model pointers for Active NF ( (see onvm_nf.c)
+#define MSG_ML_LOADBALANCER   (8|MSG_FROM_MGR) //make load balancer check the new IFs
 #define MSG_GPU_MODEL_SEC   (9|MSG_FROM_MGR) //provide GPU model for secondary NF 
 #define MSG_RESTART         (10|MSG_FROM_MGR) //tell NF it is going to restart
 #define MSG_GET_GPU_READY   (11|MSG_FROM_MGR) //tell NF to get GPU model ready with this percentage
