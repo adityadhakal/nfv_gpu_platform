@@ -7,8 +7,10 @@
 typedef struct nflib_ml_fw_load_params_t {
 	const char* file_path;
 	uint32_t file_len;
-	uint32_t load_options;
+	uint32_t load_options; //Tensorrt:1 load from manager, 0 load from IF
 	void* model_handle;
+	void *ml_file_buffer; //ml_file buffer
+	size_t model_buffer_size; //ml file buffer size
 }nflib_ml_fw_load_params_t;
 
 typedef struct nflib_ml_fw_link_params_t {
@@ -20,6 +22,8 @@ typedef struct nflib_ml_fw_link_params_t {
 	void* gpu_side_output_pointer;
 	int link_options; //1- link the model, 0- do not link the models
 	int gpu_id;
+	void *ml_file_buffer; //ml_file_buffer
+	size_t model_buffer_size; //ml_model_buffer_size
 }nflib_ml_fw_link_params_t;
 
 typedef struct nflib_ml_fw_infer_params_t {

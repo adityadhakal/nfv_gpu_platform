@@ -143,7 +143,13 @@ void doInference(IExecutionContext* context, cudaStream_t stream, vector<float> 
 /* Tensorrt does nothing with load function */
 extern "C"
 int tensorrt_load_model(nflib_ml_fw_load_params_t *load_params, void *aio){
-  return 0;
+	//string buffer = readBuffer("/usr/src/tensorrt/bin/resnet50_batch64.trt");
+	if(load_params->load_options==1){
+	  string buffer = readBuffer(load_params->file_path);
+	  std::cout<<"Buffer size "<<buffer.size()<<std::endl;
+	  memcpy(load_params->ml_file_buffer,(void *)buffer.data(),buffer.size());
+	  return 0;
+	}
 }
 
 
@@ -152,20 +158,34 @@ extern "C"
 int tensorrt_link_model(nflib_ml_fw_link_params_t *link_params, void *ml)
 //int main()
 {
-  struct timespec begin,end;
+  struct timespec begin,end, load_end,deserialize_end;
   clock_gettime(CLOCK_MONOTONIC, &begin);
   
+  void *string_buffer;
+  size_t buffer_size;
+  string buffer;
   //string buffer = readBuffer("/usr/src/tensorrt/bin/resnet50_batch64.trt");
-  string buffer = readBuffer(link_params->file_path);
-  std::cout<<"Buffer size "<<buffer.size()<<std::endl;
-  engine = engines[link_params->gpu_id];
+  if(link_params->model_buffer_size>0){
+	string_buffer = link_params->ml_file_buffer;
+	buffer_size = (size_t) link_params->model_buffer_size;
+  }
+  else{
+	  buffer = readBuffer(link_params->file_path);
+	  string_buffer = (void *)buffer.data();
+	  buffer_size = buffer.size();
+  }
+  std::cout<<"Buffer size "<<buffer_size<<std::endl;
 
-  if (buffer.size())
+  clock_gettime(CLOCK_MONOTONIC, &load_end);
+  double load_time = (load_end.tv_sec-begin.tv_sec)*1000.0+(load_end.tv_nsec-begin.tv_nsec)/1000000.0;
+  std::cout<<"File Load Time: (ms) "<<load_time<<std::endl;
+
+  if (buffer_size)
     {
       // try to deserialize engine
       unique_ptr<IRuntime, Destroy<IRuntime>> runtime{createInferRuntime(gLogger)};
       runtime_ptr = runtime.get();
-      engine = runtime->deserializeCudaEngine(buffer.data(), buffer.size(), nullptr);
+      engine = runtime->deserializeCudaEngine(string_buffer, buffer_size, nullptr);
     }
   engines[link_params->gpu_id] = engine;
   
@@ -173,6 +193,10 @@ int tensorrt_link_model(nflib_ml_fw_link_params_t *link_params, void *ml)
   assert(engine->getNbBindings() == 2);
   assert(engine->bindingIsInput(0) ^ engine->bindingIsInput(1));
 
+  clock_gettime(CLOCK_MONOTONIC, &deserialize_end);
+  double deserialize_time = (deserialize_end.tv_sec-load_end.tv_sec)*1000.0+(deserialize_end.tv_nsec-load_end.tv_nsec)/1000000.0;
+  std::cout<<"Deserialize time (ms) : "<<deserialize_time<<std::endl;
+  
   /*
   vector<float> inputTensor;
   vector<float> outputTensor;

@@ -50,8 +50,8 @@ void init_ml_models(void) {
 
 	/* the file name of ml models */
 	const char *models[NUMBER_OF_MODELS];
-	//models[0] = "AlexNet_ImageNet_CNTK.model";
-	models[0] = "resnet50_batch64.trt";
+	models[0] = "AlexNet_ImageNet_CNTK.model";
+	//models[0] = "resnet50_batch64.trt";
 	models[1] = "ResNet50_ImageNet_CNTK.model";
 	models[2] = "VGG19_ImageNet_Caffe.model";
 	models[3] = "ResNet152_ImageNet_CNTK.model";
@@ -88,11 +88,11 @@ void init_ml_models(void) {
 	/* platform type */
 	ml_platform platforms[NUMBER_OF_MODELS];
 	//platforms[0] = cntk;
-	platforms[0] = tensorrt;
+	platforms[0] = cntk;
 	platforms[1] = cntk;
 	platforms[2] = cntk;
 	platforms[3] = cntk;
-	platforms[4] = tensorrt;
+	platforms[4] = cntk;
 	platforms[5] = cntk;
 	platforms[6] = tensorrt;
 	platforms[7] = tensorrt;
@@ -102,6 +102,7 @@ void init_ml_models(void) {
 	platforms[11] = tensorrt;
 	/* now after setting all that up, let's allocate one information at a time and fill that up */
 	struct rte_mempool *ml_model_mempool = rte_mempool_lookup(_GPU_MODELS_POOL_NAME);
+
 
 	/* now let's loop over mempool and get one model at a time and fill up the details as well as load it up */
 	//struct gpu_file_listing *ml_file2 = (struct gpu_file_listing *)rte_malloc(NULL,sizeof(struct gpu_file_listing)*7, 0);
@@ -168,16 +169,6 @@ void init_ml_models(void) {
 void load_gpu_model(struct gpu_file_listing *ml_file) {
 
 
-
-#ifdef LOAD_CNTK
-
-
-
-
-
-	int flag = 1; //all models are loaded to GPU, flag = 0 cpu only, flag = 1 gpu only
-	int num_of_parameters = 0;//the number of parameters of a GPU side function
-
 	/* create load model parameters */
 	nflib_ml_fw_load_params_t load_model_params;
 	load_model_params.file_path = ml_file->model_info.model_file_path;
@@ -185,11 +176,15 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 
 	void *aio = NULL;
 
-	/* load the ml model onto GPU */
+	
+#ifdef LOAD_CNTK
+
+	int flag = 1; //all models are loaded to GPU, flag = 0 cpu only, flag = 1 gpu only
+	int num_of_parameters = 0;//the number of parameters of a GPU side function
+
+/* load the ml model onto GPU */
 	struct timespec begin,end;
 	clock_gettime(CLOCK_MONOTONIC, &begin);
-
-
 	//let's not load the model
 	if(ml_file->model_info.platform == cntk) {
 
@@ -224,14 +219,56 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 			ml_file->model_info.model_handles.number_of_parameters = num_of_parameters;
 		}
 	}
-
+#endif //LOAD_CNTK
 	if(ml_file->model_info.platform == tensorrt) {
 		printf("Loading tensorrt model \n");
+		ml_file->model_info.model_size = 0;
+		if(ml_file->model_info.file_index == 6){
+
+			/*special case for resnet */
+			load_model_params.load_options = 1;
+			load_model_params.ml_file_buffer = rte_malloc(NULL,127523029,512);
+			if(load_model_params.ml_file_buffer)
+				printf("Created file buffer successfully \n");
+			else
+				printf("Cannot create file buffer successfully\n");
+			load_model_params.model_buffer_size = 127523029;
+			ml_file->model_info.model_cpu_address = load_model_params.ml_file_buffer;
+			ml_file->model_info.model_size = load_model_params.model_buffer_size;
+
+			tensorrt_load_model(&load_model_params,aio);
+		}
+		if(ml_file->model_info.file_index == 9){
+
+			/*special case for resnet */
+			load_model_params.load_options = 1;
+			load_model_params.ml_file_buffer = rte_malloc(NULL,629282648,512);
+			if(load_model_params.ml_file_buffer)
+				printf("Created file buffer successfully \n");
+			else
+				printf("Cannot create file buffer successfully\n");
+			load_model_params.model_buffer_size = 629282648;
+			ml_file->model_info.model_cpu_address = load_model_params.ml_file_buffer;
+			ml_file->model_info.model_size = load_model_params.model_buffer_size;
+
+			tensorrt_load_model(&load_model_params,aio);
 	}
+if(ml_file->model_info.file_index == 7){
 
-#endif //LOAD_CNTK
+			/*special case for resnet */
+			load_model_params.load_options = 1;
+			load_model_params.ml_file_buffer = rte_malloc(NULL,243933404,512);
+			if(load_model_params.ml_file_buffer)
+				printf("Created file buffer successfully \n");
+			else
+				printf("Cannot create file buffer successfully\n");
+			load_model_params.model_buffer_size = 243933404;
+			ml_file->model_info.model_cpu_address = load_model_params.ml_file_buffer;
+			ml_file->model_info.model_size = load_model_params.model_buffer_size;
 
-
+			tensorrt_load_model(&load_model_params,aio);
+	}
+	}
 	// load the csv file for data
 	load_old_profiler_data(ml_file->attributes.profile_data.file_path,ml_file->model_info.file_index);
 }

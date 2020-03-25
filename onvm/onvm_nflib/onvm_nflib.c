@@ -1696,6 +1696,8 @@ void initialize_gpu(struct onvm_nf_info *nf_info, int gpu_id) {
 	ml_link_params[gpu_id].gpu_side_input_pointer = NULL;
 	ml_link_params[gpu_id].gpu_side_output_pointer = NULL;
 	ml_link_params[gpu_id].link_options = 0; //do not link the model
+	ml_link_params[gpu_id].ml_file_buffer = nf_info->model_info->model_cpu_address; //cpu side address of model
+	ml_link_params[gpu_id].model_buffer_size = nf_info->model_info->model_size; //model size in CPU
 	ml_link_params[gpu_id].gpu_id = gpu_id;
 	printf("Linking the CUDA memhandles from %p \n", ml_link_params[gpu_id].cuda_handles_for_gpu_data);
 	printf("pointer to GPU agg buffer %p\n",nf_info->image_info);
@@ -2792,7 +2794,7 @@ static inline void onvm_nflib_start_nf(struct onvm_nf_info *nf_info) {
 			cudaSetDevice(g);
 			/* create the argument list for loading the ml model */
 			ml_load_params[g].file_path = nf_info->model_info->model_file_path;
-			ml_load_params[g].load_options = 1; //For CPU side loading = 0, for gpu = 1
+			ml_load_params[g].load_options = 0; //For CPU side loading = 0, for gpu = 1 //for Tensorrt, 0 will reuse manager memory
 
 			/* in both NF running and pause case, we might need to load the ML model from disk to CPU */
 			//ml_functions.load_model(nf_info->model_info.model_file_path, 0 /*load in CPU */, &(nf_info->ml_model_handle), &(nf_info->ml_model_handle), nf_info->model_info.model_handles.number_of_parameters);
