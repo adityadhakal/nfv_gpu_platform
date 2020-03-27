@@ -2138,7 +2138,7 @@ inline void gpu_recommend_gpu_percentage(struct onvm_nf_info *nf_info, uint32_t 
 		arrival_rate = 1000000/arrival_latency;
 	}
 	//arrival_rate = 30;
-	printf("arrival_rate,%"PRIu32",",arrival_rate);
+	//printf("arrival_rate,%"PRIu32",",arrival_rate);
 	uint32_t consumption_rate = hist_extract_v2(&nf_info->throughput_histogram, VAL_TYPE_RUNNING_AVG);
 	double new_gpu_percentage;
 
@@ -2662,8 +2662,8 @@ void gpu_image_callback_function(void *data) {
 	*/
 	//reduce the number of active streams.
 	if(nf_info->num_active_streams>0)
-		nf_info->num_active_streams--;
-	printf("Callback... number of images inferred %d, number of active stream %d \n",num_of_images_inferred, nf_info->num_active_streams);
+	  nf_info->num_active_streams--;
+	//printf("Callback... number of images inferred %d, number of active stream %d \n",num_of_images_inferred, nf_info->num_active_streams);
 
 
 }

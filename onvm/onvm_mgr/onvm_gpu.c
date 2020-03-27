@@ -242,12 +242,12 @@ void load_gpu_model(struct gpu_file_listing *ml_file) {
 
 			/*special case for resnet */
 			load_model_params.load_options = 1;
-			load_model_params.ml_file_buffer = rte_malloc(NULL,629282648,512);
+			load_model_params.ml_file_buffer = rte_malloc(NULL,646066359,512);
 			if(load_model_params.ml_file_buffer)
 				printf("Created file buffer successfully \n");
 			else
 				printf("Cannot create file buffer successfully\n");
-			load_model_params.model_buffer_size = 629282648;
+			load_model_params.model_buffer_size = 646066359;
 			ml_file->model_info.model_cpu_address = load_model_params.ml_file_buffer;
 			ml_file->model_info.model_size = load_model_params.model_buffer_size;
 
