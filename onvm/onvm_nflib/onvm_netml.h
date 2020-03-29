@@ -8,7 +8,7 @@
 #include "onvm_stream.h"
 #include "histogram.h"
 
-//#define ENABLE_GPU_NETML
+#define ENABLE_GPU_NETML
 //#define NO_IMAGE_ID //enables image packets to be places without caring about which file they belong to
 
 
@@ -66,7 +66,7 @@ typedef struct image_aggregation_info_t {
 typedef struct image_batched_aggregation_info_t {
 	uint64_t ready_mask;
 	image_aggregation_info_t images[MAX_IMAGES_BATCH_SIZE];
-	uint32_t queue_occupancy; //the number of request aggregating + ready + sent to inference (status 1,2 and 3)
+	int queue_occupancy; //the number of request aggregating + ready + sent to inference (status 1,2 and 3)
 	uint8_t image_to_buffer_mapping[MAX_IMAGES_BATCH_SIZE]; //image_ID->buffer_index mapping (Buffer Index offset by 1 to accommodate buffer index -0) i.e. buffer 1 is really buffer 0.
 	uint8_t buffer_to_image_mapping[MAX_IMAGES_BATCH_SIZE]; //bufferID->image_ID mapping (opposite of above mapping)
 	//additional info for counting number of images

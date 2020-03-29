@@ -16,6 +16,8 @@
 #define NUM_OF_PKTS_PER_IMAGE 588
 
 uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_aggregation_info_t *image_agg, void** drop_pkts, unsigned *db_pkts, __attribute((unused)) histogram_v2_t *arrival_latency) {
+	if (nb_pkts==0)
+		return 1;
 	//static placeholder variable for a single image
 	void *payload;
 	image_chunk_header_t *chunk_header;
@@ -100,6 +102,7 @@ uint32_t data_aggregation_bulk_v2(void **pkts, unsigned nb_pkts, image_batched_a
 				if((image->bytes_count >= SIZE_OF_AN_IMAGE_BYTES)||(image->packets_count >= SIZE_OF_SENTENCE_BATCH))  //use for sentences NFs
 				  {
 					image->usage_status = 2;
+					image_agg->queue_occupancy++; //added one request to the query
 
 					SET_BIT(image_agg->ready_mask,(image_id+1));
 					clock_gettime(CLOCK_MONOTONIC, &image->last_packet_time);
@@ -277,6 +280,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		//arguments for inference
 		nflib_ml_fw_infer_params_t infer_params;
+		infer_params.batch_size = 0;
 
 		//arguments for callback
 		struct gpu_callback * callback_args = NULL;
@@ -301,7 +305,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		//for Freshness set (to avoid stale images comment below line
 		//if(unlikely(nf_info->fixed_batch_size))
-		last_processed_index|=new_images;
+		last_processed_index |= new_images;
 
 		uint32_t num_of_images = __builtin_popcountll(last_processed_index);//(last_processed_index)?(__builtin_popcount(last_processed_index)):(__builtin_popcount(new_images));
 		//printf("Number of images we counted %"PRIu32" last processed index %"PRIu64" new images %"PRIu64"\n",num_of_images, last_processed_index,new_images);
@@ -316,11 +320,12 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 				return 0;
 			}
 		}
-
 		/* Should Adaptive batching be learning or not? */
 		else if (ADAPTIVE_BATCHING_SELF_LEARNING == nf_info->enable_adaptive_batching) {
 			// Check and cap to max batch size that is learnt and determined to not exceed SLO for the current operating settings
-			if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
+			if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size))
+				num_of_images = nf_info->learned_max_batch_size;
+
 			//if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
 			//adaptive batching help for getting beyond 32 images
 			//if(num_of_images< nf_info->learned_max_batch_size){
@@ -331,7 +336,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		}
 
-
+		//printf("Number of images to infer: %"PRIu32" and occupancy in queue %d\n",num_of_images,batch_agg_info->queue_occupancy);
 
 #ifdef CLIPPER_ADAPTIVE_BATCHING
 		if(ADAPTIVE_BATCHING_SELF_LEARNING == nf_info->enable_adaptive_batching){
@@ -392,7 +397,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		//printf("number of images ready %d, can_be_processed=%d index of image %d \n", num_of_images, actual_images_in_batch, ffsll(new_images)-1);
 		//printf("index of image being sent %d \n",ffsll(actual_images_in_batch_bitmask));
 		//prepare execution arguments
-		callback_args->bitmask_images= actual_images_in_batch_bitmask;//actual_images_in_batch;//new_images;
+
 		callback_args->batch_aggregation = batch_agg_info;
 		callback_args->stream_track = cuda_stream;
 		callback_args->nf_info = nf_info;
@@ -409,14 +414,12 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		//printf("Image data structure %p Image index: ", nf_info->image_info);
 		for(i = 0; i< actual_images_in_batch; i++) { //for(i = 0; i<num_of_images; i++) {
 			//find which image is ready
-			int image_index = ffsll(actual_images_in_batch_bitmask);// ffs(new_images);
+			uint64_t image_index = ffsll(actual_images_in_batch_bitmask);// ffs(new_images);
 			image_index -= 1;
-
-
-			//printf("Image INDEX : %d ",image_index);
-			//printf("images ready %d index %d \n",num_of_images, image_index);
+			//printf("images ready %"PRIu32" index %"PRIu64" usage status %"PRIu8"\n",num_of_images, image_index,batch_agg_info->images[image_index].usage_status);
 			if(batch_agg_info->images[image_index].usage_status == 2) {
 
+				//printf("Image INDEX : %"PRIu64", the image status: %d \n",image_index,batch_agg_info->images[image_index].usage_status);
 				//now get the GPU buffer for each image
 				//give_device_addresses(cuda_stream->id, &input_dev_buffer, &output_dev_buffer);
 
@@ -432,8 +435,13 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 				if(start_dev_buffer != NULL) {
 
+					//printf("setting bit for bitmask\n");
+
+					SET_BIT(callback_args->bitmask_images,(image_index+1));//this image goes to callback
+
 					//change the status
 					batch_agg_info->images[image_index].usage_status = 3;
+					infer_params.batch_size += 1; //this much is the batch size
 
 					if(nf_info->gpu_percentage) {
 
@@ -464,14 +472,20 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 					//CLEAR_BIT(last_processed_index, (image_index+1));
 
 					//return;
-					break;
+					//break;
 
 				}
+			}else
+			{
+				//if the image status was other than 2 we should remove it from the actual bitmask
+				CLEAR_BIT(actual_images_in_batch_bitmask, (image_index+1));
 			}
 		}
 
 		//timestamp for finished GPU transfer
 		clock_gettime(CLOCK_MONOTONIC, &callback_args->end_gpu_transfer);
+
+
 
 		//printf("\n");
 
@@ -480,8 +494,9 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 
 		//we have GPU available
 
-		infer_params.batch_size = actual_images_in_batch;//__builtin_popcount(callback_args->bitmask_images);
-		//printf("Batch size fed %d,\n",infer_params.batch_size);
+		//infer_params.batch_size = actual_images_in_batch;//__builtin_popcount(callback_args->bitmask_images);
+		//infer_params.batch_size = __builtin_popcountll(callback_args->bitmask_images);
+		printf("Batch size fed %d,\n",infer_params.batch_size);
 		//printf("Batch size: %d Stream ID %"PRIu8" image mask %x\n",infer_params.batch_size, cuda_stream->id, callback_args->bitmask_images);
 		infer_params.callback_data = callback_args;
 		infer_params.callback_function = callback_function;
@@ -519,9 +534,10 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		int check_gpu;
 		cudaGetDevice(&check_gpu);
 		//printf("****----- Inferring the image in GPU %d ------ *** \n", check_gpu);
+		if(infer_params.batch_size>0){
 		ml_operations->infer_batch_fptr(&infer_params,aio );
 		cudaEventRecord(cuda_stream->event,cuda_stream->stream);
-
+		}
 		//printf("After calling TRT infer\n");
 		//clock_gettime(CLOCK_MONOTONIC, &end_infer);
 

@@ -940,7 +940,7 @@ static inline int onvm_nflib_process_packets_batch_gpu_v2(struct onvm_nf_info *n
 	printf("Awake.....\n");
 	data_aggregation_bulk_v2(pkts,nb_pkts, nf_info->image_info, pktsTX, &tx_batch_size,&nf_info->image_arrival_latency);
 	//load onto GPU if the ready mask is on.. also check if some images are waiting for the callback
-	if(nf_info->image_info->ready_mask || nf_info->num_active_streams) {
+	if(nf_info->image_info->ready_mask){ //|| nf_info->num_active_streams) {
 		printf("More awake...\n");
 		load_data_to_gpu_and_execute(nf_info,nf_info->image_info, ml_operations, gpu_image_callback_function, nf_info->image_info->ready_mask);
 	}
@@ -2481,6 +2481,8 @@ void gpu_image_callback_function(void *data) {
 		}
 #endif //HOLD_PACKETS
 
+		callback_data->batch_aggregation->queue_occupancy--; //reducing the queue occupancy
+
 		callback_data->batch_aggregation->images[bit_position].bytes_count = 0;
 		callback_data->batch_aggregation->images[bit_position].packets_count = 0;
 		callback_data->batch_aggregation->images[bit_position].usage_status = 0;
@@ -2663,7 +2665,7 @@ void gpu_image_callback_function(void *data) {
 	//reduce the number of active streams.
 	if(nf_info->num_active_streams>0)
 	  nf_info->num_active_streams--;
-	//printf("Callback... number of images inferred %d, number of active stream %d \n",num_of_images_inferred, nf_info->num_active_streams);
+	printf("Callback... number of images inferred %d, number of active stream %d, queue_occupancy %d\n",num_of_images_inferred, nf_info->num_active_streams,nf_info->image_info->queue_occupancy);
 
 
 }
