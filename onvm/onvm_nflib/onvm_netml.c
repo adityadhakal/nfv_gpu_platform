@@ -472,7 +472,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 					//CLEAR_BIT(last_processed_index, (image_index+1));
 
 					//return;
-					//break;
+					break;
 
 				}
 			}else
@@ -533,7 +533,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		//printf("Before infering the images \n");
 		int check_gpu;
 		cudaGetDevice(&check_gpu);
-		//printf("****----- Inferring the image in GPU %d ------ *** \n", check_gpu);
+		printf("****----- Inferring the image in GPU %d ------ *** \n", check_gpu);
 		if(infer_params.batch_size>0){
 		ml_operations->infer_batch_fptr(&infer_params,aio );
 		cudaEventRecord(cuda_stream->event,cuda_stream->stream);

@@ -773,6 +773,7 @@ int onvm_nf_register_run(struct onvm_nf_info *nf_info) {
 	{
 		//send message to NF 1 (most likely a load balancer)
 		onvm_nf_send_msg(1, MSG_ML_LOADBALANCER, 0, NULL);
+		onvm_nf_send_msg(2, MSG_ML_LOADBALANCER, 0, NULL);
 	}
 
 #else //ONVM_GPU
