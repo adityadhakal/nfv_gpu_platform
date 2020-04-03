@@ -533,6 +533,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		//printf("Before infering the images \n");
 		int check_gpu;
 		cudaGetDevice(&check_gpu);
+		cudaSetDevice(infer_params.gpu_id);
 		printf("****----- Inferring the image in GPU %d ------ *** \n", check_gpu);
 		if(infer_params.batch_size>0){
 		ml_operations->infer_batch_fptr(&infer_params,aio );

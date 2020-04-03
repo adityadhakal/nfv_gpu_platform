@@ -11,8 +11,6 @@
 // 16 bit integer to hold info on which IF is currently subscribing to a service
 uint16_t subscribed_if;
 
-// the array for image to instance mapping.. NOTE: This might have to be moved to the image data structure
-uint8_t image_to_instance_mapping[MAX_IMAGES_BATCH_SIZE];
 
 //The Shared memory addresses for IF's mutex to operate.
 rte_atomic16_t *shm_server[MAX_NFS];
@@ -27,7 +25,7 @@ uint16_t * services_count;
 uint16_t registered_services[MAX_NFS];
 
 //a function that returns which IF this packet should go to: packet to IF mapping
-uint8_t pkt_to_if(uint32_t packet_id);
+int pkt_to_if(uint32_t packet_id);
 
 
 //IF's load balancing data
