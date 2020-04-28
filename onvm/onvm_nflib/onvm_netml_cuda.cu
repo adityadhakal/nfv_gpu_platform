@@ -7,7 +7,7 @@ extern "C"{
 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 
-#define NUM_THREADS_PER_BLOCK 32
+#define NUM_THREADS_PER_BLOCK 256
 
 
 /* Function to help with nice error message */

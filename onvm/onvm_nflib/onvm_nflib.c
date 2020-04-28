@@ -2488,8 +2488,8 @@ void gpu_image_callback_function(void *data) {
 		}
 	}
 	printf("\n");
-	//long timestamp = call_back_time.tv_sec*1000000+call_back_time.tv_nsec/1000;
-	//printf("Timestamp: %ld TotalImages: %d BatchSize: %d LearnedSize: %d CPULatency: %d GPULatency: %d SLO: %d\n",timestamp, number_of_images_since_last_computation, num_of_images_inferred, callback_data->nf_info->learned_max_batch_size, cpu_latency, gpu_latency,(callback_data->nf_info->inference_slo_ms*1000));
+	long timestamp = call_back_time.tv_sec*1000000+call_back_time.tv_nsec/1000;
+	printf("Timestamp: %ld TotalImages: %d BatchSize: %d LearnedSize: %d CPULatency: %d GPULatency: %d SLO: %d\n",timestamp, number_of_images_since_last_computation, num_of_images_inferred, callback_data->nf_info->learned_max_batch_size, cpu_latency, gpu_latency,(callback_data->nf_info->inference_slo_ms*1000));
 	return_device_buffer(callback_data->stream_track->id);
 //#ifndef ENABLE_GPU_NETML
 	return_cpu_buffer(callback_data->stream_track->id);

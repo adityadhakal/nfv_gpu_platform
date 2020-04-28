@@ -25,6 +25,21 @@ int pytorch_infer_batch(nflib_ml_fw_infer_params_t* infer_params, void *aio);
 /* the function to get back the results if needed */
 int pytorch_get_results(nflib_ml_fw_infer_params_t* infer_params, void *aio);
 
+
+/* lot of work needed to fix these modules.. 2 pytorch programs do not work the same so we rather have different functions for them */
+int pytorch_load_model_yolo(nflib_ml_fw_load_params_t *load_params, void *aio);
+
+/* the actual function to load the model into GPU */
+int pytorch_link_model_yolo(nflib_ml_fw_link_params_t *load_params, void *aio);
+
+/* the function to infer the model */
+int pytorch_infer_batch_yolo(nflib_ml_fw_infer_params_t* infer_params, void *aio);
+
+/* the function to get back the results if needed */
+int pytorch_get_results_yolo(nflib_ml_fw_infer_params_t* infer_params, void *aio);
+
+
+
 /* the deinitialization module */
 int pytorch_deinit(uint32_t options);
 

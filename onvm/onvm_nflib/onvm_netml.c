@@ -257,16 +257,16 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 	 printf("This function is called %d many times --------\n",how_many_times_called);
 	 */
 
-	//printf("The bitmask %"PRIu32"\n",nf_info->image_info->ready_mask);
+	//printf("The bitmask %"PRIu64"\n",nf_info->image_info->ready_mask);
 	__attribute__((unused)) static uint64_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
 //	__attribute__((unused)) static onvm_interval_timer_t start_tsc = 0;
 //	__attribute__((unused)) static onvm_interval_timer_t end_tsc = 0;
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
 
-	//stream_tracker *cuda_stream = give_stream_v2();//give_stream();
+	stream_tracker *cuda_stream = give_stream_v2();//give_stream();
 
 	//try new stream tracker :)
-	stream_tracker *cuda_stream = give_stream_v3(hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_RUNNING_AVG));
+	//stream_tracker *cuda_stream = give_stream_v3(hist_extract_v2(&nf_info->gpu_latency, VAL_TYPE_RUNNING_AVG));
 
 	if(cuda_stream != NULL) {
 
@@ -299,8 +299,11 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		//for Freshness set (to avoid stale images comment below line
 		//if(unlikely(nf_info->fixed_batch_size))
 		last_processed_index|=new_images;
+		//last_processed_index = new_images;
 
 		uint32_t num_of_images = __builtin_popcountll(last_processed_index);//(last_processed_index)?(__builtin_popcount(last_processed_index)):(__builtin_popcount(new_images));
+
+		num_of_images = __builtin_popcountll(new_images);
 		//printf("Number of images we counted %"PRIu32" last processed index %"PRIu64" new images %"PRIu64"\n",num_of_images, last_processed_index,new_images);
 		//num_of_images = (nf_info->fixed_batch_size)? ((num_of_images>nf_info->fixed_batch_size)?(nf_info->fixed_batch_size):(num_of_images)):(num_of_images);
 		if(unlikely(nf_info->fixed_batch_size)) {
@@ -313,11 +316,15 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 				return 0;
 			}
 		}
-
 		/* Should Adaptive batching be learning or not? */
 		else if (ADAPTIVE_BATCHING_SELF_LEARNING == nf_info->enable_adaptive_batching) {
+
 			// Check and cap to max batch size that is learnt and determined to not exceed SLO for the current operating settings
-			if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
+			if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)){
+				num_of_images = nf_info->learned_max_batch_size;
+				//printf("Number of images to be ready for inference: %"PRIu32" Learned batch size: %"PRIu8"\n",num_of_images, nf_info->learned_max_batch_size);
+			}
+
 			//if((nf_info->learned_max_batch_size) && (num_of_images > nf_info->learned_max_batch_size)) num_of_images = nf_info->learned_max_batch_size;
 			//adaptive batching help for getting beyond 32 images
 			//if(num_of_images< nf_info->learned_max_batch_size){
@@ -325,6 +332,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 			//	return 0;
 
 			//}
+
 
 		}
 
@@ -368,7 +376,10 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 		for(i=0; i< num_of_images; i++) {
 			//now get the GPU buffer for each image
 			give_device_addresses(cuda_stream->id, &input_dev_buffer, &output_dev_buffer);
-			if(NULL == input_dev_buffer || NULL == output_dev_buffer) break;
+
+			//if(NULL == input_dev_buffer || NULL == output_dev_buffer) break;
+			if(NULL==input_dev_buffer) break; //do not check for output unless requering output
+
 			//last_processed_index=0;
 			int index = ffsll(temp_bitmask);
 			CLEAR_BIT(temp_bitmask, (index));
@@ -440,7 +451,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 #endif
 
 						CLEAR_BIT(actual_images_in_batch_bitmask, (image_index+1));	//CLEAR_BIT(new_images, (image_index+1));
-						CLEAR_BIT(batch_agg_info->ready_mask, (image_index+1));
+						//CLEAR_BIT(batch_agg_info->ready_mask, (image_index+1));
 						CLEAR_BIT(last_processed_index, (image_index+1));
 					} //checking GPU percentage
 					  //printf("After posting image ready mask %"PRIu64",final_batch size %d \n", batch_agg_info->ready_mask, actual_images_in_batch);

@@ -71,8 +71,8 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 
-//#define PYTORCH_PYTHON_NF
-#define TENSORRT_NF
+#define PYTORCH_PYTHON_NF
+//#define TENSORRT_NF
 
 #define MSG_RING_NAME1 "msg_ring1"
 #define MSG_RING_SIZE 128
@@ -276,10 +276,10 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef PYTORCH_PYTHON_NF
-	ml_fw_load_model load_mdl = pytorch_load_model;
+	ml_fw_load_model load_mdl = pytorch_load_model_yolo;
 	ml_functions.load_model_fptr = load_mdl;
-	ml_functions.link_model_fptr = pytorch_link_model;
-	ml_functions.infer_batch_fptr = pytorch_infer_batch;
+	ml_functions.link_model_fptr = pytorch_link_model_yolo;
+	ml_functions.infer_batch_fptr = pytorch_infer_batch_yolo;
 
 #endif //CNTK_NF
 	nflib_register_ml_fw_operations(&ml_functions);

@@ -27,7 +27,7 @@ PyObject *pModule, *pDict,*myFileName, *mainFunc, *infer, *set_batch_size, *main
 int pytorch_link_model(__attribute__((unused)) nflib_ml_fw_link_params_t *load_params,__attribute__((unused)) void *aio)
 {
 
-           printf("Initializing PyTorch.. py is initialized %d \n", Py_IsInitialized());
+       printf("Initializing PyTorch.. py is initialized %d \n", Py_IsInitialized());
 	   char pythonhome[] = "PYTHONHOME=/root/anaconda3/";
 	   putenv(pythonhome);
 
@@ -55,7 +55,7 @@ int pytorch_link_model(__attribute__((unused)) nflib_ml_fw_link_params_t *load_p
 	 PyRun_SimpleString("sys.path.append(\".\")");
 
 	 /* load the python file */
-	 //	 myFileName = PyUnicode_FromString((const char *)"/home/adhak001/dev/DeepLearningExamples/PyTorch/Translation/GNMT/gnmt_python_c_interface");
+	 //myFileName = PyUnicode_FromString((const char *)"/home/adhak001/dev/DeepLearningExamples/PyTorch/Translation/GNMT/gnmt_python_c_interface");
 	 PyRun_SimpleString("sys.path.append(\"/home/adhak001/dev/DeepLearningExamples/PyTorch/Translation/GNMT\")");
 	 myFileName = PyUnicode_FromString((const char*)"gnmt_python_c_interface");
 	 pModule = PyImport_Import(myFileName);
@@ -151,3 +151,88 @@ int pytorch_load_model(__attribute__((unused)) nflib_ml_fw_load_params_t *load_p
 	return 0;
 }
 
+
+/* lot of work needed to fix these modules.. 2 pytorch programs do not work the same so we rather have different functions for them */
+int pytorch_load_model_yolo(__attribute__((unused)) nflib_ml_fw_load_params_t *load_params, __attribute__((unused)) void *aio){
+	//No-op for now. pytorch_link_model_yolo takes care of model loading in GPU
+	return 0;
+}
+
+/* the actual function to load the model into GPU */
+int pytorch_link_model_yolo(nflib_ml_fw_link_params_t *load_params, __attribute__((unused)) void *aio){
+	// start the GPU loading of the model
+	printf("Initializing PyTorch.. py is initialized %d \n", Py_IsInitialized());
+	char pythonhome[] = "PYTHONHOME=/root/anaconda3/";
+	putenv(pythonhome);
+
+
+	Py_SetPath(L"/home/adhak001/dev/openNetVM-sameer/examples/netml_ml_nf:/root/anaconda3/lib/python37.zip:/root/anaconda3/lib/python3.7:/root/anaconda3/lib/python3.7/lib-dynload:/root/anaconda3/lib/python3.7/site-packages:root/anaconda3/lib/python3.7/site-packages/torch:/root/anaconda3/lib/python3.7/site-packages/pretrainedmodels-0.7.4-py3.7.egg:/root/anaconda3/lib/python3.7/site-packages/munch-2.3.2-py3.7.egg:/root/anaconda3/lib/python3.7/site-packages/torchvision-0.2.1-py3.7.egg:/root/anaconda3/lib/python3.7/site-packages/onnx_cntk-1.0.0.0-py3.7.egg:/root/anaconda3/lib/python3.7/site-packages/apex-0.1-py3.7.egg:/home/adhak001/dev/clipper/clipper/clipper_admin");
+
+
+
+	/* Initialize the python environment */
+	Py_Initialize();
+
+	/* sending a command line argument... */
+	wchar_t cmdline_w[] = L"python";
+	wchar_t *cmd = &cmdline_w[0];
+	PySys_SetArgvEx(1,&cmd,0);
+
+
+	printf("Initializing PyTorch.. py is initialized %d \n", Py_IsInitialized());
+	const char * pyversion = Py_GetVersion();
+	printf("Py version %s\n", pyversion);
+
+
+	/* import libraries and set path before starting */
+	PyRun_SimpleString("import sys");
+	PyRun_SimpleString("sys.path.append(\".\")");
+
+	/* load the python file */
+	//myFileName = PyUnicode_FromString((const char *)"/home/adhak001/dev/DeepLearningExamples/PyTorch/Translation/GNMT/gnmt_python_c_interface");
+	PyRun_SimpleString("sys.path.append(\"/home/adhak001/dev/PyTorch-YOLOv3\")");
+	myFileName = PyUnicode_FromString((const char*)"gslice_yolo_api");
+	pModule = PyImport_Import(myFileName);
+
+	//If error Print
+	printf("Python Error:\n");
+	PyErr_Print();
+
+	/* load the name space of python program */
+	pDict = PyModule_GetDict(pModule);
+
+
+	/* Load all function names */
+	mainFunc = PyDict_GetItemString(pDict, (const char *)"init_model");
+	infer = PyDict_GetItemString(pDict, (const char *)"infer");
+	//set_batch_size = PyDict_GetItemString(pDict, (const char *)"set_batch_size");
+
+	/* run the main funtion */
+	main_return = PyObject_CallObject(mainFunc,NULL);
+
+	//If error Print
+		printf("Python Error after init_model called:\n");
+		PyErr_Print();
+
+	//convert the return value into an address
+	 long long gpu_buffer_address = PyLong_AsLongLong(main_return);
+
+	load_params->gpu_side_input_pointer = (void*)gpu_buffer_address;
+
+	//work done here, python is initialized and model is loaded
+	return 0;
+}
+
+
+/* the function to infer the model */
+int pytorch_infer_batch_yolo(nflib_ml_fw_infer_params_t* infer_params, __attribute__((unused)) void *aio){
+	int batch_size = infer_params->batch_size;
+	PyObject *batch_argument;
+	batch_argument = Py_BuildValue("(i)",batch_size);
+	PyObject_CallObject(infer,batch_argument);
+	//If error Print
+	//printf("Python Error after infer called:\n");
+	PyErr_Print();
+
+	return 0;
+}
