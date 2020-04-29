@@ -108,7 +108,7 @@ typedef struct gpu_callback {
 #define MAX_STREAMS 1
 #define PARALLEL_EXECUTION 1
 #define STREAMS_ENABLED 1
-#define DEFAULT_STREAM 0
+#define DEFAULT_STREAM 1
 struct gpu_callback;
 
 typedef struct stream_tracker {

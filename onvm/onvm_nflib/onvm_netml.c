@@ -250,7 +250,7 @@ int load_data_to_gpu_and_execute(struct onvm_nf_info *nf_info,image_batched_aggr
 	int ret = 0;
 
 	//printf("The bitmask %"PRIu64"\n",nf_info->image_info->ready_mask);
-	__attribute__((unused)) static uint64_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed imamges, when always overshooting.
+	__attribute__((unused)) static uint64_t last_processed_index = 0;//Note: need to use this to avoid starvation and not able to touch higher indexed images, when always overshooting.
 //	__attribute__((unused)) static onvm_interval_timer_t start_tsc = 0;
 //	__attribute__((unused)) static onvm_interval_timer_t end_tsc = 0;
 //	__attribute__((unused)) static uint64_t busy_interval_tsc = 0;
