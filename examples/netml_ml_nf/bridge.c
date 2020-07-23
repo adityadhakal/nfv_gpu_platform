@@ -71,8 +71,8 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 
-#define PYTORCH_PYTHON_NF
-//#define TENSORRT_NF
+//#define PYTORCH_PYTHON_NF
+#define TENSORRT_NF
 
 #define MSG_RING_NAME1 "msg_ring1"
 #define MSG_RING_SIZE 128
